@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+<form id="officer" action="action_page.php" name="officer">
+<table>
+<tbody>
+<tr>
+<td><label for="officer-start">Start Date: </label></td>
+<td><input id="officer-start" name="officer-start" type="date" /></td>
+</tr>
+<tr>
+<td><label for="officer-end">End Date: </label></td>
+<td><input id="officer-end" name="officer-end" type="date" /></td>
+</tr>
+<tr>
+<td><label for="memberlist-regent">Regent: </label></td>
+<td><select id="memberlist-regent" form="officer" name="regent">
+<option value="member1">Loading...</option>
+</select></td>
+</tr>
+<tr>
+<td><label for="memberlist-vice">Vice Regent: </label></td>
+<td><select id="memberlist-vice" form="officer" name="vice">
+<option value="member1">Loading...</option>
+</select></td>
+</tr>
+<tr>
+<td><label for="memberlist-scribe">Scribe: </label></td>
+<td><select id="memberlist-scribe" form="officer" name="scribe">
+<option value="member1">Loading...</option>
+</select></td>
+</tr>
+<tr>
+<td><label for="memberlist-treasurer">Treasurer: </label></td>
+<td><select id="memberlist-treasurer" form="officer" name="treasurer">
+<option value="member1">Loading...</option>
+</select></td>
+</tr>
+<tr>
+<td><label for="memberlist-corsec">Corresponding Secretary: </label></td>
+<td><select id="memberlist-corsec" form="officer" name="corsec">
+<option value="member1">Loading...</option>
+</select></td>
+</tr>
+<tr>
+<td><label for="memberlist-rush">Recruitment Chair: </label></td>
+<td><select id="memberlist-rush" form="officer" name="rush">
+<option value="member1">Loading...</option>
+</select></td>
+</tr>
+<tr>
+<td><label for="memberlist-pledge">Pledge Instructor: </label></td>
+<td><select id="memberlist-pledge" form="officer" name="pledge">
+<option value="member1">Loading...</option>
+</select></td>
+</tr>
+<tr>
+<td><label for="memberlist-service">Service Chair: </label></td>
+<td><select id="memberlist-service" form="officer" name="service">
+<option value="member1">Loading...</option>
+</select></td>
+</tr>
+<tr>
+<td><label for="memberlist-prodev">ProDev Chair: </label></td>
+<td><select id="memberlist-prodev" form="officer" name="prodev">
+<option value="member1">Loading...</option>
+</select></td>
+</tr>
+<tr>
+<td><label for="memberlist-social">Social Chair: </label></td>
+<td><select id="memberlist-social" form="officer" name="social">
+<option value="member1">Loading...</option>
+</select></td>
+</tr>
+<tr>
+<td><label for="memberlist-risk">Risk Chair: </label></td>
+<td><select id="memberlist-risk" form="officer" name="risk">
+<option value="member1">Loading...</option>
+</select></td>
+</tr>
+<tr>
+<td><label for="memberlist-fund">Fundraising Chair: </label></td>
+<td><select id="memberlist-fund" form="officer" name="fund">
+<option value="member1">Loading...</option>
+</select></td>
+</tr>
+<tr>
+<td><label for="memberlist-web">Web Chair: </label></td>
+<td><select id="memberlist-web" form="officer" name="web">
+<option value="member1">Loading...</option>
+</select></td>
+</tr>
+<tr>
+<td><label for="memberlist-project">Project Chair: </label></td>
+<td><select id="memberlist-project" form="officer" name="project">
+<option value="member1">Loading...</option>
+</select></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><input type="submit" /></td>
+</tr>
+</tbody>
+</table>
+</form>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js">
+</script>
+<script>
+    // The code in this function runs when the page is loaded.
+    $(function () {
+        google.script.run.withSuccessHandler(buildOptionList)
+            .getList('MemberNamesOnly');
+    });
+
+    function buildOptionList(members) {
+        var memberlists = [$('#memberlist-regent'), $('#memberlist-vice'), $('#memberlist-scribe'), $('#memberlist-treasurer'), $('#memberlist-corsec'),
+                           $('#memberlist-rush'), $('#memberlist-pledge'), $('#memberlist-service'), $('#memberlist-prodev'), $('#memberlist-social'),
+                           $('#memberlist-risk'), $('#memberlist-fund'), $('#memberlist-web'), $('#memberlist-project')];
+        for (var list_i = 0; list_i < memberlists.length; list_i++) {
+            var list = memberlists[list_i];
+            list.empty();
+            for (var i = 0; i < members.length; i++) {
+                var option = $('<option></option>').attr("value", members[i]).text(members[i]);
+                list.append(option);
+            }
+        }
+    }
+</script>
+  </body>
+</html>
+
+

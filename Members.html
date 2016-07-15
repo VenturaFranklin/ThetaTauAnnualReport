@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <h2>Edit Members</h2>
+    <form name="edit-members" id="edit-members">
+      <select name="events" id="eventlist" form="new-event">
+          <? for (var i = 0; i < events.length; i++) { ?>
+            <? var option = events[i] ?>
+              <option value="<?= option ?>"><?= option ?></option>
+          <? } ?>
+      </select>
+      <input type="submit" name="add" id="add-button" value="Add" />
+    </form>
+</body>
+</html>

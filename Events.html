@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <label for="EventMethods">Select an Event Task: </label>
+    <select id="EventMethods">
+      <option value="add-event">Add</option>
+      <option value="delete-event">Delete</option>
+      <option value="duplicate-event">Duplicate</option>
+      <option value="edit-event">Edit</option>
+    </select>
+    <div id="add-event" class="group" >
+    <h2>Add Event</h2>
+    <form name="add-event-form" id="add-event-form">
+      <label for="eventlist">Event Type: </label>
+      <select name="events" id="eventlist" form="add-event-form">
+          <? for (var i = 0; i < events.length; i++) { ?>
+            <? var option = events[i] ?>
+              <option value="<?= option ?>"><?= option ?></option>
+          <? } ?>
+      </select>
+      <br>
+      <label for="event-title">Event Name: </label>
+      <input type="text" name="event-title" id="event-title" />
+      <label for="event-date">Event Date: </label>
+      <input type="date" name="event-date" />
+      <br>
+      <input type="submit" name="add" id="add-button" value="Add" />
+    </form>
+    </div>
+    <div id="edit-event" class="group">
+    <h2>Edit Event</h2>
+    <form name="edit-event-form" id="edit-event-form">
+    <table>
+    <tr>
+    <td><label for="eventlist">Event Name: </label></td>
+    <td><select id="eventnames" form="edit-event-form" name="eventnames">
+    <option value="Loading">Loading...</option>
+    </select></td>
+    </tr>
+    </table>
+    </form>
+    </div>
+    <div id="delete-event" class="group">
+    <h2>Delete Event</h2>
+    </div>
+    <div id="duplicate-event" class="group">
+    <h2>Duplicate Event</h2>
+    </div>
+<?!= HtmlService.createHtmlOutputFromFile('Events_JavaScript').getContent(); ?>
+</body>
+</html>

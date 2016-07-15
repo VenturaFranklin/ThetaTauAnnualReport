@@ -1,0 +1,35 @@
+<!-- Load the jQuery and jQuery UI libraries. -->
+<script src="https://code.jquery.com/jquery-1.8.3.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.10.0/jquery-ui.min.js"></script>
+
+<!-- Custom client-side JavaScript code. -->
+<script>
+//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js
+  // When the page loads.
+$(function () {
+  $('.group').hide();
+  $('#add-event').show();
+  $('#EventMethods').change(function () {
+      $('.group').hide();
+      $('#'+$(this).val()).show();
+      if ((this).val() == "edit-event-form"){
+          Loadeventlist();
+      }
+  })
+});
+
+$(function Loadeventlist() {
+        google.script.run.withSuccessHandler(buildOptionList)
+            .getList('EventNames');
+    });
+
+function buildOptionList(events) {
+    var list = $('#eventnames');
+    list.empty();
+    for (var i = 0; i < events.length; i++) {
+        var option = $('<option></option>').attr("value", events[i]).text(events[i]);
+        list.append(option);
+    }
+}
+</script>
