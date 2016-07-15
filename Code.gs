@@ -111,7 +111,7 @@ function onEdit(e){
   var user_event_range = e.range
   var user_row = user_event_range.getRow();
   var user_col = user_event_range.getColumn();
-  user_old_value = e.oldValue
+  var user_old_value = e.oldValue
   Logger.log("Row: " + user_row + " Col: " + user_col);
   if (sheet_name == "Events"){
     Logger.log("EVENTS CHANGED");
@@ -169,12 +169,36 @@ function update_score(event_row){
   var date_ind = myEvent["Event Date"][1];
   var type_ind = myEvent["Event Type"][1];
   var max_row = sheet.getLastRow() - 1;
+  var score_range = sheet.getRange(event_row, score_ind);
+  score_range.setValue(0); // To prevent the current score from affecting max
   var date_values = sheet.getRange(2, date_ind, max_row, 1).getValues();
   var type_values = sheet.getRange(2, type_ind, max_row, 1).getValues();
   var score_values = sheet.getRange(2, score_ind, max_row, 1).getValues();
-  var score_range = sheet.getRange(event_row, score_ind);
-  score_range.setValue(score_data.score)
-  score_range.setNote(score_data.score_method_note)
+  score_range.setValue(score_data.score);
+  score_range.setNote(score_data.score_method_note);
+}
+
+function get_event_scores(){
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Events");
+  var max_column = sheet.getLastColumn();
+  var max_row = sheet.getLastRow() - 1;
+  var full_data_range = sheet.getRange(1, 1, max_row, max_column);
+  var full_data_values = full_data_range.getValues();
+  
+  var score_ind = get_ind_from_string("Score", full_data_range[0]);
+  var date_ind = get_ind_from_string("Event Date", full_data_range[0]);
+  var type_ind = get_ind_from_string("Event Type", full_data_range[0]);
+  var score_values = get_column_values(score_ind, full_data_values);
+  var date_values = get_column_values(date_ind, full_data_values);
+  var type_values = get_column_values(type_ind, full_data_values);
+}
+
+function get_column_values(col, range_values){
+	var newArray = new Array();
+	for(var i=0; i<range_values.length; i++){
+		newArray.push(range_values[i][col]);
+     }
+	return newArray;
 }
 
 function get_score(myEvent){
@@ -259,9 +283,9 @@ function get_score_method(event_type){
   var score_object = ScoringObject[event_type];
   var score_type = score_object["Score Type"][0];
   var score_method_note = score_object["How points are calculated"][0];
-  att =  score_object["Attendence Multiplier"][0];
+  var att =  score_object["Attendence Multiplier"][0];
   var att = (att != "") ? att:0;
-  add = score_object["Member Add"][0];
+  var add = score_object["Member Add"][0];
   var add = (add != "") ? add:0;
   var base =  score_object["Base Points"][0];
   var special = score_object["Special"][0];
@@ -407,9 +431,9 @@ function get_event_data(SheetName) {
   Logger.log(SheetName)
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SheetName);
   if (sheet != null) {
-    max_row = sheet.getLastRow() - 1
+    var max_row = sheet.getLastRow() - 1
     var max_row = (max_row != 0) ? max_row:1;
-    max_column = sheet.getLastColumn()
+    var max_column = sheet.getLastColumn()
     var range = sheet.getRange(2, 1, max_row, max_column);
     var header_range = sheet.getRange(1, 1, 1, max_column);
     var header_values = header_range.getValues();
@@ -435,8 +459,8 @@ function get_event_data(SheetName) {
 
 function align_event_attendance(){
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Attendance");
-  event_data = get_event_data("Events");
-  att_data = get_event_data("Attendance");
+  var event_data = get_event_data("Events");
+  var att_data = get_event_data("Attendance");
   var event_values = event_data.range.getValues();
   var att_values = att_data.range.getValues();
   var attendance_rows = att_values.length;
