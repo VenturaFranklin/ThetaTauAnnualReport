@@ -46,6 +46,8 @@ function submitSidebar() {
    var template = HtmlService
       .createTemplateFromFile('SubmitForm');
   
+  template.submissions = get_type_list('Submit');
+  
   var htmlOutput = template.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setTitle('Submit Item')
@@ -66,7 +68,7 @@ function showaddEvent() {
 function addEvent() {
   Logger.log('Called addEvent');
   var t = HtmlService.createTemplateFromFile('Events');
-  t.events = getList('EventTypes');
+  t.events = get_type_list("Events");
   return t.evaluate().setSandboxMode(HtmlService.SandboxMode.IFRAME);
 }
 
@@ -89,9 +91,20 @@ function uploadFiles(form) {
     Logger.log('fileBlob: ' + blob);
     
     var file = folder.createFile(blob);    
-    file.setDescription("Uploaded by " + form.myName);
-        
-    return "File uploaded successfully " + file.getUrl();
+//    file.setDescription("Uploaded by " + form.myName);
+    var template = HtmlService.createTemplateFromFile('SubmitFormResponse');
+    var file_url = template.fileUrl = file.getUrl();
+    var submission_date = template.date = new Date();
+    var submission_type = template.type = form.submissions;
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Submissions");
+    SpreadsheetApp.setActiveSheet(sheet);
+    var max_column = sheet.getLastColumn();
+    var max_row = sheet.getLastRow();
+    var submit_range = sheet.getRange(max_row + 1, 1, 1, max_column);
+    var file_name = template.name = file.getName();
+    submit_range.setValues([[submission_date, file_name, submission_type, 10, file_url]])
+    
+    return template.evaluate().getContent();
   } catch (error) {
     return error.toString();
   }
@@ -112,6 +125,23 @@ function cleanArray(actual, short_length) {
       newArray.push(newactual);
     }
   }
+  return newArray;
+}
+
+function get_type_list(score_type){
+//  var score_type = "Submit";
+//  var score_type = "Events";
+  var ScoringObject = main_range_object("Scoring");
+  var newArray = new Array();
+  for (var type_ind = 0;  type_ind < parseInt(ScoringObject.object_count); type_ind++){
+    var type_name = ScoringObject.object_header[type_ind];
+    var thistype = ScoringObject[type_name]["Score Type"][0];
+    if (~thistype.indexOf(score_type)){
+      newArray.push(type_name);
+    }
+  }
+  newArray.sort();
+  Logger.log(newArray);
   return newArray;
 }
 
@@ -368,9 +398,9 @@ function get_score_method(event_type){
   var score_object = ScoringObject[event_type];
   var score_type = score_object["Score Type"][0];
   var score_method_note = score_object["How points are calculated"][0];
-  att =  score_object["Attendence Multiplier"][0];
+  var att =  score_object["Attendence Multiplier"][0];
   var att = (att != "") ? att:0;
-  add = score_object["Member Add"][0];
+  var add = score_object["Member Add"][0];
   var add = (add != "") ? add:0;
   var base =  score_object["Base Points"][0];
   var special = score_object["Special"][0];
@@ -516,9 +546,9 @@ function get_event_data(SheetName) {
   Logger.log(SheetName)
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SheetName);
   if (sheet != null) {
-    max_row = sheet.getLastRow() - 1
+    var max_row = sheet.getLastRow() - 1
     var max_row = (max_row != 0) ? max_row:1;
-    max_column = sheet.getLastColumn()
+    var max_column = sheet.getLastColumn()
     var range = sheet.getRange(2, 1, max_row, max_column);
     var header_range = sheet.getRange(1, 1, 1, max_column);
     var header_values = header_range.getValues();
@@ -544,8 +574,8 @@ function get_event_data(SheetName) {
 
 function align_event_attendance(){
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Attendance");
-  event_data = get_event_data("Events");
-  att_data = get_event_data("Attendance");
+  var event_data = get_event_data("Events");
+  var att_data = get_event_data("Attendance");
   var event_values = event_data.range.getValues();
   var att_values = att_data.range.getValues();
   var attendance_rows = att_values.length;

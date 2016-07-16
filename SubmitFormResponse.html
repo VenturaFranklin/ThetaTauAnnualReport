@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <div>
+    <p>Thank you for your submission.</p>
+    File Name: <?= name ?><br/>
+    Date: <?= date ?><br/>
+    Submission Type: <?= type ?><br/>
+    <a href="<?= fileUrl ?>">File URL</a><br/>
+    </div>
+    <input type="button" value="Close"
+        onclick="google.script.host.close()" />
+    <input type="button" value="Submit Another"
+        onclick="google.script.run.submitSidebar()" />
+    
+  </body>
+</html>
