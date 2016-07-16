@@ -10,6 +10,7 @@ function onOpen(e) {
   menu.addItem('Update Members', 'getChapterMembers');
   menu.addItem('Event Functions', 'showaddEvent');
   menu.addItem('Update Officers', 'officerSidebar');
+  menu.addItem('Submit Item', 'submitSidebar');
   menu.addItem('Create Triggers', 'createTriggers');
   menu.addToUi();
 }
@@ -41,6 +42,19 @@ function officerSidebar() {
       .showSidebar(htmlOutput);
 }
 
+function submitSidebar() {
+   var template = HtmlService
+      .createTemplateFromFile('SubmitForm');
+  
+  var htmlOutput = template.evaluate()
+      .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+      .setTitle('Submit Item')
+      .setWidth(500);
+  
+  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
+      .showSidebar(htmlOutput);
+}
+
 function showaddEvent() {
   var html = addEvent()
   html.setTitle('Event Functions')
@@ -54,6 +68,33 @@ function addEvent() {
   var t = HtmlService.createTemplateFromFile('Events');
   t.events = getList('EventTypes');
   return t.evaluate().setSandboxMode(HtmlService.SandboxMode.IFRAME);
+}
+
+function uploadFiles(form) {
+  
+  try {
+//    var folder_name = "Student Files";
+    var folder = DriveApp.getFolderById('0BwvK5gYQ6D4nWVhUVlo4dUhYV0E');
+//    var folder, folders = DriveApp.getFoldersByName(folder_name);
+    
+//    if (folders.hasNext()) {
+//      folder = folders.next();
+//    } else {
+//      folder = DriveApp.createFolder(folder_name);
+//    }
+    
+    var blob = form.myFile;
+    Logger.log("fileBlob Name: " + blob.getName())
+    Logger.log("fileBlob type: " + blob.getContentType())
+    Logger.log('fileBlob: ' + blob);
+    
+    var file = folder.createFile(blob);    
+    file.setDescription("Uploaded by " + form.myName);
+        
+    return "File uploaded successfully " + file.getUrl();
+  } catch (error) {
+    return error.toString();
+  }
 }
 
 function shorten(long_string, max_len){
