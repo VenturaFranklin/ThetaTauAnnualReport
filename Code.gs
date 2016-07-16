@@ -30,7 +30,7 @@ function testEvents() {
 
 function officerSidebar() {
   var template = HtmlService
-      .createTemplateFromFile('Officers')
+      .createTemplateFromFile('Officers');
 
   var htmlOutput = template.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
@@ -115,7 +115,7 @@ function onEdit(e){
   Logger.log("Row: " + user_row + " Col: " + user_col);
   if (sheet_name == "Events"){
     Logger.log("EVENTS CHANGED");
-    update_score(user_row);
+    update_scores(user_row);
 //    show_event_sheet_alert();
 //    align_event_attendance();
   } else if (sheet_name == "Attendance"){
@@ -160,37 +160,84 @@ function update_attendance(attendance){
   pledge_range.setValue(counts["Pledge"]["PR"])
 }
 
+function update_scores(user_row){
+//  var user_row = 17;
+  var other_type_rows = update_score(user_row);
+  Logger.log(other_type_rows);
+  for (i in other_type_rows){
+    if (parseInt(other_type_rows[i])!=parseInt(user_row)){
+      update_score(other_type_rows[i]);
+    }
+  }
+}
+
 function update_score(event_row){
 //  var event_row = 4
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Events");
   var myEvent = range_object(sheet, event_row);
   var score_data = get_score(myEvent);
   var score_ind = myEvent["Score"][1];
-  var date_ind = myEvent["Event Date"][1];
-  var type_ind = myEvent["Event Type"][1];
-  var max_row = sheet.getLastRow() - 1;
+  var event_date = myEvent["Event Date"][0];
+  var event_type = myEvent["Event Type"][0];
   var score_range = sheet.getRange(event_row, score_ind);
   score_range.setValue(0); // To prevent the current score from affecting max
-  var date_values = sheet.getRange(2, date_ind, max_row, 1).getValues();
-  var type_values = sheet.getRange(2, type_ind, max_row, 1).getValues();
-  var score_values = sheet.getRange(2, score_ind, max_row, 1).getValues();
-  score_range.setValue(score_data.score);
+  Logger.log("Event Date: " + event_date + " Type:" + event_type)
+  var total_scores = get_event_scores();
+  Logger.log(total_scores)
+  var month = event_date.getMonth();
+  var semester = "FALL";
+  if (month<5){
+	var semester = "SPRING";
+	}
+  var type_score = total_scores[semester][event_type][0];
+  var other_type_rows = total_scores[semester][event_type][1];
+  Logger.log("Type Score: " + type_score);
+  var score = score_data.score;
+  var total = parseFloat(type_score) + parseFloat(score);
+  Logger.log(total)
+  if (total > parseFloat(score_data.score_max_semester)){
+    score = score_data.score_max_semester - type_score;
+    score = score > 0 ? score:0;
+  }
+  Logger.log("FINAL SCORE: " + score)
+  score_range.setValue(score);
   score_range.setNote(score_data.score_method_note);
+  return other_type_rows;
 }
 
 function get_event_scores(){
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Events");
   var max_column = sheet.getLastColumn();
-  var max_row = sheet.getLastRow() - 1;
+  var max_row = sheet.getLastRow();
   var full_data_range = sheet.getRange(1, 1, max_row, max_column);
   var full_data_values = full_data_range.getValues();
-  
-  var score_ind = get_ind_from_string("Score", full_data_range[0]);
-  var date_ind = get_ind_from_string("Event Date", full_data_range[0]);
-  var type_ind = get_ind_from_string("Event Type", full_data_range[0]);
-  var score_values = get_column_values(score_ind, full_data_values);
-  var date_values = get_column_values(date_ind, full_data_values);
-  var type_values = get_column_values(type_ind, full_data_values);
+  var score_ind = get_ind_from_string("Score", full_data_values);
+  var date_ind = get_ind_from_string("Event Date", full_data_values);
+  var type_ind = get_ind_from_string("Event Type", full_data_values);
+  var score_values = get_column_values(score_ind-1, full_data_values);
+  var date_values = get_column_values(date_ind-1, full_data_values);
+  var type_values = get_column_values(type_ind-1, full_data_values);
+  var date_types = new Array();
+  date_types["SPRING"] = {};
+  date_types["FALL"] = {};
+  for(var i = 1; i< date_values.length; i++) {
+		var date = date_values[i];
+        var month = date.getMonth();
+		var type_name = type_values[i];
+		var score = score_values[i];
+		var semester = "FALL";
+		if (month<5){
+			var semester = "SPRING";
+		}
+        var old_score = date_types[semester][type_name] ? 
+				date_types[semester][type_name][0] : 0;
+        var new_score = parseFloat(old_score) + parseFloat(score);
+        var old_rows = date_types[semester][type_name] ? 
+				date_types[semester][type_name][1] : [];
+        old_rows.push(parseInt(i) + 1);
+		date_types[semester][type_name] = [new_score, old_rows]
+	  }
+  return date_types;
 }
 
 function get_column_values(col, range_values){
@@ -209,11 +256,8 @@ function get_score(myEvent){
   var score = eval(score_method_edit);
   score = score.toFixed(1);
   score_data.score = score;
-  Logger.log("SCORE: " + score);
+  Logger.log("SCORE RAW: " + score);
   return score_data
-}
-
-function edit_score_max(score_data, event_score_object){
 }
 
 function edit_score_method(myEvent, score_method){
@@ -274,7 +318,7 @@ function edit_score_method(myEvent, score_method){
   if (~score_method.indexOf("OFFICER")){
       score_method = score_method.replace("OFFICER", 0);
           }
-  Logger.log("Score Method EDIT" + score_method)
+  Logger.log("Score Method Raw: " + score_method)
   return score_method
 }
 
@@ -283,9 +327,9 @@ function get_score_method(event_type){
   var score_object = ScoringObject[event_type];
   var score_type = score_object["Score Type"][0];
   var score_method_note = score_object["How points are calculated"][0];
-  var att =  score_object["Attendence Multiplier"][0];
+  att =  score_object["Attendence Multiplier"][0];
   var att = (att != "") ? att:0;
-  var add = score_object["Member Add"][0];
+  add = score_object["Member Add"][0];
   var add = (add != "") ? add:0;
   var base =  score_object["Base Points"][0];
   var special = score_object["Special"][0];
@@ -431,9 +475,9 @@ function get_event_data(SheetName) {
   Logger.log(SheetName)
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SheetName);
   if (sheet != null) {
-    var max_row = sheet.getLastRow() - 1
+    max_row = sheet.getLastRow() - 1
     var max_row = (max_row != 0) ? max_row:1;
-    var max_column = sheet.getLastColumn()
+    max_column = sheet.getLastColumn()
     var range = sheet.getRange(2, 1, max_row, max_column);
     var header_range = sheet.getRange(1, 1, 1, max_column);
     var header_values = header_range.getValues();
@@ -459,8 +503,8 @@ function get_event_data(SheetName) {
 
 function align_event_attendance(){
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Attendance");
-  var event_data = get_event_data("Events");
-  var att_data = get_event_data("Attendance");
+  event_data = get_event_data("Events");
+  att_data = get_event_data("Attendance");
   var event_values = event_data.range.getValues();
   var att_values = att_data.range.getValues();
   var attendance_rows = att_values.length;
