@@ -16,6 +16,14 @@
 <td><input id="officer-end" name="officer-end" type="date" /></td>
 </tr>
 <tr>
+<td><label for="TCS-start">T/CS Start Date: </label></td>
+<td><input id="officer-start" name="officer-start" type="date" /></td>
+</tr>
+<tr>
+<td><label for="TCS-end">T/CS End Date: </label></td>
+<td><input id="officer-end" name="officer-end" type="date" /></td>
+</tr>
+<tr>
 <td><label for="memberlist-regent">Regent: </label></td>
 <td><select id="memberlist-regent" form="officer" name="regent">
 <option value="member1">Loading...</option>
@@ -121,6 +129,8 @@
         for (var list_i = 0; list_i < memberlists.length; list_i++) {
             var list = memberlists[list_i];
             list.empty();
+            var option = $('<option></option>').attr("value", 'N/A').text('N/A');
+            list.append(option);
             for (var i = 0; i < members.length; i++) {
                 var option = $('<option></option>').attr("value", members[i]).text(members[i]);
                 list.append(option);

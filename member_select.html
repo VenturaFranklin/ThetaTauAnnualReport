@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+<h2></h2>
+<label for="members">Select Update Type:</label>
+<form id="members" name="members">
+<select style="width:145px;" id="update_type" name="update_type">
+<option>Degree received</option>
+<option>CoOp</option>
+<option>Study Abroad</option>
+<option>Military Deploy</option>
+<option>Transf/Withdrawn</option>
+<option>Request PreAlumn</option>
+</select>
+<br><br>
+<label for="memberlist">Select All Members:</label>
+<br>
+Ctrl or shift to select multiple
+<select id="memberlist" form="members" name="memberlist"  size="20" multiple>
+<option value="member1">Loading...</option>
+</select>
+<br>
+<input type="submit"
+       onclick="this.value='Processing...';
+                google.script.run.withSuccessHandler()
+                .member_update(this.parentNode);
+                return false;"/>
+</form>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js">
+</script>
+<script>
+    // The code in this function runs when the page is loaded.
+    $(function () {
+        google.script.run.withSuccessHandler(buildOptionList)
+            .getList('MemberNamesOnly');
+    });
+
+    function buildOptionList(members) {
+        var list = $('#memberlist');
+        list.empty();
+        for (var i = 0; i < members.length; i++) {
+            var option = $('<option></option>').attr("value", members[i]).text(members[i]);
+            list.append(option);
+        }
+    }
+</script>
+  </body>
+</html>
+
+
