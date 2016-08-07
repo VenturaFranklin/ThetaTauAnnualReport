@@ -565,7 +565,9 @@ function get_scores_org_gpa_serv(){
       Logger.log("GPA: " + gpa + " ORG: " + org + " OFFICER: " + officer);
     }
     var service_hours = MemberObject[member_name]["Service Hours"][0];
-    service_count = service_hours >= 24 ? service_count + 1:service_count;
+    var service_hours_self = MemberObject[member_name]["Self Service Hours"][0];
+    service_hours = +service_hours + service_hours_self
+    service_count = service_hours >= 16 ? service_count + 1:service_count;
     officer_count = officer_true ? officer_count + 1:officer_count;
     org_count = org_true ? org_count + 1:org_count;
   }
