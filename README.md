@@ -12,7 +12,8 @@ If you know of a better way, please let me know.
   &nbsp;&nbsp;&nbsp;&nbsp;The code in the script editor will be exactly what is on the master branch on github.<br>
   &nbsp;&nbsp;&nbsp;&nbsp;However, style changes (eg. adding a row/column to the sheet) I do not have a good way of incorporating those changes back.)
 3. Find a task to work on at Trello <br>
-  https://trello.com/b/9qYylPAC
+  https://trello.com/b/9qYylPAC<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Make sure to mark the task as IN PROGRESS
 4. Make a new branch for your work.
 5. Commit and push your work to your branch.
 6. Submit a pull request.
