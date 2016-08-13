@@ -50,12 +50,10 @@ function form_gradDialog() {
 function officerSidebar() {
   var template = HtmlService
       .createTemplateFromFile('Officers');
-
   var htmlOutput = template.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setTitle('Update Officers')
       .setWidth(500);
-
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showSidebar(htmlOutput);
 }
@@ -63,12 +61,9 @@ function officerSidebar() {
 function member_update_sidebar() {
   var template = HtmlService
       .createTemplateFromFile('member_select');
-
   var htmlOutput = template.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setTitle('Update Members');
-//      .setWidth(300);
-
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showSidebar(htmlOutput);
 }
@@ -76,14 +71,11 @@ function member_update_sidebar() {
 function submitSidebar() {
    var template = HtmlService
       .createTemplateFromFile('SubmitForm');
-  
   template.submissions = get_type_list('Submit');
-  
   var htmlOutput = template.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setTitle('Submit Item')
       .setWidth(500);
-  
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showSidebar(htmlOutput);
 }
@@ -122,24 +114,160 @@ function member_update(form) {
     Logger.log("DEGREE");
     var html = HtmlService.createTemplateFromFile('FORM_GRAD');
     html.members = members;
+//    var html = HtmlService.createTemplateFromFile('FORM_STATUS');
     var htmlOutput = html.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
-      .setWidth(800)
+      .setWidth(700)
       .setHeight(400);
     SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showModalDialog(htmlOutput, 'GRAD FORM');
-//      .showModalDialog(htmlOutput);
-    
-    
-//    var htmlOutput  = html.evaluate()
-//    .setSandboxMode(HtmlService.SandboxMode.IFRAME)
-//    .setTitle('Event Functions')
-//    .setWidth(300);
-//  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
-//      .showSidebar(htmlOutput);
-    
   }
 }
+
+function format_date(date) {
+  var raw = date.split("-");
+  return raw[1] + "/" + raw[2] + "/" + raw[0]
+}
+
+function find_member_shortname(MemberObject, member_name_raw){
+  var member_name = member_name_raw.split("...")[0]
+  for (var full_name in MemberObject){
+    if (~full_name.indexOf(member_name)){
+      return MemberObject[full_name]
+    }
+  }
+}
+
+function save_form(csvFile, form_type){
+  try {
+    var folder = DriveApp.getFolderById('0BwvK5gYQ6D4nWVhUVlo4dUhYV0E');
+    var chapterName = SpreadsheetApp
+                      .getActiveSpreadsheet()
+                      .getRangeByName("ChapterName").getValue();
+    var date = new Date();
+    var currentMonth = date.getMonth() + 1;
+    if (currentMonth < 10) { currentMonth = '0' + currentMonth; }
+    var fileName = date.getFullYear().toString()+
+                   currentMonth.toString()+
+                   date.getDate().toString()+"_"+
+                   chapterName+"_"+
+                   form_type+"_"+
+                   date.getTime().toString()+
+                   ".csv";
+    var file = folder.createFile(fileName, csvFile);
+    Logger.log("fileBlob Name: " + file.getName())
+    Logger.log('fileBlob: ' + file);
+    
+    var template = HtmlService.createTemplateFromFile('SubmitFormResponse');
+    var file_url = template.fileUrl = file.getUrl();
+    var submission_date = template.date = date;
+    var submission_type = template.type = form_type;
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Submissions");
+    SpreadsheetApp.setActiveSheet(sheet);
+    var max_column = sheet.getLastColumn();
+    var max_row = sheet.getLastRow();
+    var submit_range = sheet.getRange(max_row + 1, 1, 1, max_column);
+    var file_name = template.name = file.getName();
+    submit_range.setValues([[submission_date, file_name, submission_type, 0, file_url]])
+    return template.evaluate().getContent();
+  } catch (error) {
+    Logger.log(error);
+    return error.toString();
+  }
+}
+
+function process_oer(form) {
+//  var form = {"Scribe": "Eugene Balaguer", "Service Chair": "Kyle Wilson", 
+//              "Treasurer": "Jeremy Faber", "Fundraising Chair": "N/A", 
+//              "Risk Management Chair": "N/A", "Recruitment Chair": "Hannah Rowe", 
+//              "Website/Social Media Chair": "N/A", "Pledge/New Member Educator": "Adam Schilpero...", 
+//              "officer_end": "2016-12-31", "Corresponding Secretary": "Kyle Wilson",
+//              "TCS_start": "2016-08-01", "TCS_end": "2017-06-01",
+//              "Social/Brotherhood Chair": "N/A", "officer_start": "2016-08-01", 
+//              "Scholarship Chair": "N/A", "Vice Regent": "David Montgome...", "PD Chair": "N/A", 
+//              "Regent": "Adam Schilpero...", "Project Chair": "N/A"};
+  Logger.log(form);
+  var MemberObject = main_range_object("Membership");
+  if (form.officer_start == "" || form.officer_end == "" || 
+      form.TCS_start == "" || form.TCS_end == ""){
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+     'You must set all of the dates',
+      ui.ButtonSet.OK);
+    return false;
+  }
+  var officer_start = format_date(form.officer_start);
+  var officer_end = format_date(form.officer_end);
+  var TCS_start = format_date(form.TCS_start);
+  var TCS_end = format_date(form.TCS_end);
+  delete form.officer_start
+  delete form.officer_end
+  delete form.TCS_start
+  delete form.TCS_end
+  var header = ["Submitted by", "Date Submitted", "Chapter Name", "Office",
+            "Term Begins (M/D/YYYY)", "Term Ends (M/D/YYYY)", "*ChapRoll",
+            "First Name", "Last Name", "Mobile Phone", "Campus Email", "Other Email"];
+  var start_date = [];
+  var data = [];
+  data.push(header);
+  data.push(["test", "date", "chapter","","","","","","","","",""]);
+  for (var key in form){
+    var start = officer_start;
+    var end = officer_end
+    if (form[key] == "N/A"){
+      continue;
+    }
+    if (~key.indexOf("Treasurer") || ~key.indexOf("Corresponding")){
+      start = TCS_start;
+      end = TCS_end;
+    }
+    var member_object = find_member_shortname(MemberObject, form[key]);
+    var row = ["", "", "", key, start, end, member_object["Badge Number"][0],
+              member_object["First Name"][0], member_object["Last Name"][0],
+              member_object["Phone Number"][0], member_object["Email Address"][0], ""];
+    Logger.log(row);
+    data.push(row);
+  }
+  Logger.log(data);
+  var csvFile = create_csv(data);
+  Logger.log(csvFile);
+  return save_form(csvFile, "OER");
+}
+
+function create_csv(data){
+  try {
+    var csvFile = undefined;
+
+    // Loop through the data in the range and build a string with the CSV data
+    if (data.length > 1) {
+      var csv = "";
+      for (var row = 0; row < data.length; row++) {
+        for (var col = 0; col < data[row].length; col++) {
+          if (data[row][col].toString().indexOf(",") != -1) {
+            data[row][col] = "\"" + data[row][col] + "\"";
+          }
+        }
+
+        // Join each row's columns
+        // Add a carriage return to end of each row, except for the last one
+        if (row < data.length-1) {
+          csv += data[row].join(",") + "\r\n";
+        }
+        else {
+          csv += data[row];
+        }
+      }
+      csvFile = csv;
+    }
+    return csvFile;
+  }
+  catch(err) {
+    Logger.log(err);
+    Browser.msgBox(err);
+  }
+}
+
 
 function uploadFiles(form) {
   
@@ -371,7 +499,7 @@ function update_score_att(){
       var month = object_date.getMonth();
       var semester = "FALL";
       if (month<5){
-	    var semester = "SPRING";
+      var semester = "SPRING";
       }
       date_types[semester] = date_types[semester] ? 
         date_types[semester] + meeting_att:meeting_att;
@@ -608,8 +736,8 @@ function update_score(row, sheetName, score_data, myObject){
   var month = object_date.getMonth();
   var semester = "FALL";
   if (month<5){
-	var semester = "SPRING";
-	}
+  var semester = "SPRING";
+  }
   score_data.semester = semester;
   var type_score = total_scores[semester][object_type][0];
   var other_type_rows = total_scores[semester][object_type][1];
@@ -692,31 +820,31 @@ function get_current_scores(sheetName){
   date_types["SPRING"] = {};
   date_types["FALL"] = {};
   for(var i = 1; i< date_values.length; i++) {
-		var date = date_values[i];
+    var date = date_values[i];
         var month = date.getMonth();
-		var type_name = type_values[i];
-		var score = score_values[i];
-		var semester = "FALL";
-		if (month<5){
-			var semester = "SPRING";
-		}
+    var type_name = type_values[i];
+    var score = score_values[i];
+    var semester = "FALL";
+    if (month<5){
+      var semester = "SPRING";
+    }
         var old_score = date_types[semester][type_name] ? 
-				date_types[semester][type_name][0] : 0;
+        date_types[semester][type_name][0] : 0;
         var new_score = parseFloat(old_score) + parseFloat(score);
         var old_rows = date_types[semester][type_name] ? 
-				date_types[semester][type_name][1] : [];
+        date_types[semester][type_name][1] : [];
         old_rows.push(parseInt(i) + 1);
-		date_types[semester][type_name] = [new_score, old_rows]
-	  }
+    date_types[semester][type_name] = [new_score, old_rows]
+    }
   return date_types;
 }
 
 function get_column_values(col, range_values){
-	var newArray = new Array();
-	for(var i=0; i<range_values.length; i++){
-		newArray.push(range_values[i][col]);
+  var newArray = new Array();
+  for(var i=0; i<range_values.length; i++){
+    newArray.push(range_values[i][col]);
      }
-	return newArray;
+  return newArray;
 }
 
 function get_score_event(myEvent){
@@ -802,10 +930,10 @@ function get_score_method(event_type){
    var score_method =  special;
   }
   var score_ids = {
-		  score_row: score_object.object_row,
-		  FALL: score_object["FALL SCORE"][1],
-		  SPRING: score_object["SPRING SCORE"][1],
-		  chapter: score_object["CHAPTER TOTAL"][1]
+      score_row: score_object.object_row,
+      FALL: score_object["FALL SCORE"][1],
+      SPRING: score_object["SPRING SCORE"][1],
+      chapter: score_object["CHAPTER TOTAL"][1]
   }
   return {score_method: score_method,
           score_method_note: score_method_note,
