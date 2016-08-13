@@ -235,6 +235,132 @@ function process_oer(form) {
   return save_form(csvFile, "OER");
 }
 
+function process_grad(form) {
+//  var form = {'owed': [10, 50, 120], 
+//              'new_location': ['New York', 'LA', 'TEST'], 
+//              'student': ['NO', 'YES', 'NO'], 
+//              'name': ['Cole Mobberley', 'Austin Mutschler', 'Adam Schilperoort'], 
+//              'degree': ['Cole Mobberley MAJOR', 'Austin Mutschler MAJOR', 'Adam Schilperoort MAJOR'], 
+//              'email': ['ColeMobberley@email.com', 'AustinMutschler@email.com', 'AdamSchilperoort@email.com']};
+  Logger.log(form);
+  var header = ["name", "owed", "new_location", "student", "degree", "email"];
+  var data = [];
+  data.push(header);
+  for (var i = 0; i < form["name"].length; i++){
+    var row = [];
+    header.forEach(function (item) {
+      row.push(form[item][i]);
+//      Logger.log(form[item][i]);
+    })
+    data.push(row);
+  }
+  Logger.log(data);
+       }
+
+function out_OER(){
+
+}
+
+function out_MSCR(){
+//  Submitted by
+//  Date Submitted
+//  School Name
+
+//  ChapRoll
+//  First Name
+//  Last Name
+//  Mobile Phone
+//  Email  Address
+//  Reason for Status Change
+  //Graduated from school
+  //Withdrawing from school
+  //Transferring to another school
+  //Wishes to REQUEST Premature Alum Status
+//  Degree Received
+//  Graduation Date (M/D/YYYY)
+//  Employer
+//  Work Email
+//  Attending Graduate School where ?
+//  Withdrawing from school?
+//  Date withdrawn (M/D/YYYY)
+//  Transferring to what school ?
+//  Date of transfer (M/D/YYYY)
+//  REQUESTING what type of Premature Alum Status?
+  //Undergrad Premature <4 years
+  //Undergrad Premature > 4 years
+  //Grad Student Premature
+}
+
+function out_COOP(){
+//Submitted by
+//Date Submitted
+//Chapter Name
+
+//*ChapRoll
+//First Name
+//Last Name
+//Reason Away
+  //Co-Op/Internship
+  //Study Abroad
+  //Called to Active/Reserve Military Duty
+//Start Date (M/D/YYYY)
+//End Date (M/D/YYYY)
+//Miles from Campus**
+}
+
+function out_INIT(){
+//Submitted by
+//Date Submitted
+//Initiation Date
+//Chapter Name
+
+//Graduation Year
+//Roll Number
+//First Name
+//Middle Name
+//Last Name
+//Overall GPA
+  //A Pledge Test Scores
+  //B Pledge Test Scores
+//Initiation Fee
+//Late Fee
+//Badge Style
+  //109 ($20)
+  //106 ($67)
+  //107 ($117)
+  //102 ($165)
+  //103 ($209)
+//Guard Type
+  //Chose Gold gloss or 10k Gold, 
+  //and one of: 
+    //Plain
+    //Chased/Engraved
+    //Close Set Pearl
+    //Crown Set Pearl
+//Badge Cost
+//Guard Cost
+//Sum for member
+}
+
+function out_DEPL(){
+//Submitted by
+//Date Submitted
+//Chapter Name
+//
+//First Name
+//Last Name
+//Reason Depledged
+  //Voluntarily decided not to continue
+  //Too much time required
+  //Poor grades
+  //Lost interest
+  //Negative Chapter Vote
+  //Withdrew from Engineering/University
+  //Transferring to another school
+  //Other
+//Date Depledged (M/D/YYYY)
+}
+
 function create_csv(data){
   try {
     var csvFile = undefined;
