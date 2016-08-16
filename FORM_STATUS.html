@@ -4,67 +4,78 @@
     <base target="_top">
   </head>
   <body>
-<form id="officer" action="action_page.php" name="officer">
+    <form id="graduate_update" name="graduate_update">
 <table>
 <tbody>
 <tr>
-<td align="center">Member<br>Name</td>
-<td align="center">New Status</td>
-<td align="center">Start<br>Date</td>
-<td align="center">End<br>Date</td>
-<td align="center">Employer/<br>School/<br>Location</td>
-<td align="center">Distance<br>from<br>Campus</td>
+<td align="center">Member Name</td>
+<td align="center" width="10">New<br>Status</td>
+<td align="center">Employer/<br>School/Location</td>
+<td align="center">PERSONAL<br>Email Address</td>
+<td align="center">Phone<br>Number</td>
+<td align="center">Degree received</td>
 </tr>
+    <? for (var i = 0; i < Degree.length; i++) { ?>
+      <? var name = Degree[i]["Member Name"] ?>
+      <? var email = Degree[i]["Email Address"] ?>
+      <? var degree = Degree[i]["Current Major"] ?>
+      <? var phone = Degree[i]["Phone Number"] ?>
+        <tr>
+        <td><input size="11" name="name" value="<?= name ?>" readonly></td>
+        <td><input size="11" name="type" value="Degree received" readonly></td>
+        <td align="center"><input size="15" name="new_location"></td>
+        <td align="center"><input size="20" type="email" name="email" value="<?= email ?>"></td>
+        <td align="center"><input size="12" type='tel' name="phone" value="<?= phone ?>"></td>
+        <td align="center"><input size="12" name="degree" value="<?= degree ?>"></td>
+        </tr>
+    <? } ?>
 <tr>
-<td align="center">Name1</td>
-<td align="center"><select style="width:145px;">
-                    <option>CoOp</option>
-                    <option>Study Abroad</option>
-                    <option>Military Deploy</option>
-                   </select></td>
-<td align="center"><input size="6" name="date_start" type="date"></td>
-<td align="center"><input size="6" name="date_end" type="date"></td>
-<td align="center"><input size="20" name="new_location"></td>
-<td align="center"><select>
-        <option>> 60 mi</option>
-        <option>< 60 mi</option>
-    </select></td>
-</tr>
 <tr>
-<td align="center">Member<br>Name</td>
-<td align="center">New Status</td>
-<td align="center">Change<br>Date</td>
-<td align="center">Amount<br>Owed ($)</td>
-<td align="center">Employer/<br>School/<br>Location</td>
+<td align="center">Member Name</td>
+<td align="center" width="10">New<br>Status</td>
+<td align="center">Employer/<br>School/Location</td>
+<td align="center">Start Date</td>
+<td align="center">End Date</td>
+<td align="center">Campus<br>Distance</td>
+<td align="center">PreAlum<br>Type</td>
 </tr>
+    <? for (var i = 0; i < CSMTA.length; i++) { ?>
+      <? var name = CSMTA[i]["Member Name"]
+         var status = CSMTA[i]["New Status"]
+         var prealumn = "DISABLED"
+         var disabled = null
+         if (status == "Transfer" || status == "PreAlumn"){disabled = "DISABLED"}
+         if (status == "PreAlumn"){prealumn = null}
+      ?>
+        <tr>
+        <td><input size="11" name="name" value="<?= name ?>" readonly></td>
+        <td><input size="6" name="type" value="<?= status ?>" readonly></td>
+        <td align="center"><input size="15" name="new_location"></td>
+        <td align="center"><input size="2" name="date_start" type="date"></td>
+        <td align="center"><input size="2" name="date_end" type="date" <?= disabled ?>></td>
+        <td align="center">
+          <select <?= disabled ?> name="dist">
+            <option>> 60 mi</option>
+            <option>< 60 mi</option>
+          </select>
+        </td>
+        <td align="center">
+          <select <?= prealumn ?> name="prealumn">
+            <option>Undergrad < 4 yrs</option>
+            <option>Undergrad > 4 yrs</option>
+            <option>Grad Premature</option>
+          </select>
+        </td>
+        </tr>
+    <? } ?>
 <tr>
-<td align="center">Name1</td>
-<td align="center"><select style="width:145px;">
-                    <option>Transfer/Withdrawn</option>
-                    <option>Request PreAlumn</option>
-                   </select></td>
-<td align="center"><input size="6" name="date_change" type="date"></td>
-<td align="center"><input size="5" name="owed"></td>
-<td align="center"><input size="20" name="new_location"></td>
-</tr>
-<tr>
-<td align="center">Member<br>Name</td>
-<td align="center">New Status</td>
-<td align="center">Change<br>Date</td>
-</tr>
-<tr>
-<td align="center">Name1</td>
-<td align="center"><select style="width:145px;">
-                    <option>Resume As Student</option>
-                    <option>Debt Paid</option>
-                   </select></td>
-<td align="center"><input size="6" name="date_change" type="date"></td>
-</tr>
-<tr>
-<td colspan="2" align="center"><input type="submit" /></td>
-</tr>
 </tbody>
 </table>
+<input type="submit"
+       onclick="this.value='Submitting...';
+                google.script.run.withSuccessHandler()
+                .process_grad(this.parentNode);
+                google.script.host.close();"/>
 </form>
   </body>
 </html>

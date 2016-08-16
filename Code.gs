@@ -116,35 +116,56 @@ function showaddEvent() {
 }
 
 function member_update(form) {
-//  Logger.log(form);
-//  var select_members = ["Daniel Tranfag...", "Jacob Landsied...", "Jessyca Thomas", "Louis Bertani", "Mark Silvern"];
-  var select_members = form.memberlist
+//  var form = {"update_type": "Transfer", "memberlist": "Adam Schilpero...",
+//              "Degree": ["Adam Schilpero...", "Austin Mutschl...", "Cole Mobberley"],//};
+//              "Abroad": "Adam Schilpero...", "Transfer": "Adam Schilpero...",
+//              "PreAlumn": ["Derek Hogue", "Esgar Moreno"], "Military": "Adam Schilpero...",
+//              "CoOp": ["Adam Schilpero...", "Austin Mutschl...", "Cole Mobberley"]};
+  Logger.log(form);
   var MemberObject = main_range_object("Membership");
-  var members = [];
-  for (var i = 0; i < MemberObject.object_count; i++) {
-    var member_name = MemberObject.object_header[i];
-    for (var j = 0; j < select_members.length; j++) {
-      var member_name_select = select_members[j];
-      member_name_select = member_name_select.replace("...","")
-      if (~member_name.indexOf(member_name_select)){
-        members.push(MemberObject[member_name]);
+  var html = HtmlService.createTemplateFromFile('FORM_STATUS');
+  var CSMTA = []
+  for (var k in form){
+    var type = k;
+    if (type == "update_type" || type == "memberlist"){
+      continue;
+    }
+    Logger.log(k);
+    var select_members = form[k];
+    if (typeof select_members === 'string'){
+      select_members = [select_members];
+    }
+    Logger.log(select_members);
+    var members = [];
+    for (var i = 0; i < MemberObject.object_count; i++) {
+      var member_name = MemberObject.object_header[i];
+      for (var j = 0; j < select_members.length; j++) {
+        var member_name_select = select_members[j];
+        member_name_select = member_name_select.replace("...","")
+        if (~member_name.indexOf(member_name_select)){
+          var this_obj = {}
+          this_obj["Member Name"] = MemberObject[member_name]["Member Name"][0];
+          this_obj["Email Address"] = MemberObject[member_name]["Email Address"][0];
+          this_obj["Current Major"] = MemberObject[member_name]["Current Major"][0];
+          this_obj["Phone Number"] = MemberObject[member_name]["Phone Number"][0];
+          this_obj["New Status"] = type;
+          members.push(this_obj);
+        }
       }
     }
+    html[type] = members;
+    if (type != "Degree"){
+      var CSMTA = CSMTA.concat(members)
+    }
   }
-  Logger.log(members);
-//  var update_type = "Degree received";
-  if (form.update_type == "Degree received"){
-    Logger.log("DEGREE");
-    var html = HtmlService.createTemplateFromFile('FORM_GRAD');
-    html.members = members;
-//    var html = HtmlService.createTemplateFromFile('FORM_STATUS');
+    html.CSMTA = CSMTA;
     var htmlOutput = html.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setWidth(700)
       .setHeight(400);
+    Logger.log(htmlOutput.getContent());
     SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
-      .showModalDialog(htmlOutput, 'GRAD FORM');
-  }
+      .showModalDialog(htmlOutput, 'STATUS FORM');
 }
 
 function format_date(date) {
@@ -259,12 +280,22 @@ function process_oer(form) {
 }
 
 function process_grad(form) {
-//  var form = {'owed': [10, 50, 120], 
-//              'new_location': ['New York', 'LA', 'TEST'], 
-//              'student': ['NO', 'YES', 'NO'], 
-//              'name': ['Cole Mobberley', 'Austin Mutschler', 'Adam Schilperoort'], 
-//              'degree': ['Cole Mobberley MAJOR', 'Austin Mutschler MAJOR', 'Adam Schilperoort MAJOR'], 
-//              'email': ['ColeMobberley@email.com', 'AustinMutschler@email.com', 'AdamSchilperoort@email.com']};
+  var form = {"date_start": ["2016-08-01", "2016-08-01", "2016-08-01", "2016-08-01",
+                "2016-08-01", "2016-08-01", "2016-08-01", "2016-08-01"],
+              "new_location": ["Test Cole 1", "Test Austin 1", "Test Adam 1", "Test Adam 2",
+                 "Test Adam 3", "Test Derek", "Test Esgar", "Test Adam 4",
+                 "Test Cole 2", "Test Austin 2", "Test Adam 5"],
+              "phone": ["520-664-5654", "520-664-5654", "520-664-5654"],
+              "prealumn": ["Undergrad > 4 yrs", "Undergrad < 4 yrs"],
+              "name": ["Cole Mobberley", "Austin Mutschler", "Adam Schilperoort", "Adam Schilperoort",
+                       "Adam Schilperoort", "Derek Hogue", "Esgar Moreno", "Adam Schilperoort",
+                       "Cole Mobberley", "Austin Mutschler", "Adam Schilperoort"],
+              "degree": ["Cole Mobberley MAJOR", "Austin Mutschler MAJOR", "Adam Schilperoort MAJOR"],
+              "dist": ["> 60 mi", "> 60 mi", "< 60 mi", "> 60 mi", "> 60 mi"],
+              "date_end": ["2016-08-03", "2016-08-03", "2016-08-03", "2016-08-03", "2016-08-03"],
+              "type": ["Degree received", "Degree received", "Degree received", "Abroad",
+                       "Transfer", "PreAlumn", "PreAlumn", "Military", "CoOp", "CoOp", "CoOp"],
+              "email": ["ColeMobberley@email.com", "AustinMutschler@email.com", "AdamSchilperoort@email.com"]}
   Logger.log(form);
   var header = ["name", "owed", "new_location", "student", "degree", "email"];
   var data = [];
