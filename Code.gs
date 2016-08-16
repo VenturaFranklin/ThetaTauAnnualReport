@@ -5,6 +5,28 @@
  *     determine which authorization mode (ScriptApp.AuthMode) the trigger is
  *     running in, inspect e.authMode.
  */
+var betterLogStarted = false;
+//startBetterLog();
+
+
+function startBetterLog() {
+  if (!betterLogStarted) {
+    Logger = BetterLog.useSpreadsheet('1mo5t1Uu7zmP9t7w2hL1mWrdba4CtgD_Q9ImbAKjGZyM');
+    betterLogStarted = true;
+  }
+  return Logger;
+}
+
+function clientLog() {
+  var Logger = startBetterLog();
+  var args = Array.slice(arguments);    // Convert arguments to array
+  var func = args.shift();              // Remove first argument, Logger method
+//  if (!Logger.hasOwnProperty(func))     // Validate Logger method
+//    throw new Error( "Unknown Logger method: " + func );
+  args[0] = "CLIENT "+args[0];          // Prepend CLIENT tag
+  Logger[func].apply(null,args);        // Pass all arguments to Logger method
+}
+
 function onOpen(e) {
   var menu = SpreadsheetApp.getUi().createAddonMenu();
   menu.addItem('Update Members', 'getChapterMembers');
@@ -18,11 +40,12 @@ function onOpen(e) {
 }
 
 function createTriggers() {
-  var sheet = SpreadsheetApp.getActive();
-  ScriptApp.newTrigger("onChange")
-  .forSpreadsheet(sheet)
-  .onChange()
-  .create();
+  var ss = SpreadsheetApp.openById('1mo5t1Uu7zmP9t7w2hL1mWrdba4CtgD_Q9ImbAKjGZyM');
+//  var sheet = SpreadsheetApp.getActive();
+//  ScriptApp.newTrigger("onChange")
+//  .forSpreadsheet(sheet)
+//  .onChange()
+//  .create();
 }
 
 function testEvents() {
