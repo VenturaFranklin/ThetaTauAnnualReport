@@ -58,12 +58,29 @@ function showError(msg, element) {
       list.attr('size', size);
     }
     
+    function select_all(){
+      Logger.log("Select all run");
+      types = [$('#Degree'), $('#CoOp'), $('#Military'), $('#PreAlumn'), $('#Abroad'), $('#Transfer')];
+      for (var i in types){
+//        Logger.log(i);
+        var list = types[i];
+        list.find('option').each(function() {
+//          Logger.log($(this).value);
+          $(this).attr('selected', true);
+          $(this).prop("selected", "selected");
+          });
+       }
+    }
+    
     function clear_selects(){
       Logger.log("Clear button clicked");
       types = [$('#Degree'), $('#CoOp'), $('#Military'), $('#PreAlumn'), $('#Abroad'), $('#Transfer'), $('#memberlist')];
       for (var i in types){
+//        Logger.log(i);
         var list = types[i];
-        list.val('');
+        list.find('option').each(function() {
+          $(this).removeAttr('selected');//, false);
+          });
         }
     }
     

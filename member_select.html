@@ -43,7 +43,7 @@ Ctrl or shift to select multiple
 <td>
   <label for="Degree">Degree received:</label>
   <br>
-  <select id="Degree" name="Degree" form="members" size="1" multiple>
+  <select id="Degree" name="Degree" size="1" multiple>
   <option value="None">None Selected</option>
   </select>
 </td>
@@ -97,6 +97,7 @@ Ctrl or shift to select multiple
 <br>
 <input type="submit"
        onclick="this.value='Processing...';
+                select_all();
                 google.script.run.withSuccessHandler()
                 .member_update(this.parentNode);
                 return false;"/>
