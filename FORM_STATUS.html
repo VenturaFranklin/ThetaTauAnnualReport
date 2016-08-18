@@ -4,7 +4,7 @@
     <base target="_top">
   </head>
   <body>
-    <form id="graduate_update" name="graduate_update">
+    <form id="status_update" name="status_update">
 <table>
 <tbody>
  <? if( Degree.length > 0) { ?>
@@ -41,7 +41,7 @@
 <td align="center">Start Date</td>
 <td align="center">End Date</td>
 <td align="center">Campus<br>Distance</td>
-<td align="center">PreAlum<br>Type</td>
+<!-- <td align="center">PreAlum<br>Type</td> -->
 </tr>
     <? for (var i = 0; i < CSMTA.length; i++) { ?>
       <? var name = CSMTA[i]["Member Name"]
@@ -165,13 +165,13 @@
         <td align="center"><input size="2" name="date_start" type="date"></td>
         <td align="center"><input size="2" name="date_end" type="date" <?= disabled ?>></td>
         <td align="center"><input size="2" name="dist" <?= disabled ?>></td>
-        <td align="center">
+        <!-- <td align="center">
           <select <?= prealumn ?> name="prealumn">
             <option>Undergrad < 4 yrs</option>
             <option>Undergrad > 4 yrs</option>
             <option>Grad Premature</option>
           </select>
-        </td>
+        </td> -->
         </tr>
     <? } ?>
 <? } ?>
@@ -179,10 +179,22 @@
 </table>
 <input type="submit"
        onclick="this.value='Submitting...';
-                google.script.run.withSuccessHandler()
+                google.script.run.withSuccessHandler(fileUploaded)
                 .process_grad(this.parentNode);
-                google.script.host.close();"/>
+                return false;"/>
 </form>
+<div id="output"></div>
+
+<script>
+function fileUploaded(status) {
+      if (status==false){
+        document.getElementById('submit').value = 'Re-Submit';
+      } else {
+        document.getElementById('status_update').style.display = 'none';
+        document.getElementById('output').innerHTML = status;
+        }
+    }
+</script>
   </body>
 </html>
 

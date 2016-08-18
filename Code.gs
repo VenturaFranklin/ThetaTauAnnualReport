@@ -255,7 +255,7 @@ function process_oer(form) {
   var start_date = [];
   var data = [];
   data.push(header);
-  data.push(["test", "date", "chapter","","","","","","","","",""]);
+  data.push(["N/A", "date", "chapter","","","","","","","","",""]);
   for (var key in form){
     var start = officer_start;
     var end = officer_end
@@ -280,36 +280,46 @@ function process_oer(form) {
 }
 
 function process_grad(form) {
-  var form = {"date_start": ["2016-08-01", "2016-08-01", "2016-08-01",
-                "2016-08-01", "2016-08-01", "2016-08-01", "2016-08-01",
-                "2016-08-01", "2016-08-01", "2016-08-01", "2016-08-01"],
-              "new_location": ["Test Cole 1", "Test Austin 1", "Test Adam 1", "Test Adam 2",
-                 "Test Adam 3", "Test Derek", "Test Esgar", "Test Adam 4",
-                 "Test Cole 2", "Test Austin 2", "Test Adam 5"],
-              "phone": ["520-664-5654", "520-664-5654", "520-664-5654"],
-              "prealumn": ["Undergrad > 4 yrs", "Undergrad < 4 yrs"],
-              "name": ["Cole Mobberley", "Austin Mutschler", "Adam Schilperoort", "Adam Schilperoort",
-                       "Adam Schilperoort", "Derek Hogue", "Esgar Moreno", "Adam Schilperoort",
-                       "Cole Mobberley", "Austin Mutschler", "Adam Schilperoort"],
-              "degree": ["Cole Mobberley MAJOR", "Austin Mutschler MAJOR", "Adam Schilperoort MAJOR"],
-              "dist": ["> 60 mi", "> 60 mi", "< 60 mi", "> 60 mi", "> 60 mi"],
-              "date_end": ["2016-08-03", "2016-08-03", "2016-08-03", "2016-08-03", "2016-08-03"],
-              "type": ["Degree received", "Degree received", "Degree received", "Abroad",
-                       "Transfer", "PreAlumn", "PreAlumn", "Military", "CoOp", "CoOp", "CoOp"],
-              "email": ["ColeMobberley@email.com", "AustinMutschler@email.com", "AdamSchilperoort@email.com"]}
+//  var form = {"date_start": ["2016-08-01", "2016-08-01", "2016-08-01",
+//                "2016-08-01", "2016-08-01", "2016-08-01", "2016-08-01",
+//                "2016-08-01", "2016-08-01", "2016-08-01", "2016-08-01"],
+//              "new_location": ["Test Cole 1", "Test Austin 1", "Test Adam 1", "Test Adam 2",
+//                 "Test Adam 3", "Test Derek", "Test Esgar", "Test Adam 4",
+//                 "Test Cole 2", "Test Austin 2", "Test Adam 5"],
+//              "phone": ["520-664-5654", "520-664-5654", "520-664-5654"],
+//              "prealumn": ["Undergrad > 4 yrs", "Undergrad < 4 yrs"],
+//              "name": ["Cole Mobberley", "Austin Mutschler", "Adam Schilperoort", "Adam Schilperoort",
+//                       "Adam Schilperoort", "Derek Hogue", "Esgar Moreno", "Adam Schilperoort",
+//                       "Cole Mobberley", "Austin Mutschler", "Adam Schilperoort"],
+//              "degree": ["Cole Mobberley MAJOR", "Austin Mutschler MAJOR", "Adam Schilperoort MAJOR"],
+//              "dist": ["> 60 mi", "> 60 mi", "< 60 mi", "> 60 mi", "> 60 mi"],
+//              "date_end": ["2016-08-03", "2016-08-03", "2016-08-03", "2016-08-03", "2016-08-03"],
+//              "type": ["Degree received", "Degree received", "Degree received", "Abroad",
+//                       "Transfer", "PreAlumn", "PreAlumn", "Military", "CoOp", "CoOp", "CoOp"],
+//              "email": ["ColeMobberley@email.com", "AustinMutschler@email.com", "AdamSchilperoort@email.com"]}
   Logger.log(form);
+//  return;
   var MemberObject = main_range_object("Membership");
   var MSCR = [header_MSCR()];
 //  var MSCR_type = ["Degree received", "Transfer", "PreAlumn"];
   var COOP = [header_COOP()];
-  MSCR.push(["test", "date", "chapter", "", "", "", "", "",
+  var date = new Date();
+  var formatted = (date.getMonth() + 1) + '-' + date.getDate() + '-' +
+                  date.getFullYear() + ' ' + date.getHours() + ':' +
+                  date.getMinutes() + ':' + date.getSeconds();
+  MSCR.push(["N/A", formatted, "", "", "", "", "",
              "", "", "", "", "", "", "", "", "", "", ""]);
-  COOP.push(["test", "date", "chapter", "", "", "",
+  COOP.push(["N/A", formatted, "", "", "",
              "", "", "", ""]);
 //  var COOP_type = ["Abroad", "Military", "CoOp"]
   var degree_count = 0;
   var alum_count = 0;
   var nonalum_count = 0;
+  if (typeof form["type"] === 'string'){
+    for (var obj in form){
+      form[obj] = [form[obj]];
+    }
+  }
   for (var i = 0; i < form["type"].length; i++){
     var type = form["type"][i];
     Logger.log(type);
@@ -346,40 +356,38 @@ function process_grad(form) {
     }
     switch (type) {
       case "Degree received":
-        MSCR.push(["", "", "", badge, first, last, phone, email,
+        MSCR.push(["", "", badge, first, last, phone, email,
                    "Graduated from school", degree, date_start, loc, "",
                    "", "", "", "", "", ""]);
         break;
       case "Transfer":
-        MSCR.push(["", "", "", badge, first, last, "", "",
+        MSCR.push(["", "", badge, first, last, "", "",
                    "Transferring to another school", "",
                    "", "", "", "", "", "",
-                   "Transferring to what school ?", date_start, ""]);
+                   loc, date_start, ""]);
         break;
       case "Withdrawn":
-        MSCR.push(["", "", "", badge, first, last, "", "",
+        MSCR.push(["", "", badge, first, last, "", "",
                    "Withdrawing from school", "", "", "", "", "",
                    "Yes", date_start, "", "", ""]);
         break;
       case "PreAlumn":
-        MSCR.push(["", "", "", badge, first, last, "", "",
+        MSCR.push(["", "", badge, first, last, "", "",
                    "Wishes to REQUEST Premature Alum Status", "",
-                   "Graduation Date (M/D/YYYY)", "", "",
-                   "", "", "Date withdrawn (M/D/YYYY)", "",
-                   "Date of transfer (M/D/YYYY)", prealumn]);
+                   "", "", "", "", "", "", "", "", prealumn]);
         break;
       case "Abroad":
-        COOP.push(["", "", "", badge, first, last,
+        COOP.push(["", "", badge, first, last,
                    "Study Abroad", date_start,
                    date_end, dist]);
         break;
       case "Military":
-        COOP.push(["", "", "", badge, first, last,
+        COOP.push(["", "", badge, first, last,
                    "Called to Active/Reserve Military Duty",
                    date_start, date_end, dist]);
         break;
       case "CoOp":
-        COOP.push(["", "", "", badge, first, last,
+        COOP.push(["", "", badge, first, last,
                    "Co-Op/Internship",
                    date_start, date_end, dist]);
         break;
@@ -389,25 +397,33 @@ function process_grad(form) {
   Logger.log(COOP);
   var csvFile = create_csv(COOP);
   Logger.log(csvFile);
+  var coop_out = "";
+  if (COOP.length > 2){
+    coop_out = save_form(csvFile, "COOP");
+  }
   Logger.log("MSCR");
   Logger.log(MSCR);
   var csvFile = create_csv(MSCR);
   Logger.log(csvFile);
+  var mscr_out = ""
+  if (MSCR.length > 2){
+    mscr_out = save_form(csvFile, "MSCR");
+  }
+    return coop_out+mscr_out;
        }
 
 function header_MSCR(){
-  return ["Submitted by", "Date Submitted", "School Name", "ChapRoll",
+  return ["Submitted by", "Date Submitted", "ChapRoll",
    "First Name", "Last Name", "Mobile Phone", "EmailAddress",
    "Reason for Status Change", "Degree Received",
    "Graduation Date (M/D/YYYY)", "Employer", "Work Email",
    "Attending Graduate School where ?", "Withdrawing from school?",
    "Date withdrawn (M/D/YYYY)", "Transferring to what school ?",
-   "Date of transfer (M/D/YYYY)",
-   "REQUESTING what type of Premature Alum Status?"];
+   "Date of transfer (M/D/YYYY)"];
 }
 
 function header_COOP(){
-  return ["Submitted by", "Date Submitted", "Chapter Name", "*ChapRoll",
+  return ["Submitted by", "Date Submitted", "*ChapRoll",
     "First Name", "Last Name", "Reason Away", "Start Date (M/D/YYYY)",
     "End Date (M/D/YYYY)", "Miles from Campus**"]
 }
