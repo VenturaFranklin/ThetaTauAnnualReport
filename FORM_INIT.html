@@ -4,7 +4,9 @@
     <base target="_top">
   </head>
   <body>
-    <form id="status_update" name="status_update">
+  <form id="status_update" name="status_update">
+  <label for="date_init">Initiation Date: </label>
+  <input size="2" name="date_init" type="date">
 <table>
 <tbody>
  <? if( init.length > 0) { ?>
@@ -19,10 +21,10 @@
 <td align="center">Guard Type</td>
 </tr>
     <? for (var i = 0; i < init.length; i++) { ?>
-      <? var name = init[i]["Member Name"] ?>
+      <? var name = init[i] ?>
         <tr>
-        <td align="center"><input size="11" name="name" value="<?= name ?>" readonly></td>
-        <td align="center"><input size="2" name="date_change" type="date"></td>
+        <td align="center"><input size="11" name="name_init" value="<?= name ?>" readonly></td>
+        <td align="center"><input size="2" name="date_grad" type="date"></td>
         <td align="center"><input size="2" name="roll"></td>
         <td align="center"><input size="2" name="GPA"></td>
         <td align="center"><input size="2" name="testA"></td>
@@ -52,17 +54,17 @@
         </tr>
     <? } ?>
 <? } ?>
-<? if( depledge.length > 0) { ?>
+<? if( depl.length > 0) { ?>
 <tr>
 <td align="center">De-Pledge Name</td>
 <td align="center" width="10">Date Depledged</td>
 <td align="center">Reason Depledged</td>
 </tr>
-    <? for (var i = 0; i < depledge.length; i++) { ?>
-      <? var name = depledge[i]["Member Name"] ?>
+    <? for (var i = 0; i < depl.length; i++) { ?>
+      <? var name = depl[i] ?>
         <tr>
-        <td align="center"><input size="11" name="name" value="<?= name ?>" readonly></td>
-        <td align="center"><input size="2" name="date_change" type="date"></td>
+        <td align="center"><input size="11" name="name_depl" value="<?= name ?>" readonly></td>
+        <td align="center"><input size="2" name="date_depl" type="date"></td>
         <td align="center">
           <select name="reason" style="width: 130px">
             <option>Voluntarily decided not to continue</option>
@@ -83,7 +85,7 @@
 <input type="submit"
        onclick="this.value='Submitting...';
                 google.script.run.withSuccessHandler(fileUploaded)
-                .process_grad(this.parentNode);
+                .process_init(this.parentNode);
                 return false;"/>
 </form>
 <div id="output"></div>
@@ -100,5 +102,3 @@ function fileUploaded(status) {
 </script>
   </body>
 </html>
-
-

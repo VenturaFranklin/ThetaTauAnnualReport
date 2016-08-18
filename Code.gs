@@ -34,7 +34,7 @@ function onOpen(e) {
   menu.addItem('Update Officers', 'officerSidebar');
   menu.addItem('Submit Item', 'submitSidebar');
   menu.addItem('Status Change', 'member_update_sidebar');
-//  menu.addItem('Grad Change', 'form_gradDialog');
+  menu.addItem('Pledge Forms', 'pledge_sidebar');
   menu.addItem('Create Triggers', 'createTriggers');
   menu.addToUi();
 }
@@ -81,6 +81,33 @@ function officerSidebar() {
       .showSidebar(htmlOutput);
 }
 
+function get_member_list(status){
+  var status = "Active";
+  var status = "Pledge";
+  var MemberObject = main_range_object("Membership");
+  var member_list = [];
+  for(var i = 0; i< MemberObject.object_count; i++) {
+    var member_name = MemberObject.object_header[i];
+    var member_status = MemberObject[member_name]["Chapter Status"][0];
+    if (member_status == status){
+      member_name = shorten(member_name, 15)
+      member_list.push(member_name);
+    }
+  }
+  return member_list
+}
+
+function pledge_sidebar(){
+  var template = HtmlService
+      .createTemplateFromFile('pledge_select');
+  template.pledge = get_member_list("Pledge");
+  var htmlOutput = template.evaluate()
+      .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+      .setTitle('Update Pledges');
+  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
+      .showSidebar(htmlOutput);
+}
+
 function member_update_sidebar() {
   var template = HtmlService
       .createTemplateFromFile('member_select');
@@ -113,6 +140,31 @@ function showaddEvent() {
     .setWidth(300);
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showSidebar(htmlOutput);
+}
+
+function pledge_update(form) {
+  Logger.log(form);
+  var html = HtmlService.createTemplateFromFile('FORM_INIT');
+  var INIT = []
+  var DEPL = []
+  for (var k in form["name"]){
+    var status = form["status"][k];
+    var name = form["name"][k];
+    if (status == "Initiated"){
+      INIT.push(name);
+    } else {
+      DEPL.push(name);
+    }
+  }
+  html.init = INIT
+  html.depl = DEPL
+  var htmlOutput = html.evaluate()
+    .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+    .setWidth(700)
+    .setHeight(400);
+  Logger.log(htmlOutput.getContent());
+  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
+  .showModalDialog(htmlOutput, 'PLEDGE FORM');
 }
 
 function member_update(form) {
@@ -286,6 +338,90 @@ function process_oer(form) {
   return save_form(csvFile, "OER");
 }
 
+function process_init(form) {
+  var form = {"badge": ["109 ($20)", "109 ($20)", "106 ($67)", "102 ($165)", "109 ($20)", "102 ($165)", "102 ($165)"],
+              "reason": ["Lost interest", "Too much time required", "Voluntarily decided not to continue"],
+              "name_init": ["Nicholas Larson", "David Montgome...", "Ryan Richard", "Justine Saugen",
+                            "Mark Silvern", "Monica Sproul", "Daniel Tranfag..."],
+              "testB": ["1", "2", "3", "4", "5", "6", "7"],
+              "date_init": "2016-08-01", "name_depl": ["Esgar Moreno", "Adam Schilpero...", "Jessyca Thomas"],
+              "guard": ["None", "Goldgloss & Plain", "Goldgloss & Chased/Engraved",
+                        "10k Gold & Chased/Engraved", "10k Gold & Crown Set Pearl",
+                        "10k Gold & Close Set Pearl", "Goldgloss & Plain"],
+              "roll": ["1", "2", "3", "4", "5", "6", "7"],
+              "GPA": ["1", "2", "3", "4", "5", "6", "7"],
+              "date_grad": ["2016-08-01", "2016-08-01", "2015-08-01", "2016-08-01",
+                            "2016-08-01", "2016-08-01", "2016-08-01"],
+              "testA": ["1", "2", "3", "4", "5", "6", "7"],
+              "date_depl": ["2015-08-01", "2016-08-02", "2016-08-03"]}
+  Logger.log(form);
+//  return;
+  var MemberObject = main_range_object("Membership");
+  var INIT = [header_INIT()];
+  var DEPL = [header_DEPL()];
+  var date = new Date();
+  var date_init = form["date_init"];
+  date_init = format_date(date_init);
+  var chapterName = SpreadsheetApp
+                      .getActiveSpreadsheet()
+                      .getRangeByName("ChapterName").getValue();
+  var formatted = (date.getMonth() + 1) + '-' + date.getDate() + '-' +
+                  date.getFullYear() + ' ' + date.getHours() + ':' +
+                  date.getMinutes() + ':' + date.getSeconds();
+  INIT.push(["N/A", formatted, date_init, chapterName, "", "", "",
+             "", "", "", "", "", "", "", "", "", "", "", ""]);
+  DEPL.push(["N/A", formatted, chapterName, "", "",
+             "", ""]);
+  var init_count = 0;
+  var depl_count = 0;
+  for (var i = 0; i < form["name_init"].length; i++){
+    var name = form["name_init"][i];
+    var member_object = find_member_shortname(MemberObject, name);
+    var first = member_object["First Name"][0];
+    var last = member_object["Last Name"][0];
+    var date_grad = form["date_grad"][i];
+    date_grad = format_date(date_grad);
+    var roll = form["roll"][i];
+    var GPA = form["GPA"][i];
+    var testA = form["testA"][i];
+    var testB = form["testB"][i];
+    var badge = form["badge"][i];
+    var guard = form["guard"][i];
+    INIT.push(["", "", "", "",
+          date_grad, roll, first, "",
+          last, GPA, testA,
+          testB, "Initiation Fee", "Late Fee",
+          "Badge Style", "Guard Type", "Badge Cost", "Guard Cost", "Sum for member"]);
+  }
+  for (var i = 0; i < form["name_depl"].length; i++){
+    var name = form["name_depl"][i];
+    var member_object = find_member_shortname(MemberObject, name);
+    var first = member_object["First Name"][0];
+    var last = member_object["Last Name"][0];
+    var date_depl = form["date_depl"][i];
+    date_depl = format_date(date_depl);
+    var reason = form["reason"][i];
+    DEPL.push(["", "", "", first, last, reason, date_depl]);
+  }
+  Logger.log("INIT");
+  Logger.log(INIT);
+  var csvFile = create_csv(INIT);
+  Logger.log(csvFile);
+  var init_out = "";
+  if (INIT.length > 2){
+    init_out = save_form(csvFile, "INIT");
+  }
+  Logger.log("DEPL");
+  Logger.log(DEPL);
+  var csvFile = create_csv(DEPL);
+  Logger.log(csvFile);
+  var depl_out = ""
+  if (DEPL.length > 2){
+    depl_out = save_form(csvFile, "DEPL");
+  }
+    return init_out+depl_out;
+}
+
 function process_grad(form) {
 //  var form = {"date_start": ["2016-08-01", "2016-08-01", "2016-08-01",
 //                "2016-08-01", "2016-08-01", "2016-08-01", "2016-08-01",
@@ -435,57 +571,18 @@ function header_COOP(){
     "End Date (M/D/YYYY)", "Miles from Campus**"]
 }
 
-function out_INIT(){
-//Submitted by
-//Date Submitted
-//Initiation Date
-//Chapter Name
-
-//Graduation Year
-//Roll Number
-//First Name
-//Middle Name
-//Last Name
-//Overall GPA
-  //A Pledge Test Scores
-  //B Pledge Test Scores
-//Initiation Fee
-//Late Fee
-//Badge Style
-  //109 ($20)
-  //106 ($67)
-  //107 ($117)
-  //102 ($165)
-  //103 ($209)
-//Guard Type
-  //Chose Gold gloss or 10k Gold, 
-  //and one of: 
-    //Plain
-    //Chased/Engraved
-    //Close Set Pearl
-    //Crown Set Pearl
-//Badge Cost
-//Guard Cost
-//Sum for member
+function header_INIT(){
+  return ["Submitted by", "Date Submitted", "Initiation Date", "Chapter Name",
+          "Graduation Year", "Roll Number", "First Name", "Middle Name",
+          "Last Name", "Overall GPA", "A Pledge Test Scores",
+          "B Pledge Test Scores", "Initiation Fee", "Late Fee",
+          "Badge Style", "Guard Type", "Badge Cost", "Guard Cost", "Sum for member"];
 }
 
-function out_DEPL(){
-//Submitted by
-//Date Submitted
-//Chapter Name
-//
-//First Name
-//Last Name
-//Reason Depledged
-  //Voluntarily decided not to continue
-  //Too much time required
-  //Poor grades
-  //Lost interest
-  //Negative Chapter Vote
-  //Withdrew from Engineering/University
-  //Transferring to another school
-  //Other
-//Date Depledged (M/D/YYYY)
+function header_DEPL(){
+  return ["Submitted by", "Date Submitted", "Chapter Name",
+          "First Name", "Last Name", "Reason Depledged",
+          "Date Depledged (M/D/YYYY)"];
 }
 
 function create_csv(data){

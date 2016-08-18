@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <form id="status_update" name="status_update">
+<table>
+<tbody>
+<tr>
+<td align="center">Pledge Name</td>
+<td align="center">Pledge Status</td>
+</tr>
+    <? for (var i = 0; i < pledge.length; i++) { ?>
+      <? var name = pledge[i] ?>
+        <tr>
+        <td align="center"><input size="11" name="name" value="<?= name ?>" readonly></td>
+        <td align="center">
+          <select name="status">
+            <option>Initiated</option>
+            <option>Depledged</option>
+          </select>
+        </td>
+        </tr>
+    <? } ?>
+</tbody>
+</table>
+<input type="submit"
+       onclick="this.value='Processing...';
+                google.script.run.withSuccessHandler()
+                .pledge_update(this.parentNode);
+                return false;"/>
+</form>
+  </body>
+</html>
