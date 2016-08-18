@@ -255,7 +255,14 @@ function process_oer(form) {
   var start_date = [];
   var data = [];
   data.push(header);
-  data.push(["N/A", "date", "chapter","","","","","","","","",""]);
+  var chapterName = SpreadsheetApp
+                      .getActiveSpreadsheet()
+                      .getRangeByName("ChapterName").getValue();
+  var date = new Date();
+  var formatted = (date.getMonth() + 1) + '-' + date.getDate() + '-' +
+                  date.getFullYear() + ' ' + date.getHours() + ':' +
+                  date.getMinutes() + ':' + date.getSeconds();
+  data.push(["N/A", formatted, chapterName,"","","","","","","","",""]);
   for (var key in form){
     var start = officer_start;
     var end = officer_end
