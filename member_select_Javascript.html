@@ -60,7 +60,8 @@ function showError(msg, element) {
     
     function select_all(){
       Logger.log("Select all run");
-      types = [$('#Degree'), $('#CoOp'), $('#Military'), $('#PreAlumn'), $('#Abroad'), $('#Transfer'), $('#Withdrawn')];
+      types = [$('#Degree'), $('#CoOp'), $('#Military'), $('#Abroad'), $('#Transfer'), $('#Withdrawn')];
+//      $('#PreAlumn'),
       for (var i in types){
 //        Logger.log(i);
         var list = types[i];
@@ -74,7 +75,8 @@ function showError(msg, element) {
     
     function clear_selects(){
       Logger.log("Clear button clicked");
-      types = [$('#Degree'), $('#CoOp'), $('#Military'), $('#PreAlumn'), $('#Abroad'), $('#Transfer'), $('#Withdrawn'), $('#memberlist')];
+      types = [$('#Degree'), $('#CoOp'), $('#Military'), $('#Abroad'), $('#Transfer'), $('#Withdrawn'), $('#memberlist')];
+//      $('#PreAlumn'),
       for (var i in types){
 //        Logger.log(i);
         var list = types[i];
@@ -86,7 +88,8 @@ function showError(msg, element) {
     
     function remove_member(){
       Logger.log("Remove button clicked");
-      types = [$('#Degree'), $('#CoOp'), $('#Military'), $('#PreAlumn'), $('#Abroad'), $('#Transfer'), $('#Withdrawn')];
+      types = [$('#Degree'), $('#CoOp'), $('#Military'), $('#Abroad'), $('#Transfer'), $('#Withdrawn')];
+//      $('#PreAlumn'),
       for (var i in types){
         var list = types[i];
         var names = list.val();
