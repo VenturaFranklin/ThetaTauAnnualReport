@@ -280,7 +280,8 @@ function process_oer(form) {
 }
 
 function process_grad(form) {
-  var form = {"date_start": ["2016-08-01", "2016-08-01", "2016-08-01", "2016-08-01",
+  var form = {"date_start": ["2016-08-01", "2016-08-01", "2016-08-01",
+                "2016-08-01", "2016-08-01", "2016-08-01", "2016-08-01",
                 "2016-08-01", "2016-08-01", "2016-08-01", "2016-08-01"],
               "new_location": ["Test Cole 1", "Test Austin 1", "Test Adam 1", "Test Adam 2",
                  "Test Adam 3", "Test Derek", "Test Esgar", "Test Adam 4",
@@ -297,69 +298,118 @@ function process_grad(form) {
                        "Transfer", "PreAlumn", "PreAlumn", "Military", "CoOp", "CoOp", "CoOp"],
               "email": ["ColeMobberley@email.com", "AustinMutschler@email.com", "AdamSchilperoort@email.com"]}
   Logger.log(form);
-  var header = ["name", "owed", "new_location", "student", "degree", "email"];
-  var data = [];
-  data.push(header);
-  for (var i = 0; i < form["name"].length; i++){
-    var row = [];
-    header.forEach(function (item) {
-      row.push(form[item][i]);
-//      Logger.log(form[item][i]);
-    })
-    data.push(row);
+  var MemberObject = main_range_object("Membership");
+  var MSCR = [header_MSCR()];
+//  var MSCR_type = ["Degree received", "Transfer", "PreAlumn"];
+  var COOP = [header_COOP()];
+  MSCR.push(["test", "date", "chapter", "", "", "", "", "",
+             "", "", "", "", "", "", "", "", "", "", ""]);
+  COOP.push(["test", "date", "chapter", "", "", "",
+             "", "", "", ""]);
+//  var COOP_type = ["Abroad", "Military", "CoOp"]
+  var degree_count = 0;
+  var alum_count = 0;
+  var nonalum_count = 0;
+  for (var i = 0; i < form["type"].length; i++){
+    var type = form["type"][i];
+    Logger.log(type);
+    var name = form["name"][i];
+    var member_object = find_member_shortname(MemberObject, name);
+    var badge = member_object["Badge Number"][0];
+    var first = member_object["First Name"][0];
+    var last = member_object["Last Name"][0];
+    var loc = form["new_location"][i]
+    var date_start = form["date_start"][i];
+    date_start = format_date(date_start);
+    if (type == "Degree received"){
+      var email = form["email"][degree_count];
+      var phone = form["phone"][degree_count];
+      var degree = form["degree"][degree_count];
+      degree_count++
+    } else if (type != "PreAlumn"){
+      if (type != "Withdrawn" && type != "Transfer"){
+        var date_end = form["date_end"][nonalum_count];
+        date_end = format_date(date_end);
+        var dist = form["dist"][nonalum_count];
+        nonalum_count++
+      }
+    } else {
+      var prealumn = form["prealumn"][alum_count];
+      if (prealumn == "Undergrad < 4 yrs"){
+        prealumn = "Undergrad Premature <4 years";
+      } else if (prealumn == "Undergrad > 4 yrs"){
+        prealumn = "Undergrad Premature > 4 years";
+      } else if (prealumn == "Grad Premature"){
+        prealumn = "Grad Student Premature";
+      }
+      alum_count++
+    }
+    switch (type) {
+      case "Degree received":
+        MSCR.push(["", "", "", badge, first, last, phone, email,
+                   "Graduated from school", degree, date_start, loc, "",
+                   "", "", "", "", "", ""]);
+        break;
+      case "Transfer":
+        MSCR.push(["", "", "", badge, first, last, "", "",
+                   "Transferring to another school", "",
+                   "", "", "", "", "", "",
+                   "Transferring to what school ?", date_start, ""]);
+        break;
+      case "Withdrawn":
+        MSCR.push(["", "", "", badge, first, last, "", "",
+                   "Withdrawing from school", "", "", "", "", "",
+                   "Yes", date_start, "", "", ""]);
+        break;
+      case "PreAlumn":
+        MSCR.push(["", "", "", badge, first, last, "", "",
+                   "Wishes to REQUEST Premature Alum Status", "",
+                   "Graduation Date (M/D/YYYY)", "", "",
+                   "", "", "Date withdrawn (M/D/YYYY)", "",
+                   "Date of transfer (M/D/YYYY)", prealumn]);
+        break;
+      case "Abroad":
+        COOP.push(["", "", "", badge, first, last,
+                   "Study Abroad", date_start,
+                   date_end, dist]);
+        break;
+      case "Military":
+        COOP.push(["", "", "", badge, first, last,
+                   "Called to Active/Reserve Military Duty",
+                   date_start, date_end, dist]);
+        break;
+      case "CoOp":
+        COOP.push(["", "", "", badge, first, last,
+                   "Co-Op/Internship",
+                   date_start, date_end, dist]);
+        break;
+    }
   }
-  Logger.log(data);
+  Logger.log("COOP");
+  Logger.log(COOP);
+  var csvFile = create_csv(COOP);
+  Logger.log(csvFile);
+  Logger.log("MSCR");
+  Logger.log(MSCR);
+  var csvFile = create_csv(MSCR);
+  Logger.log(csvFile);
        }
 
-function out_OER(){
-
+function header_MSCR(){
+  return ["Submitted by", "Date Submitted", "School Name", "ChapRoll",
+   "First Name", "Last Name", "Mobile Phone", "EmailAddress",
+   "Reason for Status Change", "Degree Received",
+   "Graduation Date (M/D/YYYY)", "Employer", "Work Email",
+   "Attending Graduate School where ?", "Withdrawing from school?",
+   "Date withdrawn (M/D/YYYY)", "Transferring to what school ?",
+   "Date of transfer (M/D/YYYY)",
+   "REQUESTING what type of Premature Alum Status?"];
 }
 
-function out_MSCR(){
-//  Submitted by
-//  Date Submitted
-//  School Name
-
-//  ChapRoll
-//  First Name
-//  Last Name
-//  Mobile Phone
-//  Email  Address
-//  Reason for Status Change
-  //Graduated from school
-  //Withdrawing from school
-  //Transferring to another school
-  //Wishes to REQUEST Premature Alum Status
-//  Degree Received
-//  Graduation Date (M/D/YYYY)
-//  Employer
-//  Work Email
-//  Attending Graduate School where ?
-//  Withdrawing from school?
-//  Date withdrawn (M/D/YYYY)
-//  Transferring to what school ?
-//  Date of transfer (M/D/YYYY)
-//  REQUESTING what type of Premature Alum Status?
-  //Undergrad Premature <4 years
-  //Undergrad Premature > 4 years
-  //Grad Student Premature
-}
-
-function out_COOP(){
-//Submitted by
-//Date Submitted
-//Chapter Name
-
-//*ChapRoll
-//First Name
-//Last Name
-//Reason Away
-  //Co-Op/Internship
-  //Study Abroad
-  //Called to Active/Reserve Military Duty
-//Start Date (M/D/YYYY)
-//End Date (M/D/YYYY)
-//Miles from Campus**
+function header_COOP(){
+  return ["Submitted by", "Date Submitted", "Chapter Name", "*ChapRoll",
+    "First Name", "Last Name", "Reason Away", "Start Date (M/D/YYYY)",
+    "End Date (M/D/YYYY)", "Miles from Campus**"]
 }
 
 function out_INIT(){
@@ -679,7 +729,7 @@ function update_score_att(){
       var month = object_date.getMonth();
       var semester = "FALL";
       if (month<5){
-      var semester = "SPRING";
+	    var semester = "SPRING";
       }
       date_types[semester] = date_types[semester] ? 
         date_types[semester] + meeting_att:meeting_att;
@@ -916,8 +966,8 @@ function update_score(row, sheetName, score_data, myObject){
   var month = object_date.getMonth();
   var semester = "FALL";
   if (month<5){
-  var semester = "SPRING";
-  }
+	var semester = "SPRING";
+	}
   score_data.semester = semester;
   var type_score = total_scores[semester][object_type][0];
   var other_type_rows = total_scores[semester][object_type][1];
@@ -1000,31 +1050,31 @@ function get_current_scores(sheetName){
   date_types["SPRING"] = {};
   date_types["FALL"] = {};
   for(var i = 1; i< date_values.length; i++) {
-    var date = date_values[i];
+		var date = date_values[i];
         var month = date.getMonth();
-    var type_name = type_values[i];
-    var score = score_values[i];
-    var semester = "FALL";
-    if (month<5){
-      var semester = "SPRING";
-    }
+		var type_name = type_values[i];
+		var score = score_values[i];
+		var semester = "FALL";
+		if (month<5){
+			var semester = "SPRING";
+		}
         var old_score = date_types[semester][type_name] ? 
-        date_types[semester][type_name][0] : 0;
+				date_types[semester][type_name][0] : 0;
         var new_score = parseFloat(old_score) + parseFloat(score);
         var old_rows = date_types[semester][type_name] ? 
-        date_types[semester][type_name][1] : [];
+				date_types[semester][type_name][1] : [];
         old_rows.push(parseInt(i) + 1);
-    date_types[semester][type_name] = [new_score, old_rows]
-    }
+		date_types[semester][type_name] = [new_score, old_rows]
+	  }
   return date_types;
 }
 
 function get_column_values(col, range_values){
-  var newArray = new Array();
-  for(var i=0; i<range_values.length; i++){
-    newArray.push(range_values[i][col]);
+	var newArray = new Array();
+	for(var i=0; i<range_values.length; i++){
+		newArray.push(range_values[i][col]);
      }
-  return newArray;
+	return newArray;
 }
 
 function get_score_event(myEvent){
@@ -1110,10 +1160,10 @@ function get_score_method(event_type){
    var score_method =  special;
   }
   var score_ids = {
-      score_row: score_object.object_row,
-      FALL: score_object["FALL SCORE"][1],
-      SPRING: score_object["SPRING SCORE"][1],
-      chapter: score_object["CHAPTER TOTAL"][1]
+		  score_row: score_object.object_row,
+		  FALL: score_object["FALL SCORE"][1],
+		  SPRING: score_object["SPRING SCORE"][1],
+		  chapter: score_object["CHAPTER TOTAL"][1]
   }
   return {score_method: score_method,
           score_method_note: score_method_note,

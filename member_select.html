@@ -13,7 +13,8 @@
 <option value="Military">Military Deploy</option>
 <option value="PreAlumn">Request PreAlumn</option>
 <option value="Abroad">Study Abroad</option>
-<option value="Transfer">Transfer/Withdrawn</option>
+<option value="Transfer">Transfer</option>
+<option value="Withdrawn">Withdrawn</option>
 </select>
 <br><br>
 <label for="memberlist">Select Members w/Status Change:</label>
@@ -35,8 +36,8 @@ Ctrl or shift to select multiple
                 return false;"/>
 </td>
 <tr>
-<td rowspan="6">
-  <select id="memberlist" name="memberlist"  size="20" multiple>
+<td rowspan="7">
+  <select id="memberlist" name="memberlist"  size="25" multiple>
   <option value="member1">Loading...</option>
   </select>
 </td>
@@ -86,9 +87,18 @@ Ctrl or shift to select multiple
 </tr>
 <tr>
 <td>
-<label for="Transfer">Transfer/Withdrawn:</label>
+<label for="Transfer">Transfer:</label>
 <br>
   <select id="Transfer" form="members" name="Transfer"  size="1" multiple>
+  <option value="None">None Selected</option>
+  </select>
+</td>
+</tr>
+<tr>
+<td>
+<label for="Withdrawn">Withdrawn:</label>
+<br>
+  <select id="Withdrawn" form="members" name="Withdrawn"  size="1" multiple>
   <option value="None">None Selected</option>
   </select>
 </td>
