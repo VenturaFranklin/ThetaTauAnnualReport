@@ -7,6 +7,7 @@
     <form id="graduate_update" name="graduate_update">
 <table>
 <tbody>
+ <? if( Degree.length > 0) { ?>
 <tr>
 <td align="center">Member Name</td>
 <td align="center" width="10">New<br>Status</td>
@@ -31,7 +32,8 @@
         <td align="center"><input size="12" name="degree" value="<?= degree ?>"></td>
         </tr>
     <? } ?>
-<tr>
+<? } ?>
+<? if( CSMTA.length > 0) { ?>
 <tr>
 <td align="center">Member Name</td>
 <td align="center" width="10">New<br>Status</td>
@@ -72,7 +74,7 @@
         </td>
         </tr>
     <? } ?>
-<tr>
+<? } ?>
 </tbody>
 </table>
 <input type="submit"

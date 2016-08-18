@@ -66,6 +66,9 @@ function showError(msg, element) {
 //        Logger.log(i);
         var list = types[i];
         list.find('option').each(function() {
+//          if ($(this).value == "None"){
+//          continue;
+//          }
 //          Logger.log($(this).value);
           $(this).attr('selected', true);
           $(this).prop("selected", "selected");
@@ -103,7 +106,13 @@ function showError(msg, element) {
         list.find('option').each(function() {
                           members_left.push($(this).val());
                           });
-        var size = members_left.length < 10 ? members_left.length:10;
+        if (members_left.length == 0){
+          var option = $('<option></option>').attr("value", "None").text("None Selected");
+          list.append(option);
+          var size = 1;
+        } else {
+          var size = members_left.length < 10 ? members_left.length:10;
+          }
         Logger.log("NEW SIZE:" + size);
         list.attr('size', size);
       }
