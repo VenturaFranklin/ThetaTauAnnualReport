@@ -1,0 +1,120 @@
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js">
+</script>
+<script>
+var Logger = {};
+Logger.log = function ( msg ) {
+  // console.log( msg ); // uncomment for browser logging
+  google.script.run.clientLog( "log", msg );
+}
+function showError(msg, element) {
+  var div = $('<div id="error" class="error">' + msg + '</div>');
+  $(element).after(div);
+}
+    // The code in this function runs when the page is loaded.
+    $(function () {
+        google.script.run.withSuccessHandler(buildOptionList)
+            .getList('MemberNamesOnly');
+    });
+
+    function buildOptionList(members) {
+        var list = $('#memberlist');
+        list.empty();
+        for (var i = 0; i < members.length; i++) {
+            var option = $('<option></option>').attr("value", members[i]).text(members[i]);
+            list.append(option);
+        }
+    }
+    
+    function add_member(){
+      Logger.log("Add button clicked");
+      var type = $('#update_type').val();
+      Logger.log(type);
+      var list = $('#'+type);
+      list.find("option[value='None']").remove();
+      var old_list = []
+      list.find('option').each(function() {
+                          old_list.push($(this).val());
+                          });
+      Logger.log("OLD");
+      Logger.log(old_list);
+      var member_list = $('#memberlist').val();
+      Logger.log("NEW MEMBERS");
+      Logger.log(member_list);
+      for (var i in old_list){
+        var old_name = old_list[i];
+        var index = member_list.indexOf(old_name);
+        if (index > -1) {
+          Logger.log(old_name);
+          member_list.splice(index, 1);
+        }
+      }
+      for (var i = 0; i < member_list.length; i++) {
+        var option = $('<option></option>').attr("value", member_list[i]).text(member_list[i]);
+        list.append(option);
+      }
+      var size = member_list.length + old_list.length
+      var size = size < 10 ? size:10;
+      Logger.log(size);
+      list.attr('size', size);
+    }
+    
+    function select_all(){
+      Logger.log("Select all run");
+      types = [$('#Degree'), $('#CoOp'), $('#Military'), $('#Abroad'), $('#Transfer'), $('#Withdrawn')];
+//      $('#PreAlumn'),
+      for (var i in types){
+//        Logger.log(i);
+        var list = types[i];
+        list.find('option').each(function() {
+//          if ($(this).value == "None"){
+//          continue;
+//          }
+//          Logger.log($(this).value);
+          $(this).attr('selected', true);
+          $(this).prop("selected", "selected");
+          });
+       }
+    }
+    
+    function clear_selects(){
+      Logger.log("Clear button clicked");
+      types = [$('#Degree'), $('#CoOp'), $('#Military'), $('#Abroad'), $('#Transfer'), $('#Withdrawn'), $('#memberlist')];
+//      $('#PreAlumn'),
+      for (var i in types){
+//        Logger.log(i);
+        var list = types[i];
+        list.find('option').each(function() {
+          $(this).removeAttr('selected');//, false);
+          });
+        }
+    }
+    
+    function remove_member(){
+      Logger.log("Remove button clicked");
+      types = [$('#Degree'), $('#CoOp'), $('#Military'), $('#Abroad'), $('#Transfer'), $('#Withdrawn')];
+//      $('#PreAlumn'),
+      for (var i in types){
+        var list = types[i];
+        var names = list.val();
+        Logger.log(names);
+        for (var j in names){
+          var name = names[j];
+          Logger.log(name);
+          list.find("option[value='"+name+"']").remove();
+        }
+        var members_left = [];
+        list.find('option').each(function() {
+                          members_left.push($(this).val());
+                          });
+        if (members_left.length == 0){
+          var option = $('<option></option>').attr("value", "None").text("None Selected");
+          list.append(option);
+          var size = 1;
+        } else {
+          var size = members_left.length < 10 ? members_left.length:10;
+          }
+        Logger.log("NEW SIZE:" + size);
+        list.attr('size', size);
+      }
+    }
+</script>

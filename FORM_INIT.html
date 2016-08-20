@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+  <form id="status_update" name="status_update">
+  <label for="date_init">Initiation Date: </label>
+  <input size="2" name="date_init" id="date_init" type="date">
+<table>
+<tbody>
+ <? if( init.length > 0) { ?>
+<tr>
+<td align="center">Initiate Name</td>
+<td align="center">Graduation Date</td>
+<td align="center">Roll #</td>
+<td align="center">Overall GPA</td>
+<td align="center">Pledge<br>Test A</td>
+<td align="center">Pledge<br>Test B</td>
+<td align="center">Badge Style</td>
+<td align="center">Guard Type</td>
+</tr>
+    <? for (var i = 0; i < init.length; i++) { ?>
+      <? var name = init[i] ?>
+        <tr>
+        <td align="center"><input size="11" name="name_init" id="<?= name ?>" value="<?= name ?>" readonly></td>
+        <td align="center"><input size="2" name="date_grad" type="date"></td>
+        <td align="center"><input size="2" name="roll"></td>
+        <td align="center"><input size="2" name="GPA"></td>
+        <td align="center"><input size="2" name="testA"></td>
+        <td align="center"><input size="2" name="testB"></td>
+        <td align="center">
+          <select name="badge">
+            <option>109 ($20)</option>
+            <option>106 ($67)</option>
+            <option>107 ($117)</option>
+            <option>102 ($165)</option>
+            <option>103 ($209)</option>
+          </select>
+        </td>
+        <td align="center">
+          <select name="guard" style="width: 130px">
+            <option>None</option>
+            <option>Goldgloss & Plain</option>
+            <option>Goldgloss & Chased/Engraved</option>
+            <option>Goldgloss & Close Set Pearl</option>
+            <option>Goldgloss & Crown Set Pearl</option>
+            <option>10k Gold & Plain</option>
+            <option>10k Gold & Chased/Engraved</option>
+            <option>10k Gold & Close Set Pearl</option>
+            <option>10k Gold & Crown Set Pearl</option>
+          </select>
+        </td>
+        </tr>
+    <? } ?>
+<? } ?>
+<? if( depl.length > 0) { ?>
+<tr>
+<td align="center">De-Pledge Name</td>
+<td align="center" width="10">Date Depledged</td>
+<td align="center">Reason Depledged</td>
+</tr>
+    <? for (var i = 0; i < depl.length; i++) { ?>
+      <? var name = depl[i] ?>
+        <tr>
+        <td align="center"><input size="11" name="name_depl" id="<?= name ?>" value="<?= name ?>" readonly></td>
+        <td align="center"><input size="2" name="date_depl" type="date"></td>
+        <td align="center">
+          <select name="reason" style="width: 130px">
+            <option>Voluntarily decided not to continue</option>
+            <option>Too much time required</option>
+            <option>Poor grades</option>
+            <option>Lost interest</option>
+            <option>Negative Chapter Vote</option>
+            <option>Withdrew from Engineering/University</option>
+            <option>Transferring to another school</option>
+            <option>Other</option>
+          </select>
+        </td>
+        </tr>
+    <? } ?>
+<? } ?>
+</tbody>
+</table>
+<input type="submit" id="submit"
+       onclick="this.value='Submitting...';
+                clear_names();
+                google.script.run.withSuccessHandler(fileUploaded)
+                .process_init(this.parentNode);
+                return false;"/>
+</form>
+<div id="output"></div>
+
+<script>
+function clear_names(){
+  document.getElementById("date_init").style = "background-color: #ffffff";
+  var names = document.getElementsByName("name_init");
+  for (i = 0; i < names.length; i++){
+    var name = names[i];
+    name.style = "background-color: #ffffff";
+  }
+  var names = document.getElementsByName("name_depl");
+  for (i = 0; i < names.length; i++){
+    var name = names[i];
+    name.style = "background-color: #ffffff";
+  }
+}
+function fileUploaded(value) {
+      var status = value[0];
+      var name = value[1];
+      if (status==false){
+        document.getElementById('submit').value = 'Re-Submit';
+        document.getElementById(name).style = "background-color: #ff0000";
+      } else {
+        document.getElementById('status_update').style.display = 'none';
+        document.getElementById('output').innerHTML = status;
+        }
+    }
+</script>
+  </body>
+</html>

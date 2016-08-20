@@ -5,6 +5,28 @@
  *     determine which authorization mode (ScriptApp.AuthMode) the trigger is
  *     running in, inspect e.authMode.
  */
+var betterLogStarted = false;
+//startBetterLog();
+
+
+function startBetterLog() {
+  if (!betterLogStarted) {
+    Logger = BetterLog.useSpreadsheet('1mo5t1Uu7zmP9t7w2hL1mWrdba4CtgD_Q9ImbAKjGZyM');
+    betterLogStarted = true;
+  }
+  return Logger;
+}
+
+function clientLog() {
+  var Logger = startBetterLog();
+  var args = Array.slice(arguments);    // Convert arguments to array
+  var func = args.shift();              // Remove first argument, Logger method
+//  if (!Logger.hasOwnProperty(func))     // Validate Logger method
+//    throw new Error( "Unknown Logger method: " + func );
+  args[0] = "CLIENT "+args[0];          // Prepend CLIENT tag
+  Logger[func].apply(null,args);        // Pass all arguments to Logger method
+}
+
 function onOpen(e) {
   var menu = SpreadsheetApp.getUi().createAddonMenu();
   menu.addItem('Update Members', 'getChapterMembers');
@@ -12,17 +34,18 @@ function onOpen(e) {
   menu.addItem('Update Officers', 'officerSidebar');
   menu.addItem('Submit Item', 'submitSidebar');
   menu.addItem('Status Change', 'member_update_sidebar');
-//  menu.addItem('Grad Change', 'form_gradDialog');
+  menu.addItem('Pledge Forms', 'pledge_sidebar');
   menu.addItem('Create Triggers', 'createTriggers');
   menu.addToUi();
 }
 
 function createTriggers() {
-  var sheet = SpreadsheetApp.getActive();
-  ScriptApp.newTrigger("onChange")
-  .forSpreadsheet(sheet)
-  .onChange()
-  .create();
+  var ss = SpreadsheetApp.openById('1mo5t1Uu7zmP9t7w2hL1mWrdba4CtgD_Q9ImbAKjGZyM');
+//  var sheet = SpreadsheetApp.getActive();
+//  ScriptApp.newTrigger("onChange")
+//  .forSpreadsheet(sheet)
+//  .onChange()
+//  .create();
 }
 
 function testEvents() {
@@ -50,12 +73,37 @@ function form_gradDialog() {
 function officerSidebar() {
   var template = HtmlService
       .createTemplateFromFile('Officers');
-
   var htmlOutput = template.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setTitle('Update Officers')
       .setWidth(500);
+  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
+      .showSidebar(htmlOutput);
+}
 
+function get_member_list(status){
+  var status = "Active";
+  var status = "Pledge";
+  var MemberObject = main_range_object("Membership");
+  var member_list = [];
+  for(var i = 0; i< MemberObject.object_count; i++) {
+    var member_name = MemberObject.object_header[i];
+    var member_status = MemberObject[member_name]["Chapter Status"][0];
+    if (member_status == status){
+      member_name = shorten(member_name, 15)
+      member_list.push(member_name);
+    }
+  }
+  return member_list
+}
+
+function pledge_sidebar(){
+  var template = HtmlService
+      .createTemplateFromFile('pledge_select');
+  template.pledge = get_member_list("Pledge");
+  var htmlOutput = template.evaluate()
+      .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+      .setTitle('Update Pledges');
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showSidebar(htmlOutput);
 }
@@ -63,12 +111,9 @@ function officerSidebar() {
 function member_update_sidebar() {
   var template = HtmlService
       .createTemplateFromFile('member_select');
-
   var htmlOutput = template.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setTitle('Update Members');
-//      .setWidth(300);
-
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showSidebar(htmlOutput);
 }
@@ -76,14 +121,11 @@ function member_update_sidebar() {
 function submitSidebar() {
    var template = HtmlService
       .createTemplateFromFile('SubmitForm');
-  
   template.submissions = get_type_list('Submit');
-  
   var htmlOutput = template.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setTitle('Submit Item')
       .setWidth(500);
-  
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showSidebar(htmlOutput);
 }
@@ -100,46 +142,518 @@ function showaddEvent() {
       .showSidebar(htmlOutput);
 }
 
-function member_update(form) {
-//  Logger.log(form);
-//  var select_members = ["Daniel Tranfag...", "Jacob Landsied...", "Jessyca Thomas", "Louis Bertani", "Mark Silvern"];
-  var select_members = form.memberlist
-  var MemberObject = main_range_object("Membership");
-  var members = [];
-  for (var i = 0; i < MemberObject.object_count; i++) {
-    var member_name = MemberObject.object_header[i];
-    for (var j = 0; j < select_members.length; j++) {
-      var member_name_select = select_members[j];
-      member_name_select = member_name_select.replace("...","")
-      if (~member_name.indexOf(member_name_select)){
-        members.push(MemberObject[member_name]);
-      }
+function pledge_update(form) {
+  Logger.log(form);
+  var html = HtmlService.createTemplateFromFile('FORM_INIT');
+  var INIT = []
+  var DEPL = []
+  for (var k in form["name"]){
+    var status = form["status"][k];
+    var name = form["name"][k];
+    if (status == "Initiated"){
+      INIT.push(name);
+    } else {
+      DEPL.push(name);
     }
   }
-  Logger.log(members);
-//  var update_type = "Degree received";
-  if (form.update_type == "Degree received"){
-    Logger.log("DEGREE");
-    var html = HtmlService.createTemplateFromFile('FORM_GRAD');
-    html.members = members;
+  html.init = INIT
+  html.depl = DEPL
+  var htmlOutput = html.evaluate()
+    .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+    .setWidth(700)
+    .setHeight(400);
+  Logger.log(htmlOutput.getContent());
+  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
+  .showModalDialog(htmlOutput, 'PLEDGE FORM');
+}
+
+function member_update(form) {
+//  var form = {"update_type": "Transfer", "memberlist": "Adam Schilpero...",
+//              "Degree": ["Adam Schilpero...", "Austin Mutschl...", "Cole Mobberley"],//};
+//              "Abroad": "Adam Schilpero...", "Transfer": "Adam Schilpero...",
+//              "PreAlumn": ["Derek Hogue", "Esgar Moreno"], "Military": "Adam Schilpero...",
+//              "CoOp": ["Adam Schilpero...", "Austin Mutschl...", "Cole Mobberley"]};
+  Logger.log(form);
+  var MemberObject = main_range_object("Membership");
+  var html = HtmlService.createTemplateFromFile('FORM_STATUS');
+  var CSMTA = []
+  for (var k in form){
+    var type = k;
+    if (type == "update_type" || type == "memberlist"){
+      continue;
+    }
+    Logger.log(k);
+    var select_members = form[k];
+    if (typeof select_members === 'string'){
+      select_members = [select_members];
+    }
+    Logger.log(select_members);
+    var members = [];
+    for (var i = 0; i < MemberObject.object_count; i++) {
+      var member_name = MemberObject.object_header[i];
+      for (var j = 0; j < select_members.length; j++) {
+        var member_name_select = select_members[j];
+        member_name_select = member_name_select.replace("...","")
+        if (~member_name.indexOf(member_name_select)){
+          var this_obj = {}
+          this_obj["Member Name"] = MemberObject[member_name]["Member Name"][0];
+          this_obj["Email Address"] = MemberObject[member_name]["Email Address"][0];
+          this_obj["Current Major"] = MemberObject[member_name]["Current Major"][0];
+          this_obj["Phone Number"] = MemberObject[member_name]["Phone Number"][0];
+          this_obj["New Status"] = type;
+          members.push(this_obj);
+        }
+      }
+    }
+    html[type] = members;
+    if (type != "Degree"){
+      var CSMTA = CSMTA.concat(members)
+    }
+  }
+    html.CSMTA = CSMTA;
     var htmlOutput = html.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
-      .setWidth(800)
+      .setWidth(700)
       .setHeight(400);
+    Logger.log(htmlOutput.getContent());
     SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
-      .showModalDialog(htmlOutput, 'GRAD FORM');
-//      .showModalDialog(htmlOutput);
-    
-    
-//    var htmlOutput  = html.evaluate()
-//    .setSandboxMode(HtmlService.SandboxMode.IFRAME)
-//    .setTitle('Event Functions')
-//    .setWidth(300);
-//  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
-//      .showSidebar(htmlOutput);
-    
+      .showModalDialog(htmlOutput, 'STATUS FORM');
+}
+
+function format_date(date) {
+  try{
+    var raw = date.split("-");
+    return raw[1] + "/" + raw[2] + "/" + raw[0]
+  } catch (error) {
+    Logger.log(error);
+    return "";
   }
 }
+
+function find_member_shortname(MemberObject, member_name_raw){
+  var member_name = member_name_raw.split("...")[0]
+  for (var full_name in MemberObject){
+    if (~full_name.indexOf(member_name)){
+      return MemberObject[full_name]
+    }
+  }
+}
+
+function save_form(csvFile, form_type){
+  try {
+    var folder = DriveApp.getFolderById('0BwvK5gYQ6D4nWVhUVlo4dUhYV0E');
+    var chapterName = SpreadsheetApp
+                      .getActiveSpreadsheet()
+                      .getRangeByName("ChapterName").getValue();
+    var date = new Date();
+    var currentMonth = date.getMonth() + 1;
+    if (currentMonth < 10) { currentMonth = '0' + currentMonth; }
+    var fileName = date.getFullYear().toString()+
+                   currentMonth.toString()+
+                   date.getDate().toString()+"_"+
+                   chapterName+"_"+
+                   form_type+"_"+
+                   date.getTime().toString()+
+                   ".csv";
+    var file = folder.createFile(fileName, csvFile);
+    Logger.log("fileBlob Name: " + file.getName())
+    Logger.log('fileBlob: ' + file);
+    
+    var template = HtmlService.createTemplateFromFile('SubmitFormResponse');
+    var file_url = template.fileUrl = file.getUrl();
+    var submission_date = template.date = date;
+    var submission_type = template.type = form_type;
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Submissions");
+    SpreadsheetApp.setActiveSheet(sheet);
+    var max_column = sheet.getLastColumn();
+    var max_row = sheet.getLastRow();
+    var submit_range = sheet.getRange(max_row + 1, 1, 1, max_column);
+    var file_name = template.name = file.getName();
+    submit_range.setValues([[submission_date, file_name, submission_type, 0, file_url]])
+    return template.evaluate().getContent();
+  } catch (error) {
+    Logger.log(error);
+    return error.toString();
+  }
+}
+
+function process_oer(form) {
+//  var form = {"Scribe": "Eugene Balaguer", "Service Chair": "Kyle Wilson", 
+//              "Treasurer": "Jeremy Faber", "Fundraising Chair": "N/A", 
+//              "Risk Management Chair": "N/A", "Recruitment Chair": "Hannah Rowe", 
+//              "Website/Social Media Chair": "N/A", "Pledge/New Member Educator": "Adam Schilpero...", 
+//              "officer_end": "2016-12-31", "Corresponding Secretary": "Kyle Wilson",
+//              "TCS_start": "2016-08-01", "TCS_end": "2017-06-01",
+//              "Social/Brotherhood Chair": "N/A", "officer_start": "2016-08-01", 
+//              "Scholarship Chair": "N/A", "Vice Regent": "David Montgome...", "PD Chair": "N/A", 
+//              "Regent": "Adam Schilpero...", "Project Chair": "N/A"};
+  Logger.log(form);
+  var MemberObject = main_range_object("Membership");
+  var arr = [form.officer_start, form.officer_end, form.TCS_start, form.TCS_end];
+  if (arr.indexOf("") > -1){
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+     'You must set all of the dates',
+      ui.ButtonSet.OK);
+    return false;
+  }
+  var officer_start = format_date(form.officer_start);
+  var officer_end = format_date(form.officer_end);
+  var TCS_start = format_date(form.TCS_start);
+  var TCS_end = format_date(form.TCS_end);
+  delete form.officer_start
+  delete form.officer_end
+  delete form.TCS_start
+  delete form.TCS_end
+  var header = ["Submitted by", "Date Submitted", "Chapter Name", "Office",
+            "Term Begins (M/D/YYYY)", "Term Ends (M/D/YYYY)", "*ChapRoll",
+            "First Name", "Last Name", "Mobile Phone", "Campus Email", "Other Email"];
+  var start_date = [];
+  var data = [];
+  data.push(header);
+  var chapterName = SpreadsheetApp
+                      .getActiveSpreadsheet()
+                      .getRangeByName("ChapterName").getValue();
+  var date = new Date();
+  var formatted = (date.getMonth() + 1) + '-' + date.getDate() + '-' +
+                  date.getFullYear() + ' ' + date.getHours() + ':' +
+                  date.getMinutes() + ':' + date.getSeconds();
+  for (var key in form){
+    var start = officer_start;
+    var end = officer_end
+    if (form[key] == "N/A"){
+      continue;
+    }
+    if (~key.indexOf("Treasurer") || ~key.indexOf("Corresponding")){
+      start = TCS_start;
+      end = TCS_end;
+    }
+    var member_object = find_member_shortname(MemberObject, form[key]);
+    var row = ["N/A", formatted, chapterName, key, start, end, member_object["Badge Number"][0],
+              member_object["First Name"][0], member_object["Last Name"][0],
+              member_object["Phone Number"][0], member_object["Email Address"][0], ""];
+    Logger.log(row);
+    data.push(row);
+  }
+  Logger.log(data);
+  var csvFile = create_csv(data);
+  Logger.log(csvFile);
+  return save_form(csvFile, "OER");
+}
+
+function process_init(form) {
+//  var form = {"badge": ["109 ($20)", "109 ($20)", "106 ($67)", "102 ($165)", "109 ($20)", "102 ($165)", "102 ($165)"],
+//              "reason": ["Lost interest", "Too much time required", "Voluntarily decided not to continue"],
+//              "name_init": ["Nicholas Larson", "David Montgome...", "Ryan Richard", "Justine Saugen",
+//                            "Mark Silvern", "Monica Sproul", "Daniel Tranfag..."],
+//              "testB": ["1", "2", "3", "4", "5", "6", "7"],
+//              "date_init": "2016-08-01", "name_depl": ["Esgar Moreno", "Adam Schilpero...", "Jessyca Thomas"],
+//              "guard": ["None", "Goldgloss & Plain", "Goldgloss & Chased/Engraved",
+//                        "10k Gold & Chased/Engraved", "10k Gold & Crown Set Pearl",
+//                        "10k Gold & Close Set Pearl", "Goldgloss & Plain"],
+//              "roll": ["1", "2", "3", "4", "5", "6", "7"],
+//              "GPA": ["1", "2", "3", "4", "5", "6", "7"],
+//              "date_grad": ["2016-08-01", "2016-08-01", "2015-08-01", "2016-08-01",
+//                            "2016-08-01", "2016-08-01", "2016-08-01"],
+//              "testA": ["1", "2", "3", "4", "5", "6", "7"],
+//              "date_depl": ["2015-08-01", "2016-08-02", "2016-08-03"]}
+  Logger.log(form);
+//  return;
+  var MemberObject = main_range_object("Membership");
+  var INIT = [header_INIT()];
+  var DEPL = [header_DEPL()];
+  var date = new Date();
+  var date_init = form["date_init"];
+  if (date_init == ""){
+      SpreadsheetApp
+      .getActiveSpreadsheet()
+      .toast('You must set the initiation date!', 'ERROR', 5);
+      return [false, "date_init"];
+    }
+  date_init = format_date(date_init);
+  var chapterName = SpreadsheetApp
+                      .getActiveSpreadsheet()
+                      .getRangeByName("ChapterName").getValue();
+  var formatted = (date.getMonth() + 1) + '-' + date.getDate() + '-' +
+                  date.getFullYear() + ' ' + date.getHours() + ':' +
+                  date.getMinutes() + ':' + date.getSeconds();
+  var init_count = 0;
+  var depl_count = 0;
+  for (var i = 0; i < form["name_init"].length; i++){
+    var name = form["name_init"][i];
+    var member_object = find_member_shortname(MemberObject, name);
+    var first = member_object["First Name"][0];
+    var last = member_object["Last Name"][0];
+    var date_grad = form["date_grad"][i];
+    var roll = form["roll"][i];
+    var GPA = form["GPA"][i];
+    var testA = form["testA"][i];
+    var testB = form["testB"][i];
+    var badge = form["badge"][i];
+    var guard = form["guard"][i];
+    var arr = [date_grad, roll, GPA, testA, testB];
+    if (arr.indexOf("") > -1){
+      SpreadsheetApp
+      .getActiveSpreadsheet()
+      .toast('You must set all of the fields!\nMissing information for:\n'
+             +name, 'ERROR', 5);
+      return [false, name];
+    }
+    date_grad = format_date(date_grad);
+    INIT.push(["N/A", formatted, date_init, chapterName,
+          date_grad, roll, first, "",
+          last, GPA, testA,
+          testB, "Initiation Fee", "Late Fee",
+          "Badge Style", "Guard Type", "Badge Cost", "Guard Cost", "Sum for member"]);
+  }
+  for (var i = 0; i < form["name_depl"].length; i++){
+    var name = form["name_depl"][i];
+    var member_object = find_member_shortname(MemberObject, name);
+    var first = member_object["First Name"][0];
+    var last = member_object["Last Name"][0];
+    var date_depl = form["date_depl"][i];
+    var arr = [date_depl];
+    if (arr.indexOf("") > -1){
+      SpreadsheetApp
+      .getActiveSpreadsheet()
+      .toast('You must set all of the fields!\nMissing information for:\n'
+             +name, 'ERROR', 5);
+      return [false, name];
+    }
+    date_depl = format_date(date_depl);
+    var reason = form["reason"][i];
+    DEPL.push(["N/A", formatted, chapterName, first, last, reason, date_depl]);
+  }
+  Logger.log("INIT");
+  Logger.log(INIT);
+  var csvFile = create_csv(INIT);
+  Logger.log(csvFile);
+  var init_out = "";
+  if (INIT.length > 1){
+    init_out = save_form(csvFile, "INIT");
+  }
+  Logger.log("DEPL");
+  Logger.log(DEPL);
+  var csvFile = create_csv(DEPL);
+  Logger.log(csvFile);
+  var depl_out = ""
+  if (DEPL.length > 1){
+    depl_out = save_form(csvFile, "DEPL");
+  }
+    return [init_out+depl_out, null];
+}
+
+function process_grad(form) {
+//  var form = {"date_start": ["2016-08-01", "2016-08-01", "2016-08-01",
+//                "2016-08-01", "2016-08-01", "2016-08-01", "2016-08-01",
+//                "2016-08-01", "2016-08-01", "2016-08-01", "2016-08-01"],
+//              "new_location": ["Test Cole 1", "Test Austin 1", "Test Adam 1", "Test Adam 2",
+//                 "Test Adam 3", "Test Derek", "Test Esgar", "Test Adam 4",
+//                 "Test Cole 2", "Test Austin 2", "Test Adam 5"],
+//              "phone": ["520-664-5654", "520-664-5654", "520-664-5654"],
+//              "prealumn": ["Undergrad > 4 yrs", "Undergrad < 4 yrs"],
+//              "name": ["Cole Mobberley", "Austin Mutschler", "Adam Schilperoort", "Adam Schilperoort",
+//                       "Adam Schilperoort", "Derek Hogue", "Esgar Moreno", "Adam Schilperoort",
+//                       "Cole Mobberley", "Austin Mutschler", "Adam Schilperoort"],
+//              "degree": ["Cole Mobberley MAJOR", "Austin Mutschler MAJOR", "Adam Schilperoort MAJOR"],
+//              "dist": ["> 60 mi", "> 60 mi", "< 60 mi", "> 60 mi", "> 60 mi"],
+//              "date_end": ["2016-08-03", "2016-08-03", "2016-08-03", "2016-08-03", "2016-08-03"],
+//              "type": ["Degree received", "Degree received", "Degree received", "Abroad",
+//                       "Transfer", "PreAlumn", "PreAlumn", "Military", "CoOp", "CoOp", "CoOp"],
+//              "email": ["ColeMobberley@email.com", "AustinMutschler@email.com", "AdamSchilperoort@email.com"]}
+  Logger.log(form);
+//  return;
+  var MemberObject = main_range_object("Membership");
+  var MSCR = [header_MSCR()];
+//  var MSCR_type = ["Degree received", "Transfer", "PreAlumn"];
+  var COOP = [header_COOP()];
+  var date = new Date();
+  var formatted = (date.getMonth() + 1) + '-' + date.getDate() + '-' +
+                  date.getFullYear() + ' ' + date.getHours() + ':' +
+                  date.getMinutes() + ':' + date.getSeconds();
+//  var COOP_type = ["Abroad", "Military", "CoOp"]
+  var degree_count = 0;
+  var alum_count = 0;
+  var nonalum_count = 0;
+  if (typeof form["type"] === 'string'){
+    for (var obj in form){
+      form[obj] = [form[obj]];
+    }
+  }
+  for (var i = 0; i < form["type"].length; i++){
+    var type = form["type"][i];
+    Logger.log(type);
+    var name = form["name"][i];
+    var member_object = find_member_shortname(MemberObject, name);
+    var badge = member_object["Badge Number"][0];
+    var first = member_object["First Name"][0];
+    var last = member_object["Last Name"][0];
+    var loc = form["new_location"][i]
+    var date_start = form["date_start"][i];
+    if (type == "Degree received"){
+      var email = form["email"][degree_count];
+      var phone = form["phone"][degree_count];
+      var degree = form["degree"][degree_count];
+      if (typeof email === 'string'){
+          email = form["email"];
+          phone = form["phone"];
+          degree = form["degree"];
+        }
+      var arr = [loc, date_start, email, phone, degree];
+      degree_count++
+    } else if (type != "PreAlumn"){
+      if (type != "Withdrawn" && type != "Transfer"){
+        var date_end = form["date_end"][nonalum_count];
+        var dist = form["dist"][nonalum_count];
+        if (typeof date_end === 'string'){
+          date_end =form["date_end"];
+          dist = form["dist"];
+        }
+        var arr = [loc, date_start, date_end, dist];
+        date_end = format_date(date_end);
+        nonalum_count++
+      }
+    } else {
+      var prealumn = form["prealumn"][alum_count];
+      if (prealumn == "Undergrad < 4 yrs"){
+        prealumn = "Undergrad Premature <4 years";
+      } else if (prealumn == "Undergrad > 4 yrs"){
+        prealumn = "Undergrad Premature > 4 years";
+      } else if (prealumn == "Grad Premature"){
+        prealumn = "Grad Student Premature";
+      }
+      alum_count++
+    }
+    date_start = format_date(date_start);
+    if (arr.indexOf("") > -1){
+      SpreadsheetApp
+      .getActiveSpreadsheet()
+      .toast('You must set all of the fields!\nMissing information for:\n'
+             +name, 'ERROR', 5);
+      return [false, name];
+    }
+    switch (type) {
+      case "Degree received":
+        MSCR.push(["N/A", formatted, badge, first, last, phone, email,
+                   "Graduated from school", degree, date_start, loc, "",
+                   "", "", "", "", "", ""]);
+        break;
+      case "Transfer":
+        MSCR.push(["N/A", formatted, badge, first, last, "", "",
+                   "Transferring to another school", "",
+                   "", "", "", "", "", "",
+                   loc, date_start, ""]);
+        break;
+      case "Withdrawn":
+        MSCR.push(["N/A", formatted, badge, first, last, "", "",
+                   "Withdrawing from school", "", "", "", "", "",
+                   "Yes", date_start, "", "", ""]);
+        break;
+      case "PreAlumn":
+        MSCR.push(["N/A", formatted, badge, first, last, "", "",
+                   "Wishes to REQUEST Premature Alum Status", "",
+                   "", "", "", "", "", "", "", "", prealumn]);
+        break;
+      case "Abroad":
+        COOP.push(["N/A", formatted, badge, first, last,
+                   "Study Abroad", date_start,
+                   date_end, dist]);
+        break;
+      case "Military":
+        COOP.push(["N/A", formatted, badge, first, last,
+                   "Called to Active/Reserve Military Duty",
+                   date_start, date_end, dist]);
+        break;
+      case "CoOp":
+        COOP.push(["N/A", formatted, badge, first, last,
+                   "Co-Op/Internship",
+                   date_start, date_end, dist]);
+        break;
+    }
+  }
+  Logger.log("COOP");
+  Logger.log(COOP);
+  var csvFile = create_csv(COOP);
+  Logger.log(csvFile);
+  var coop_out = "";
+  if (COOP.length > 1){
+    coop_out = save_form(csvFile, "COOP");
+  }
+  Logger.log("MSCR");
+  Logger.log(MSCR);
+  var csvFile = create_csv(MSCR);
+  Logger.log(csvFile);
+  var mscr_out = ""
+  if (MSCR.length > 1){
+    mscr_out = save_form(csvFile, "MSCR");
+  }
+    return [coop_out+mscr_out, null];
+       }
+
+function header_MSCR(){
+  return ["Submitted by", "Date Submitted", "ChapRoll",
+   "First Name", "Last Name", "Mobile Phone", "EmailAddress",
+   "Reason for Status Change", "Degree Received",
+   "Graduation Date (M/D/YYYY)", "Employer", "Work Email",
+   "Attending Graduate School where ?", "Withdrawing from school?",
+   "Date withdrawn (M/D/YYYY)", "Transferring to what school ?",
+   "Date of transfer (M/D/YYYY)"];
+}
+
+function header_COOP(){
+  return ["Submitted by", "Date Submitted", "*ChapRoll",
+    "First Name", "Last Name", "Reason Away", "Start Date (M/D/YYYY)",
+    "End Date (M/D/YYYY)", "Miles from Campus**"]
+}
+
+function header_INIT(){
+  return ["Submitted by", "Date Submitted", "Initiation Date", "Chapter Name",
+          "Graduation Year", "Roll Number", "First Name", "Middle Name",
+          "Last Name", "Overall GPA", "A Pledge Test Scores",
+          "B Pledge Test Scores", "Initiation Fee", "Late Fee",
+          "Badge Style", "Guard Type", "Badge Cost", "Guard Cost", "Sum for member"];
+}
+
+function header_DEPL(){
+  return ["Submitted by", "Date Submitted", "Chapter Name",
+          "First Name", "Last Name", "Reason Depledged",
+          "Date Depledged (M/D/YYYY)"];
+}
+
+function create_csv(data){
+  try {
+    var csvFile = undefined;
+
+    // Loop through the data in the range and build a string with the CSV data
+    if (data.length > 1) {
+      var csv = "";
+      for (var row = 0; row < data.length; row++) {
+        for (var col = 0; col < data[row].length; col++) {
+          if (data[row][col].toString().indexOf(",") != -1) {
+            data[row][col] = "\"" + data[row][col] + "\"";
+          }
+        }
+
+        // Join each row's columns
+        // Add a carriage return to end of each row, except for the last one
+        if (row < data.length-1) {
+          csv += data[row].join(",") + "\r\n";
+        }
+        else {
+          csv += data[row];
+        }
+      }
+      csvFile = csv;
+    }
+    return csvFile;
+  }
+  catch(err) {
+    Logger.log(err);
+    Browser.msgBox(err);
+  }
+}
+
 
 function uploadFiles(form) {
   

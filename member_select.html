@@ -8,45 +8,114 @@
 <label for="members">Select Update Type:</label>
 <form id="members" name="members">
 <select style="width:145px;" id="update_type" name="update_type">
-<option>Degree received</option>
-<option>CoOp</option>
-<option>Study Abroad</option>
-<option>Military Deploy</option>
-<option>Transf/Withdrawn</option>
-<option>Request PreAlumn</option>
+<option value="Degree">Degree received</option>
+<option value="CoOp">CoOp</option>
+<option value="Military">Military Deploy</option>
+<!-- <option value="PreAlumn">Request PreAlumn</option> -->
+<option value="Abroad">Study Abroad</option>
+<option value="Transfer">Transfer</option>
+<option value="Withdrawn">Withdrawn</option>
 </select>
 <br><br>
-<label for="memberlist">Select All Members:</label>
+<label for="memberlist">Select Members w/Status Change:</label>
 <br>
 Ctrl or shift to select multiple
-<select id="memberlist" form="members" name="memberlist"  size="20" multiple>
-<option value="member1">Loading...</option>
-</select>
+<table>
+<tr>
+<td>
+<input type="button" value="Add"
+       onclick="add_member();
+                return false;"/>
+<input type="button" value="Clear"
+       onclick="clear_selects();
+                return false;"/>
+</td>
+<td>
+<input type="button" value="Remove"
+       onclick="remove_member();
+                return false;"/>
+</td>
+<tr>
+<td rowspan="6">
+  <select id="memberlist" name="memberlist"  size="15" multiple>
+  <option value="member1">Loading...</option>
+  </select>
+</td>
+<td>
+  <label for="Degree">Degree received:</label>
+  <br>
+  <select id="Degree" name="Degree" size="1" multiple>
+  <option value="None">None Selected</option>
+  </select>
+</td>
+</tr>
+<tr>
+<td>
+<label for="CoOp">CoOp:</label>
+<br>
+  <select id="CoOp" form="members" name="CoOp"  size="1" multiple>
+  <option value="None">None Selected</option>
+  </select>
+</td>
+</tr>
+<tr>
+<td>
+<label for="Military">Military Deploy:</label>
+<br>
+  <select id="Military" form="members" name="Military"  size="1" multiple>
+  <option value="None">None Selected</option>
+  </select>
+</td>
+</tr>
+<!--
+<tr>
+<td>
+<label for="PreAlumn">Request PreAlumn:</label>
+<br>
+  <select id="PreAlumn" form="members" name="PreAlumn"  size="1" multiple>
+  <option value="None">None Selected</option>
+  </select>
+</td>
+</tr>
+-->
+<tr>
+<td>
+<label for="Abroad">Study Abroad:</label>
+<br>
+  <select id="Abroad" form="members" name="Abroad"  size="1" multiple>
+  <option value="None">None Selected</option>
+  </select>
+</td>
+</tr>
+<tr>
+<td>
+<label for="Transfer">Transfer:</label>
+<br>
+  <select id="Transfer" form="members" name="Transfer"  size="1" multiple>
+  <option value="None">None Selected</option>
+  </select>
+</td>
+</tr>
+<tr>
+<td>
+<label for="Withdrawn">Withdrawn:</label>
+<br>
+  <select id="Withdrawn" form="members" name="Withdrawn"  size="1" multiple>
+  <option value="None">None Selected</option>
+  </select>
+</td>
+</tr>
+</table>
 <br>
 <input type="submit"
        onclick="this.value='Processing...';
+                select_all();
                 google.script.run.withSuccessHandler()
                 .member_update(this.parentNode);
                 return false;"/>
 </form>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js">
-</script>
-<script>
-    // The code in this function runs when the page is loaded.
-    $(function () {
-        google.script.run.withSuccessHandler(buildOptionList)
-            .getList('MemberNamesOnly');
-    });
 
-    function buildOptionList(members) {
-        var list = $('#memberlist');
-        list.empty();
-        for (var i = 0; i < members.length; i++) {
-            var option = $('<option></option>').attr("value", members[i]).text(members[i]);
-            list.append(option);
-        }
-    }
-</script>
+<?!= HtmlService.createHtmlOutputFromFile('member_select_Javascript').getContent(); ?>
   </body>
 </html>
 

@@ -4,115 +4,124 @@
     <base target="_top">
   </head>
   <body>
-<form id="officer" action="action_page.php" name="officer">
+<form id="officer" name="officer">
 <table>
 <tbody>
 <tr>
-<td><label for="officer-start">Start Date: </label></td>
-<td><input id="officer-start" name="officer-start" type="date" /></td>
+<td><label for="officer_start">Start Date: </label></td>
+<td><input id="officer_start" name="officer_start" type="date" size="15"/></td>
 </tr>
 <tr>
-<td><label for="officer-end">End Date: </label></td>
-<td><input id="officer-end" name="officer-end" type="date" /></td>
+<td><label for="officer_end">End Date: </label></td>
+<td><input id="officer_end" name="officer_end" type="date" size="15"/></td>
 </tr>
 <tr>
-<td><label for="TCS-start">T/CS Start Date: </label></td>
-<td><input id="officer-start" name="officer-start" type="date" /></td>
+<td><label for="TCS_start">T/CS Start Date: </label></td>
+<td><input id="TCS_start" name="TCS_start" type="date" size="15"/></td>
 </tr>
 <tr>
-<td><label for="TCS-end">T/CS End Date: </label></td>
-<td><input id="officer-end" name="officer-end" type="date" /></td>
+<td><label for="TCS_end">T/CS End Date: </label></td>
+<td><input id="TCS_end" name="TCS_end" type="date" size="15"/></td>
 </tr>
 <tr>
 <td><label for="memberlist-regent">Regent: </label></td>
-<td><select id="memberlist-regent" form="officer" name="regent">
+<td><select id="memberlist-regent" form="officer" name="Regent">
 <option value="member1">Loading...</option>
 </select></td>
 </tr>
 <tr>
 <td><label for="memberlist-vice">Vice Regent: </label></td>
-<td><select id="memberlist-vice" form="officer" name="vice">
+<td><select id="memberlist-vice" form="officer" name="Vice Regent">
 <option value="member1">Loading...</option>
 </select></td>
 </tr>
 <tr>
 <td><label for="memberlist-scribe">Scribe: </label></td>
-<td><select id="memberlist-scribe" form="officer" name="scribe">
+<td><select id="memberlist-scribe" form="officer" name="Scribe">
 <option value="member1">Loading...</option>
 </select></td>
 </tr>
 <tr>
 <td><label for="memberlist-treasurer">Treasurer: </label></td>
-<td><select id="memberlist-treasurer" form="officer" name="treasurer">
+<td><select id="memberlist-treasurer" form="officer" name="Treasurer">
 <option value="member1">Loading...</option>
 </select></td>
 </tr>
 <tr>
 <td><label for="memberlist-corsec">Corresponding Secretary: </label></td>
-<td><select id="memberlist-corsec" form="officer" name="corsec">
+<td><select id="memberlist-corsec" form="officer" name="Corresponding Secretary">
 <option value="member1">Loading...</option>
 </select></td>
 </tr>
 <tr>
 <td><label for="memberlist-rush">Recruitment Chair: </label></td>
-<td><select id="memberlist-rush" form="officer" name="rush">
+<td><select id="memberlist-rush" form="officer" name="Recruitment Chair">
 <option value="member1">Loading...</option>
 </select></td>
 </tr>
 <tr>
 <td><label for="memberlist-pledge">Pledge Instructor: </label></td>
-<td><select id="memberlist-pledge" form="officer" name="pledge">
+<td><select id="memberlist-pledge" form="officer" name="Pledge/New Member Educator">
 <option value="member1">Loading...</option>
 </select></td>
 </tr>
 <tr>
 <td><label for="memberlist-service">Service Chair: </label></td>
-<td><select id="memberlist-service" form="officer" name="service">
+<td><select id="memberlist-service" form="officer" name="Service Chair">
 <option value="member1">Loading...</option>
 </select></td>
 </tr>
 <tr>
 <td><label for="memberlist-prodev">ProDev Chair: </label></td>
-<td><select id="memberlist-prodev" form="officer" name="prodev">
+<td><select id="memberlist-prodev" form="officer" name="PD Chair">
+<option value="member1">Loading...</option>
+</select></td>
+</tr>
+<tr>
+<td><label for="memberlist-scholar">Scholarship Chair: </label></td>
+<td><select id="memberlist-scholar" form="officer" name="Scholarship Chair">
 <option value="member1">Loading...</option>
 </select></td>
 </tr>
 <tr>
 <td><label for="memberlist-social">Social Chair: </label></td>
-<td><select id="memberlist-social" form="officer" name="social">
+<td><select id="memberlist-social" form="officer" name="Social/Brotherhood Chair">
 <option value="member1">Loading...</option>
 </select></td>
 </tr>
 <tr>
 <td><label for="memberlist-risk">Risk Chair: </label></td>
-<td><select id="memberlist-risk" form="officer" name="risk">
+<td><select id="memberlist-risk" form="officer" name="Risk Management Chair">
 <option value="member1">Loading...</option>
 </select></td>
 </tr>
 <tr>
 <td><label for="memberlist-fund">Fundraising Chair: </label></td>
-<td><select id="memberlist-fund" form="officer" name="fund">
+<td><select id="memberlist-fund" form="officer" name="Fundraising Chair">
 <option value="member1">Loading...</option>
 </select></td>
 </tr>
 <tr>
 <td><label for="memberlist-web">Web Chair: </label></td>
-<td><select id="memberlist-web" form="officer" name="web">
+<td><select id="memberlist-web" form="officer" name="Website/Social Media Chair">
 <option value="member1">Loading...</option>
 </select></td>
 </tr>
 <tr>
 <td><label for="memberlist-project">Project Chair: </label></td>
-<td><select id="memberlist-project" form="officer" name="project">
+<td><select id="memberlist-project" form="officer" name="Project Chair">
 <option value="member1">Loading...</option>
 </select></td>
 </tr>
-<tr>
-<td colspan="2" align="center"><input type="submit" /></td>
-</tr>
 </tbody>
 </table>
+<input id="submit" type="submit"
+       onclick="this.value='Submitting...';
+                google.script.run.withSuccessHandler(fileUploaded)
+                .process_oer(this.parentNode);
+                return false;"/>
 </form>
+<div id="output"></div>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js">
 </script>
 <script>
@@ -124,8 +133,8 @@
 
     function buildOptionList(members) {
         var memberlists = [$('#memberlist-regent'), $('#memberlist-vice'), $('#memberlist-scribe'), $('#memberlist-treasurer'), $('#memberlist-corsec'),
-                           $('#memberlist-rush'), $('#memberlist-pledge'), $('#memberlist-service'), $('#memberlist-prodev'), $('#memberlist-social'),
-                           $('#memberlist-risk'), $('#memberlist-fund'), $('#memberlist-web'), $('#memberlist-project')];
+                           $('#memberlist-rush'), $('#memberlist-pledge'), $('#memberlist-service'), $('#memberlist-prodev'), $('#memberlist-scholar'),
+                           $('#memberlist-social'), $('#memberlist-risk'), $('#memberlist-fund'), $('#memberlist-web'), $('#memberlist-project')];
         for (var list_i = 0; list_i < memberlists.length; list_i++) {
             var list = memberlists[list_i];
             list.empty();
@@ -135,6 +144,15 @@
                 var option = $('<option></option>').attr("value", members[i]).text(members[i]);
                 list.append(option);
             }
+        }
+    }
+    
+    function fileUploaded(status) {
+      if (status==false){
+        document.getElementById('submit').value = 'Re-Submit';
+      } else {
+        document.getElementById('officer').style.display = 'none';
+        document.getElementById('output').innerHTML = status;
         }
     }
 </script>

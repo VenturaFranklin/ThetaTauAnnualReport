@@ -4,68 +4,208 @@
     <base target="_top">
   </head>
   <body>
-<form id="officer" action="action_page.php" name="officer">
+    <form id="status_update" name="status_update">
 <table>
 <tbody>
+ <? if( Degree.length > 0) { ?>
 <tr>
-<td align="center">Member<br>Name</td>
-<td align="center">New Status</td>
-<td align="center">Start<br>Date</td>
-<td align="center">End<br>Date</td>
-<td align="center">Employer/<br>School/<br>Location</td>
-<td align="center">Distance<br>from<br>Campus</td>
+<td align="center">Member Name</td>
+<td align="center" width="10">New<br>Status</td>
+<td align="center">Employer/<br>School/Location</td>
+<td align="center">Graduation Date</td>
+<td align="center">PERSONAL<br>Email Address</td>
+<td align="center">Phone<br>Number</td>
+<td align="center">Degree received</td>
 </tr>
+    <? for (var i = 0; i < Degree.length; i++) { ?>
+      <? var name = Degree[i]["Member Name"] ?>
+      <? var email = Degree[i]["Email Address"] ?>
+      <? var degree = Degree[i]["Current Major"] ?>
+      <? var phone = Degree[i]["Phone Number"] ?>
+        <tr>
+        <td><input size="11" name="name" value="<?= name ?>" id="<?= name ?>" readonly></td>
+        <td><input size="11" name="type" value="Degree received" readonly></td>
+        <td align="center"><input size="15" name="new_location"></td>
+        <td align="center"><input size="2" name="date_start" type="date"></td>
+        <td align="center"><input size="20" type="email" name="email" value="<?= email ?>"></td>
+        <td align="center"><input size="12" type='tel' name="phone" value="<?= phone ?>"></td>
+        <td align="center"><input size="12" name="degree" value="<?= degree ?>"></td>
+        </tr>
+    <? } ?>
+<? } ?>
+<? if( CSMTA.length > 0) { ?>
 <tr>
-<td align="center">Name1</td>
-<td align="center"><select style="width:145px;">
-                    <option>CoOp</option>
-                    <option>Study Abroad</option>
-                    <option>Military Deploy</option>
-                   </select></td>
-<td align="center"><input size="6" name="date_start" type="date"></td>
-<td align="center"><input size="6" name="date_end" type="date"></td>
-<td align="center"><input size="20" name="new_location"></td>
-<td align="center"><select>
-        <option>> 60 mi</option>
-        <option>< 60 mi</option>
-    </select></td>
+<td align="center">Member Name</td>
+<td align="center" width="10">New<br>Status</td>
+<td align="center">Employer/<br>School/Location</td>
+<td align="center">Start Date</td>
+<td align="center">End Date</td>
+<td align="center">Campus<br>Distance</td>
+<!-- <td align="center">PreAlum<br>Type</td> -->
 </tr>
-<tr>
-<td align="center">Member<br>Name</td>
-<td align="center">New Status</td>
-<td align="center">Change<br>Date</td>
-<td align="center">Amount<br>Owed ($)</td>
-<td align="center">Employer/<br>School/<br>Location</td>
-</tr>
-<tr>
-<td align="center">Name1</td>
-<td align="center"><select style="width:145px;">
-                    <option>Transfer/Withdrawn</option>
-                    <option>Request PreAlumn</option>
-                   </select></td>
-<td align="center"><input size="6" name="date_change" type="date"></td>
-<td align="center"><input size="5" name="owed"></td>
-<td align="center"><input size="20" name="new_location"></td>
-</tr>
-<tr>
-<td align="center">Member<br>Name</td>
-<td align="center">New Status</td>
-<td align="center">Change<br>Date</td>
-</tr>
-<tr>
-<td align="center">Name1</td>
-<td align="center"><select style="width:145px;">
-                    <option>Resume As Student</option>
-                    <option>Debt Paid</option>
-                   </select></td>
-<td align="center"><input size="6" name="date_change" type="date"></td>
-</tr>
-<tr>
-<td colspan="2" align="center"><input type="submit" /></td>
-</tr>
+    <? for (var i = 0; i < CSMTA.length; i++) { ?>
+      <? var name = CSMTA[i]["Member Name"]
+         var status = CSMTA[i]["New Status"]
+         var prealumn = "DISABLED"
+         var withdrawn = null
+         var disabled = null
+         if (status == "Transfer" || status == "PreAlumn" || status == "Withdrawn"){disabled = "DISABLED"}
+         if (status == "PreAlumn"){prealumn = null}
+         if (status == "Withdrawn"){withdrawn = "DISABLED"}
+      ?>
+        <tr>
+        <td><input size="11" name="name" value="<?= name ?>" id="<?= name ?>" readonly></td>
+        <td><input size="6" name="type" value="<?= status ?>" readonly></td>
+        <td align="center">
+        <? if (status != "Transfer"){ ?>
+        <input size="15" name="new_location" <?= withdrawn ?>>
+        <? } else { ?>
+        <select name="new_location" style="width: 130px">
+          <option>Arizona State University</option> 
+          <option>Auburn University</option> 
+          <option>Boston University</option> 
+          <option>Brigham Young University</option> 
+          <option>Bucknell University</option> 
+          <option>California Instituteof Technology</option> 
+          <option>California Polytechnic State University</option> 
+          <option>Carnegie Mellon University</option> 
+          <option>Case Western Reserve University</option> 
+          <option>Clemson University</option> 
+          <option>Columbia University</option> 
+          <option>Cornell University</option> 
+          <option>Dartmouth College</option> 
+          <option>Drexel University</option> 
+          <option>Duke University</option> 
+          <option>East Carolina University</option> 
+          <option>Emory University</option> 
+          <option>Florida State University</option> 
+          <option>Fordham University</option> 
+          <option>George Washington University</option> 
+          <option>Georgia Institute of Technology</option> 
+          <option>Harvard University</option> 
+          <option>Iowa State University</option> 
+          <option>Johns Hopkins University</option> 
+          <option>Kansas State University</option> 
+          <option>Marshall University</option> 
+          <option>Massachusetts Institute of Technology</option> 
+          <option>Michigan State University</option> 
+          <option>New Jersey Institute of Technology</option> 
+          <option>New York University</option> 
+          <option>North Carolina State University</option> 
+          <option>Northeastern University</option> 
+          <option>Northwestern University</option> 
+          <option>Ohio State University</option> 
+          <option>Ohio University</option> 
+          <option>Oklahoma State University</option> 
+          <option>Oregon State University</option> 
+          <option>Other</option> 
+          <option>Pace University</option> 
+          <option>Pennsylvania State University</option> 
+          <option>Purdue University</option> 
+          <option>Rensselaer Polytechnic Institute</option> 
+          <option>Rice University</option> 
+          <option>Rochester Institute of Technology</option> 
+          <option>Rutgers</option> 
+          <option>Southern Illinois University Carbondale</option> 
+          <option>Stanford University</option> 
+          <option>Syracuse University</option> 
+          <option>Temple University</option> 
+          <option>Texas A & M</option> 
+          <option>Texas Tech University</option> 
+          <option>Tufts University</option> 
+          <option>Tulane University</option> 
+          <option>University at Albany</option> 
+          <option>University at Buffalo</option> 
+          <option>University of Alabama</option> 
+          <option>University of Alabama at Birmingham</option> 
+          <option>University of Arizona</option> 
+          <option>University of Arkansas</option> 
+          <option>University of California - Berkeley</option> 
+          <option>University of California - Los Angeles</option> 
+          <option>University of Central Florida</option> 
+          <option>University of Cincinnati</option> 
+          <option>University of Colorado at Boulder</option> 
+          <option>University of Delaware</option> 
+          <option>University of Florida</option> 
+          <option>University of Georgia</option> 
+          <option>University of Illinois at Urbana - Champaign</option> 
+          <option>University of Iowa</option> 
+          <option>University of Kansas</option> 
+          <option>University of Kentucky</option> 
+          <option>University of Maryland - College Park</option> 
+          <option>University of Miami</option> 
+          <option>University of Michigan - Ann Arbor</option> 
+          <option>University of Minnesota</option> 
+          <option>University of Missouri</option> 
+          <option>University of Nebraska</option> 
+          <option>University of Notre Dame</option> 
+          <option>University of Oklahoma</option> 
+          <option>University of Pennsylvania</option> 
+          <option>University of Pittsburgh</option> 
+          <option>University of Rochester</option> 
+          <option>University of South Carolina</option> 
+          <option>University of Southern California</option> 
+          <option>University of Tennessee</option> 
+          <option>University of Texas at Austin</option> 
+          <option>University of Utah</option> 
+          <option>University of Virginia</option> 
+          <option>University of Washington</option> 
+          <option>University of Wisconsin- Madison</option> 
+          <option>Utah State University</option> 
+          <option>Vanderbilt University</option> 
+          <option>Villanova University</option> 
+          <option>Virginia Tech</option> 
+          <option>Washington State University</option> 
+          <option>Washington University</option> 
+          <option>West Virginia University</option> 
+          <option>Yale University</option> 
+        </select>
+        <? } ?>
+        </td>
+        <td align="center"><input size="2" name="date_start" type="date"></td>
+        <td align="center"><input size="2" name="date_end" type="date" <?= disabled ?>></td>
+        <td align="center"><input size="2" name="dist" <?= disabled ?>></td>
+        <!-- <td align="center">
+          <select <?= prealumn ?> name="prealumn">
+            <option>Undergrad < 4 yrs</option>
+            <option>Undergrad > 4 yrs</option>
+            <option>Grad Premature</option>
+          </select>
+        </td> -->
+        </tr>
+    <? } ?>
+<? } ?>
 </tbody>
 </table>
+<input type="submit" id="submit"
+       onclick="this.value='Submitting...';
+                clear_names();
+                google.script.run.withSuccessHandler(fileUploaded)
+                .process_grad(this.parentNode);
+                return false;"/>
 </form>
+<div id="output"></div>
+
+<script>
+function clear_names(){
+  var names = document.getElementsByName("name");
+  for (i = 0; i < names.length; i++){
+    var name = names[i];
+    name.style = "background-color: #ffffff";
+  }
+}
+function fileUploaded(value) {
+      var status = value[0];
+      var name = value[1];
+      if (status==false){
+        document.getElementById('submit').value = 'Re-Submit';
+        document.getElementById(name).style = "background-color: #ff0000";
+      } else {
+        document.getElementById('status_update').style.display = 'none';
+        document.getElementById('output').innerHTML = status;
+        }
+    }
+</script>
   </body>
 </html>
 
