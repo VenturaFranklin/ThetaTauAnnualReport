@@ -23,7 +23,7 @@
       <? var degree = Degree[i]["Current Major"] ?>
       <? var phone = Degree[i]["Phone Number"] ?>
         <tr>
-        <td><input size="11" name="name" value="<?= name ?>" readonly></td>
+        <td><input size="11" name="name" value="<?= name ?>" id="<?= name ?>" readonly></td>
         <td><input size="11" name="type" value="Degree received" readonly></td>
         <td align="center"><input size="15" name="new_location"></td>
         <td align="center"><input size="2" name="date_start" type="date"></td>
@@ -54,7 +54,7 @@
          if (status == "Withdrawn"){withdrawn = "DISABLED"}
       ?>
         <tr>
-        <td><input size="11" name="name" value="<?= name ?>" readonly></td>
+        <td><input size="11" name="name" value="<?= name ?>" id="<?= name ?>" readonly></td>
         <td><input size="6" name="type" value="<?= status ?>" readonly></td>
         <td align="center">
         <? if (status != "Transfer"){ ?>
@@ -177,8 +177,9 @@
 <? } ?>
 </tbody>
 </table>
-<input type="submit"
+<input type="submit" id="submit"
        onclick="this.value='Submitting...';
+                clear_names();
                 google.script.run.withSuccessHandler(fileUploaded)
                 .process_grad(this.parentNode);
                 return false;"/>
@@ -186,9 +187,19 @@
 <div id="output"></div>
 
 <script>
-function fileUploaded(status) {
+function clear_names(){
+  var names = document.getElementsByName("name");
+  for (i = 0; i < names.length; i++){
+    var name = names[i];
+    name.style = "background-color: #ffffff";
+  }
+}
+function fileUploaded(value) {
+      var status = value[0];
+      var name = value[1];
       if (status==false){
         document.getElementById('submit').value = 'Re-Submit';
+        document.getElementById(name).style = "background-color: #ff0000";
       } else {
         document.getElementById('status_update').style.display = 'none';
         document.getElementById('output').innerHTML = status;

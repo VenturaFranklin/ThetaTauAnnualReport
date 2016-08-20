@@ -221,8 +221,13 @@ function member_update(form) {
 }
 
 function format_date(date) {
-  var raw = date.split("-");
-  return raw[1] + "/" + raw[2] + "/" + raw[0]
+  try{
+    var raw = date.split("-");
+    return raw[1] + "/" + raw[2] + "/" + raw[0]
+  } catch (error) {
+    Logger.log(error);
+    return "";
+  }
 }
 
 function find_member_shortname(MemberObject, member_name_raw){
@@ -284,8 +289,8 @@ function process_oer(form) {
 //              "Regent": "Adam Schilpero...", "Project Chair": "N/A"};
   Logger.log(form);
   var MemberObject = main_range_object("Membership");
-  if (form.officer_start == "" || form.officer_end == "" || 
-      form.TCS_start == "" || form.TCS_end == ""){
+  var arr = [form.officer_start, form.officer_end, form.TCS_start, form.TCS_end];
+  if (arr.indexOf("") > -1){
     var ui = SpreadsheetApp.getUi();
     var result = ui.alert(
      'ERROR',
@@ -338,21 +343,21 @@ function process_oer(form) {
 }
 
 function process_init(form) {
-  var form = {"badge": ["109 ($20)", "109 ($20)", "106 ($67)", "102 ($165)", "109 ($20)", "102 ($165)", "102 ($165)"],
-              "reason": ["Lost interest", "Too much time required", "Voluntarily decided not to continue"],
-              "name_init": ["Nicholas Larson", "David Montgome...", "Ryan Richard", "Justine Saugen",
-                            "Mark Silvern", "Monica Sproul", "Daniel Tranfag..."],
-              "testB": ["1", "2", "3", "4", "5", "6", "7"],
-              "date_init": "2016-08-01", "name_depl": ["Esgar Moreno", "Adam Schilpero...", "Jessyca Thomas"],
-              "guard": ["None", "Goldgloss & Plain", "Goldgloss & Chased/Engraved",
-                        "10k Gold & Chased/Engraved", "10k Gold & Crown Set Pearl",
-                        "10k Gold & Close Set Pearl", "Goldgloss & Plain"],
-              "roll": ["1", "2", "3", "4", "5", "6", "7"],
-              "GPA": ["1", "2", "3", "4", "5", "6", "7"],
-              "date_grad": ["2016-08-01", "2016-08-01", "2015-08-01", "2016-08-01",
-                            "2016-08-01", "2016-08-01", "2016-08-01"],
-              "testA": ["1", "2", "3", "4", "5", "6", "7"],
-              "date_depl": ["2015-08-01", "2016-08-02", "2016-08-03"]}
+//  var form = {"badge": ["109 ($20)", "109 ($20)", "106 ($67)", "102 ($165)", "109 ($20)", "102 ($165)", "102 ($165)"],
+//              "reason": ["Lost interest", "Too much time required", "Voluntarily decided not to continue"],
+//              "name_init": ["Nicholas Larson", "David Montgome...", "Ryan Richard", "Justine Saugen",
+//                            "Mark Silvern", "Monica Sproul", "Daniel Tranfag..."],
+//              "testB": ["1", "2", "3", "4", "5", "6", "7"],
+//              "date_init": "2016-08-01", "name_depl": ["Esgar Moreno", "Adam Schilpero...", "Jessyca Thomas"],
+//              "guard": ["None", "Goldgloss & Plain", "Goldgloss & Chased/Engraved",
+//                        "10k Gold & Chased/Engraved", "10k Gold & Crown Set Pearl",
+//                        "10k Gold & Close Set Pearl", "Goldgloss & Plain"],
+//              "roll": ["1", "2", "3", "4", "5", "6", "7"],
+//              "GPA": ["1", "2", "3", "4", "5", "6", "7"],
+//              "date_grad": ["2016-08-01", "2016-08-01", "2015-08-01", "2016-08-01",
+//                            "2016-08-01", "2016-08-01", "2016-08-01"],
+//              "testA": ["1", "2", "3", "4", "5", "6", "7"],
+//              "date_depl": ["2015-08-01", "2016-08-02", "2016-08-03"]}
   Logger.log(form);
 //  return;
   var MemberObject = main_range_object("Membership");
@@ -360,6 +365,12 @@ function process_init(form) {
   var DEPL = [header_DEPL()];
   var date = new Date();
   var date_init = form["date_init"];
+  if (date_init == ""){
+      SpreadsheetApp
+      .getActiveSpreadsheet()
+      .toast('You must set the initiation date!', 'ERROR', 5);
+      return [false, "date_init"];
+    }
   date_init = format_date(date_init);
   var chapterName = SpreadsheetApp
                       .getActiveSpreadsheet()
@@ -375,13 +386,21 @@ function process_init(form) {
     var first = member_object["First Name"][0];
     var last = member_object["Last Name"][0];
     var date_grad = form["date_grad"][i];
-    date_grad = format_date(date_grad);
     var roll = form["roll"][i];
     var GPA = form["GPA"][i];
     var testA = form["testA"][i];
     var testB = form["testB"][i];
     var badge = form["badge"][i];
     var guard = form["guard"][i];
+    var arr = [date_grad, roll, GPA, testA, testB];
+    if (arr.indexOf("") > -1){
+      SpreadsheetApp
+      .getActiveSpreadsheet()
+      .toast('You must set all of the fields!\nMissing information for:\n'
+             +name, 'ERROR', 5);
+      return [false, name];
+    }
+    date_grad = format_date(date_grad);
     INIT.push(["N/A", formatted, date_init, chapterName,
           date_grad, roll, first, "",
           last, GPA, testA,
@@ -394,6 +413,14 @@ function process_init(form) {
     var first = member_object["First Name"][0];
     var last = member_object["Last Name"][0];
     var date_depl = form["date_depl"][i];
+    var arr = [date_depl];
+    if (arr.indexOf("") > -1){
+      SpreadsheetApp
+      .getActiveSpreadsheet()
+      .toast('You must set all of the fields!\nMissing information for:\n'
+             +name, 'ERROR', 5);
+      return [false, name];
+    }
     date_depl = format_date(date_depl);
     var reason = form["reason"][i];
     DEPL.push(["N/A", formatted, chapterName, first, last, reason, date_depl]);
@@ -414,7 +441,7 @@ function process_init(form) {
   if (DEPL.length > 1){
     depl_out = save_form(csvFile, "DEPL");
   }
-    return init_out+depl_out;
+    return [init_out+depl_out, null];
 }
 
 function process_grad(form) {
@@ -464,17 +491,27 @@ function process_grad(form) {
     var last = member_object["Last Name"][0];
     var loc = form["new_location"][i]
     var date_start = form["date_start"][i];
-    date_start = format_date(date_start);
     if (type == "Degree received"){
       var email = form["email"][degree_count];
       var phone = form["phone"][degree_count];
       var degree = form["degree"][degree_count];
+      if (typeof email === 'string'){
+          email = form["email"];
+          phone = form["phone"];
+          degree = form["degree"];
+        }
+      var arr = [loc, date_start, email, phone, degree];
       degree_count++
     } else if (type != "PreAlumn"){
       if (type != "Withdrawn" && type != "Transfer"){
         var date_end = form["date_end"][nonalum_count];
-        date_end = format_date(date_end);
         var dist = form["dist"][nonalum_count];
+        if (typeof date_end === 'string'){
+          date_end =form["date_end"];
+          dist = form["dist"];
+        }
+        var arr = [loc, date_start, date_end, dist];
+        date_end = format_date(date_end);
         nonalum_count++
       }
     } else {
@@ -487,6 +524,14 @@ function process_grad(form) {
         prealumn = "Grad Student Premature";
       }
       alum_count++
+    }
+    date_start = format_date(date_start);
+    if (arr.indexOf("") > -1){
+      SpreadsheetApp
+      .getActiveSpreadsheet()
+      .toast('You must set all of the fields!\nMissing information for:\n'
+             +name, 'ERROR', 5);
+      return [false, name];
     }
     switch (type) {
       case "Degree received":
@@ -543,7 +588,7 @@ function process_grad(form) {
   if (MSCR.length > 1){
     mscr_out = save_form(csvFile, "MSCR");
   }
-    return coop_out+mscr_out;
+    return [coop_out+mscr_out, null];
        }
 
 function header_MSCR(){
