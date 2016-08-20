@@ -314,7 +314,6 @@ function process_oer(form) {
   var formatted = (date.getMonth() + 1) + '-' + date.getDate() + '-' +
                   date.getFullYear() + ' ' + date.getHours() + ':' +
                   date.getMinutes() + ':' + date.getSeconds();
-  data.push(["N/A", formatted, chapterName,"","","","","","","","",""]);
   for (var key in form){
     var start = officer_start;
     var end = officer_end
@@ -326,7 +325,7 @@ function process_oer(form) {
       end = TCS_end;
     }
     var member_object = find_member_shortname(MemberObject, form[key]);
-    var row = ["", "", "", key, start, end, member_object["Badge Number"][0],
+    var row = ["N/A", formatted, chapterName, key, start, end, member_object["Badge Number"][0],
               member_object["First Name"][0], member_object["Last Name"][0],
               member_object["Phone Number"][0], member_object["Email Address"][0], ""];
     Logger.log(row);
@@ -368,10 +367,6 @@ function process_init(form) {
   var formatted = (date.getMonth() + 1) + '-' + date.getDate() + '-' +
                   date.getFullYear() + ' ' + date.getHours() + ':' +
                   date.getMinutes() + ':' + date.getSeconds();
-  INIT.push(["N/A", formatted, date_init, chapterName, "", "", "",
-             "", "", "", "", "", "", "", "", "", "", "", ""]);
-  DEPL.push(["N/A", formatted, chapterName, "", "",
-             "", ""]);
   var init_count = 0;
   var depl_count = 0;
   for (var i = 0; i < form["name_init"].length; i++){
@@ -387,7 +382,7 @@ function process_init(form) {
     var testB = form["testB"][i];
     var badge = form["badge"][i];
     var guard = form["guard"][i];
-    INIT.push(["", "", "", "",
+    INIT.push(["N/A", formatted, date_init, chapterName,
           date_grad, roll, first, "",
           last, GPA, testA,
           testB, "Initiation Fee", "Late Fee",
@@ -401,14 +396,14 @@ function process_init(form) {
     var date_depl = form["date_depl"][i];
     date_depl = format_date(date_depl);
     var reason = form["reason"][i];
-    DEPL.push(["", "", "", first, last, reason, date_depl]);
+    DEPL.push(["N/A", formatted, chapterName, first, last, reason, date_depl]);
   }
   Logger.log("INIT");
   Logger.log(INIT);
   var csvFile = create_csv(INIT);
   Logger.log(csvFile);
   var init_out = "";
-  if (INIT.length > 2){
+  if (INIT.length > 1){
     init_out = save_form(csvFile, "INIT");
   }
   Logger.log("DEPL");
@@ -416,7 +411,7 @@ function process_init(form) {
   var csvFile = create_csv(DEPL);
   Logger.log(csvFile);
   var depl_out = ""
-  if (DEPL.length > 2){
+  if (DEPL.length > 1){
     depl_out = save_form(csvFile, "DEPL");
   }
     return init_out+depl_out;
@@ -450,10 +445,6 @@ function process_grad(form) {
   var formatted = (date.getMonth() + 1) + '-' + date.getDate() + '-' +
                   date.getFullYear() + ' ' + date.getHours() + ':' +
                   date.getMinutes() + ':' + date.getSeconds();
-  MSCR.push(["N/A", formatted, "", "", "", "", "",
-             "", "", "", "", "", "", "", "", "", "", ""]);
-  COOP.push(["N/A", formatted, "", "", "",
-             "", "", "", ""]);
 //  var COOP_type = ["Abroad", "Military", "CoOp"]
   var degree_count = 0;
   var alum_count = 0;
@@ -499,38 +490,38 @@ function process_grad(form) {
     }
     switch (type) {
       case "Degree received":
-        MSCR.push(["", "", badge, first, last, phone, email,
+        MSCR.push(["N/A", formatted, badge, first, last, phone, email,
                    "Graduated from school", degree, date_start, loc, "",
                    "", "", "", "", "", ""]);
         break;
       case "Transfer":
-        MSCR.push(["", "", badge, first, last, "", "",
+        MSCR.push(["N/A", formatted, badge, first, last, "", "",
                    "Transferring to another school", "",
                    "", "", "", "", "", "",
                    loc, date_start, ""]);
         break;
       case "Withdrawn":
-        MSCR.push(["", "", badge, first, last, "", "",
+        MSCR.push(["N/A", formatted, badge, first, last, "", "",
                    "Withdrawing from school", "", "", "", "", "",
                    "Yes", date_start, "", "", ""]);
         break;
       case "PreAlumn":
-        MSCR.push(["", "", badge, first, last, "", "",
+        MSCR.push(["N/A", formatted, badge, first, last, "", "",
                    "Wishes to REQUEST Premature Alum Status", "",
                    "", "", "", "", "", "", "", "", prealumn]);
         break;
       case "Abroad":
-        COOP.push(["", "", badge, first, last,
+        COOP.push(["N/A", formatted, badge, first, last,
                    "Study Abroad", date_start,
                    date_end, dist]);
         break;
       case "Military":
-        COOP.push(["", "", badge, first, last,
+        COOP.push(["N/A", formatted, badge, first, last,
                    "Called to Active/Reserve Military Duty",
                    date_start, date_end, dist]);
         break;
       case "CoOp":
-        COOP.push(["", "", badge, first, last,
+        COOP.push(["N/A", formatted, badge, first, last,
                    "Co-Op/Internship",
                    date_start, date_end, dist]);
         break;
@@ -541,7 +532,7 @@ function process_grad(form) {
   var csvFile = create_csv(COOP);
   Logger.log(csvFile);
   var coop_out = "";
-  if (COOP.length > 2){
+  if (COOP.length > 1){
     coop_out = save_form(csvFile, "COOP");
   }
   Logger.log("MSCR");
@@ -549,7 +540,7 @@ function process_grad(form) {
   var csvFile = create_csv(MSCR);
   Logger.log(csvFile);
   var mscr_out = ""
-  if (MSCR.length > 2){
+  if (MSCR.length > 1){
     mscr_out = save_form(csvFile, "MSCR");
   }
     return coop_out+mscr_out;
