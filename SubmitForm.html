@@ -13,21 +13,109 @@
           <? } ?>
       </select>
     <input type="file" name="myFile">
-    <input type="button" value="Upload File"
-           onclick="this.value='Uploading...';
-                    google.script.run.withSuccessHandler(fileUploaded)
-                    .uploadFiles(this.parentNode);
-                    return false;">
-</form>
-<div id="output"></div>
-<script>
-    function fileUploaded(status) {
-        document.getElementById('submissions').style.display = 'none';
-        document.getElementById('output').innerHTML = status;
+    <input type="submit" value="Upload File" 
+               onclick="this.value='Uploading...';
+                        insertFile(this.parentNode);
+                        return false;">
+   </form>
+
+    <!--Add buttons to initiate auth sequence and sign out-->
+    <button id="authorize-button" style="display: none;">Authorize</button>
+    <button id="signout-button" style="display: none;">Sign Out</button>
+
+    <div id="content"></div>
+    <?!= HtmlService.createHtmlOutputFromFile('CREDENTIALS').getContent(); ?>
+    <script type="text/javascript">
+      // Enter one or more authorization scopes. Refer to the documentation for
+      // the API or https://developers.google.com/identity/protocols/googlescopes
+      // for details.
+      var scopes = 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.file';
+      var auth2; // The Sign-In object.
+      var authorizeButton = document.getElementById('authorize-button');
+      var signoutButton = document.getElementById('signout-button');
+      function handleClientLoad() {
+        // Load the API client and auth library
+        gapi.load('client:auth2', initAuth);
+      }
+      function initAuth() {
+        gapi.client.setApiKey(apiKey);
+        gapi.auth2.init({
+            client_id: clientId,
+            scope: scopes
+        }).then(function () {
+          auth2 = gapi.auth2.getAuthInstance();
+          // Listen for sign-in state changes.
+          auth2.isSignedIn.listen(updateSigninStatus);
+          // Handle the initial sign-in state.
+          updateSigninStatus(auth2.isSignedIn.get());
+          authorizeButton.onclick = handleAuthClick;
+          signoutButton.onclick = handleSignoutClick;
+        });
+      }
+      function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+          authorizeButton.style.display = 'none';
+          signoutButton.style.display = 'block';
+        } else {
+          authorizeButton.style.display = 'block';
+          signoutButton.style.display = 'none';
+        }
+      }
+      function handleAuthClick(event) {
+        auth2.signIn();
+      }
+      function handleSignoutClick(event) {
+        auth2.signOut();
+      }
+      
+    function insertFile(form, callback) {
+    var fileData = form.myFile.files[0];
+  const boundary = '-------314159265358979323846';
+  const delimiter = "\r\n--" + boundary + "\r\n";
+  const close_delim = "\r\n--" + boundary + "--";
+
+  var reader = new FileReader();
+  reader.readAsBinaryString(fileData);
+  reader.onload = function(e) {
+    var contentType = fileData.type || 'application/octet-stream';
+    var metadata = {
+      'title': fileData.name,
+      'mimeType': contentType,
+      'parents': [{'id': '0BwvK5gYQ6D4nWVhUVlo4dUhYV0E'}]
+    };
+
+    var base64Data = btoa(reader.result);
+    var multipartRequestBody =
+        delimiter +
+        'Content-Type: application/json\r\n\r\n' +
+        JSON.stringify(metadata) +
+        delimiter +
+        'Content-Type: ' + contentType + '\r\n' +
+        'Content-Transfer-Encoding: base64\r\n' +
+        '\r\n' +
+        base64Data +
+        close_delim;
+
+    var request = gapi.client.request({
+        'path': '/upload/drive/v2/files',
+        'method': 'POST',
+        'params': {'uploadType': 'multipart'},
+        'headers': {
+          'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+        },
+        'body': multipartRequestBody});
+    if (!callback) {
+      callback = function(file) {
+        console.log(file);
+        console.log(multipartRequestBody);
+      };
     }
-</script>
-<style>
- input { display:block; margin: 20px; }
-</style>
-</body>
+    request.execute(callback);
+  }
+}
+    </script>
+    <script src="https://apis.google.com/js/api.js?onload=handleClientLoad"></script>
+  </body>
 </html>
+
+
