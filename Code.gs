@@ -6,6 +6,7 @@
  *     running in, inspect e.authMode.
  */
 var betterLogStarted = false;
+var SCRIPT_PROP = PropertiesService.getScriptProperties();
 //startBetterLog();
 
 
@@ -27,25 +28,114 @@ function clientLog() {
   Logger[func].apply(null,args);        // Pass all arguments to Logger method
 }
 
+function setup() {
+  var ui = SpreadsheetApp.getUi();
+  var result = ui.prompt(
+    'Setup Sheet ID',
+    'What is your sheet id?\n'+
+    'Located in the URL at SHEETID, see example below:\n'+
+    'https://docs.google.com/spreadsheets/d/SHEETID/edit#gid=0',
+    ui.ButtonSet.OK_CANCEL);
+  var button = result.getSelectedButton();
+  var text = result.getResponseText();
+//  var doc = SpreadsheetApp.getActiveSpreadsheet();
+  if (button == ui.Button.OK) {
+    ui.alert('Verify you sheet id is: ' + text);
+  } else {
+    // User clicked "Cancel".
+    ui.alert('The scripts will not work without the Sheet ID.');
+  }
+  SCRIPT_PROP.setProperty("key", text);
+}
+
+function setup_sheets(chapter_name) {
+//  var chapter_name = "Chi";
+  var default_id = "19aWLtjJJ-Uh6XOqOuseLpQcNJYslQHe9Y9Gaj2vSjEw";
+  var default_doc = SpreadsheetApp.openById(default_id);
+  var target_doc = get_active_spreadsheet();
+  var sheets = default_doc.getSheets();
+  for (var i in sheets){
+    var sheet = sheets[i];
+    var sheet_name = sheet.getName();
+    sheet.copyTo(target_doc).setName(sheet_name);
+  }
+  var sheet = target_doc.getSheetByName("Sheet1");
+  target_doc.deleteSheet(sheet);
+  var doc_name = default_doc.getName();
+  doc_name = doc_name.replace("DEFAULT ", ""); //DEFAULT Theta Tau Chapter Report - Chapter
+  doc_name = doc_name.replace("- Chapter", "- "+chapter_name);
+  Logger.log(doc_name);
+  target_doc.rename(doc_name);
+  var sheet = target_doc.getSheetByName("Dashboard"); //A1
+  //? CHAPTER ANNUAL REPORT
+  var sheet = target_doc.getSheetByName("Chapter"); //B2
+  var named_ranges = default_doc.getNamedRanges();
+  for (var j in named_ranges){
+    var named_range = named_ranges[j];
+    var name = named_range.getName();
+    var range = named_range.getRange();
+    var sheet = range.getSheet().getSheetName();
+    var old_range = range.getA1Notation();
+    Logger.log(old_range);
+    var new_sheet = target_doc.getSheetByName(sheet);
+    var new_range = new_sheet.getRange(old_range);
+    Logger.log(name);
+    target_doc.setNamedRange(name, new_range);
+  }
+}
+
+function RESET() {
+  var target_doc = get_active_spreadsheet();
+  var sheets = target_doc.getSheets();
+  var sheet = target_doc.insertSheet();
+  sheet.setName("Sheet1");
+  for (var i in sheets){
+    var sheet = sheets[i];
+    target_doc.deleteSheet(sheet)
+  }
+  var named_ranges = target_doc.getNamedRanges();
+  for (var j in named_ranges){
+    var named_range = named_ranges[j];
+    named_range.remove();
+  }
+  target_doc.rename("BLANK");
+}
+
+function get_active_spreadsheet() {
+  var doc = SpreadsheetApp.openById(SCRIPT_PROP.getProperty("key"));
+  return doc
+}
+
+function onInstall(e) {
+  onOpen(e);
+  setup();
+  var chapter_name = "Chi";
+  setup_sheets(chapter_name);
+  get_chapter_members(chapter_name);
+  createTriggers();
+}
+
 function onOpen(e) {
   var menu = SpreadsheetApp.getUi().createAddonMenu();
-  menu.addItem('Update Members', 'getChapterMembers');
+  menu.addItem('Update Members', 'get_chapter_members');
   menu.addItem('Event Functions', 'showaddEvent');
   menu.addItem('Update Officers', 'officerSidebar');
   menu.addItem('Submit Item', 'submitSidebar');
   menu.addItem('Status Change', 'member_update_sidebar');
   menu.addItem('Pledge Forms', 'pledge_sidebar');
   menu.addItem('Create Triggers', 'createTriggers');
+  menu.addItem('SETUP', 'onInstall');
+  menu.addItem("TEST", 'TEST');//test_onEdit
+  menu.addItem("RESET", 'RESET');
   menu.addToUi();
 }
 
 function createTriggers() {
-  var ss = SpreadsheetApp.openById('1mo5t1Uu7zmP9t7w2hL1mWrdba4CtgD_Q9ImbAKjGZyM');
-//  var sheet = SpreadsheetApp.getActive();
-//  ScriptApp.newTrigger("onChange")
-//  .forSpreadsheet(sheet)
-//  .onChange()
-//  .create();
+  var ss = get_active_spreadsheet();
+  ScriptApp.newTrigger('_onEdit')
+      .forSpreadsheet(ss)
+      .onEdit()
+      .create();
 }
 
 function testEvents() {
@@ -82,15 +172,15 @@ function officerSidebar() {
 }
 
 function get_member_list(status){
-  var status = "Active";
-  var status = "Pledge";
+//  var status = "Student";
+//  var status = "Pledge";
   var MemberObject = main_range_object("Membership");
   var member_list = [];
   for(var i = 0; i< MemberObject.object_count; i++) {
     var member_name = MemberObject.object_header[i];
     var member_status = MemberObject[member_name]["Chapter Status"][0];
     if (member_status == status){
-      member_name = shorten(member_name, 15)
+      member_name = shorten(member_name, 15);
       member_list.push(member_name);
     }
   }
@@ -147,6 +237,11 @@ function pledge_update(form) {
   var html = HtmlService.createTemplateFromFile('FORM_INIT');
   var INIT = []
   var DEPL = []
+  if (typeof form["name"] === 'string'){
+    for (var obj in form){
+      form[obj] = [form[obj]];
+    }
+  }
   for (var k in form["name"]){
     var status = form["status"][k];
     var name = form["name"][k];
@@ -242,9 +337,8 @@ function find_member_shortname(MemberObject, member_name_raw){
 function save_form(csvFile, form_type){
   try {
     var folder = DriveApp.getFolderById('0BwvK5gYQ6D4nWVhUVlo4dUhYV0E');
-    var chapterName = SpreadsheetApp
-                      .getActiveSpreadsheet()
-                      .getRangeByName("ChapterName").getValue();
+    var ss = get_active_spreadsheet();
+    var chapterName = ss.getRangeByName("ChapterName").getValue();
     var date = new Date();
     var currentMonth = date.getMonth() + 1;
     if (currentMonth < 10) { currentMonth = '0' + currentMonth; }
@@ -263,8 +357,8 @@ function save_form(csvFile, form_type){
     var file_url = template.fileUrl = file.getUrl();
     var submission_date = template.date = date;
     var submission_type = template.type = form_type;
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Submissions");
-    SpreadsheetApp.setActiveSheet(sheet);
+    var sheet = ss.getSheetByName("Submissions");
+//    SpreadsheetApp.setActiveSheet(sheet);
     var max_column = sheet.getLastColumn();
     var max_row = sheet.getLastRow();
     var submit_range = sheet.getRange(max_row + 1, 1, 1, max_column);
@@ -312,9 +406,8 @@ function process_oer(form) {
   var start_date = [];
   var data = [];
   data.push(header);
-  var chapterName = SpreadsheetApp
-                      .getActiveSpreadsheet()
-                      .getRangeByName("ChapterName").getValue();
+  var ss = get_active_spreadsheet();
+  var chapterName = ss.getRangeByName("ChapterName").getValue();
   var date = new Date();
   var formatted = (date.getMonth() + 1) + '-' + date.getDate() + '-' +
                   date.getFullYear() + ' ' + date.getHours() + ':' +
@@ -365,65 +458,73 @@ function process_init(form) {
   var DEPL = [header_DEPL()];
   var date = new Date();
   var date_init = form["date_init"];
+  var ss = get_active_spreadsheet();
   if (date_init == ""){
-      SpreadsheetApp
-      .getActiveSpreadsheet()
-      .toast('You must set the initiation date!', 'ERROR', 5);
+      ss.toast('You must set the initiation date!', 'ERROR', 5);
       return [false, "date_init"];
     }
   date_init = format_date(date_init);
-  var chapterName = SpreadsheetApp
-                      .getActiveSpreadsheet()
-                      .getRangeByName("ChapterName").getValue();
+  var chapterName = ss.getRangeByName("ChapterName").getValue();
   var formatted = (date.getMonth() + 1) + '-' + date.getDate() + '-' +
                   date.getFullYear() + ' ' + date.getHours() + ':' +
                   date.getMinutes() + ':' + date.getSeconds();
   var init_count = 0;
   var depl_count = 0;
-  for (var i = 0; i < form["name_init"].length; i++){
-    var name = form["name_init"][i];
-    var member_object = find_member_shortname(MemberObject, name);
-    var first = member_object["First Name"][0];
-    var last = member_object["Last Name"][0];
-    var date_grad = form["date_grad"][i];
-    var roll = form["roll"][i];
-    var GPA = form["GPA"][i];
-    var testA = form["testA"][i];
-    var testB = form["testB"][i];
-    var badge = form["badge"][i];
-    var guard = form["guard"][i];
-    var arr = [date_grad, roll, GPA, testA, testB];
-    if (arr.indexOf("") > -1){
-      SpreadsheetApp
-      .getActiveSpreadsheet()
-      .toast('You must set all of the fields!\nMissing information for:\n'
-             +name, 'ERROR', 5);
-      return [false, name];
+  if (typeof form["name_depl"] === 'string'){
+    for (var obj in form){
+      form[obj] = [form[obj]];
     }
-    date_grad = format_date(date_grad);
-    INIT.push(["N/A", formatted, date_init, chapterName,
-          date_grad, roll, first, "",
-          last, GPA, testA,
-          testB, "Initiation Fee", "Late Fee",
-          "Badge Style", "Guard Type", "Badge Cost", "Guard Cost", "Sum for member"]);
   }
-  for (var i = 0; i < form["name_depl"].length; i++){
-    var name = form["name_depl"][i];
-    var member_object = find_member_shortname(MemberObject, name);
-    var first = member_object["First Name"][0];
-    var last = member_object["Last Name"][0];
-    var date_depl = form["date_depl"][i];
-    var arr = [date_depl];
-    if (arr.indexOf("") > -1){
-      SpreadsheetApp
-      .getActiveSpreadsheet()
-      .toast('You must set all of the fields!\nMissing information for:\n'
-             +name, 'ERROR', 5);
-      return [false, name];
+  if (typeof form["name_init"] === 'string'){
+    for (var obj in form){
+      form[obj] = [form[obj]];
     }
-    date_depl = format_date(date_depl);
-    var reason = form["reason"][i];
-    DEPL.push(["N/A", formatted, chapterName, first, last, reason, date_depl]);
+  }
+  Logger.log(form);
+  if (form["name_init"] !== undefined){
+    for (var i = 0; i < form["name_init"].length; i++){
+      var name = form["name_init"][i];
+      var member_object = find_member_shortname(MemberObject, name);
+      var first = member_object["First Name"][0];
+      var last = member_object["Last Name"][0];
+      var date_grad = form["date_grad"][i];
+      var roll = form["roll"][i];
+      var GPA = form["GPA"][i];
+      var testA = form["testA"][i];
+      var testB = form["testB"][i];
+      var badge = form["badge"][i];
+      var guard = form["guard"][i];
+      var arr = [date_grad, roll, GPA, testA, testB];
+      if (arr.indexOf("") > -1){
+        ss.toast('You must set all of the fields!\nMissing information for:\n'
+                 +name, 'ERROR', 5);
+        return [false, name];
+      }
+      date_grad = format_date(date_grad);
+      INIT.push(["N/A", formatted, date_init, chapterName,
+                 date_grad, roll, first, "",
+                 last, GPA, testA,
+                 testB, "Initiation Fee", "Late Fee",
+                 "Badge Style", "Guard Type", "Badge Cost", "Guard Cost", "Sum for member"]);
+    }
+  }
+  if (form["name_depl"] !== undefined){
+    for (var i = 0; i < form["name_depl"].length; i++){
+      var name = form["name_depl"][i];
+      var member_object = find_member_shortname(MemberObject, name);
+      var first = member_object["First Name"][0];
+      var last = member_object["Last Name"][0];
+      var date_depl = form["date_depl"][i];
+      var arr = [date_depl];
+      if (arr.indexOf("") > -1){
+        ss.toast('You must set all of the fields!\nMissing information for:\n'
+                 +name, 'ERROR', 5);
+        return [false, name];
+      }
+      date_depl = format_date(date_depl);
+      var reason = form["reason"][i];
+      DEPL.push(["N/A", formatted, chapterName, first, last, reason, date_depl]);
+    }
   }
   Logger.log("INIT");
   Logger.log(INIT);
@@ -527,9 +628,8 @@ function process_grad(form) {
     }
     date_start = format_date(date_start);
     if (arr.indexOf("") > -1){
-      SpreadsheetApp
-      .getActiveSpreadsheet()
-      .toast('You must set all of the fields!\nMissing information for:\n'
+      var ss = get_active_spreadsheet();
+      ss.toast('You must set all of the fields!\nMissing information for:\n'
              +name, 'ERROR', 5);
       return [false, name];
     }
@@ -656,7 +756,7 @@ function create_csv(data){
 
 
 function uploadFiles(form) {
-  
+  Logger.log(form);
   try {
 //    var folder_name = "Student Files";
     var folder = DriveApp.getFolderById('0BwvK5gYQ6D4nWVhUVlo4dUhYV0E');
@@ -667,30 +767,29 @@ function uploadFiles(form) {
 //    } else {
 //      folder = DriveApp.createFolder(folder_name);
 //    }
-    
     var blob = form.myFile;
     Logger.log("fileBlob Name: " + blob.getName())
     Logger.log("fileBlob type: " + blob.getContentType())
     Logger.log('fileBlob: ' + blob);
-    
     var file = folder.createFile(blob);    
 //    file.setDescription("Uploaded by " + form.myName);
     var template = HtmlService.createTemplateFromFile('SubmitFormResponse');
     var file_url = template.fileUrl = file.getUrl();
     var submission_date = template.date = new Date();
     var submission_type = template.type = form.submissions;
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Submissions");
-    SpreadsheetApp.setActiveSheet(sheet);
+    var ss = get_active_spreadsheet();
+    var sheet = ss.getSheetByName("Submissions");
     var max_column = sheet.getLastColumn();
     var max_row = sheet.getLastRow();
     var submit_range = sheet.getRange(max_row + 1, 1, 1, max_column);
     var file_name = template.name = file.getName();
     submit_range.setValues([[submission_date, file_name, submission_type, 0, file_url]])
     update_scores_submit(max_row + 1);
-    
     return template.evaluate().getContent();
   } catch (error) {
-    return error.toString();
+    var this_error = error.toString();
+    Logger.log(this_error);
+    return this_error;
   }
 }
 
@@ -705,8 +804,13 @@ function get_score_submit(myScore){
   return score_data
 }
 
-function shorten(long_string, max_len){
-  return (long_string.length > max_len) ? long_string.substr(0,max_len-1)+'...' : long_string.substr(0,long_string.length);
+function shorten(long_string, max_len, ellipse){
+  if (ellipse !== undefined){
+    ellipse="";
+  } else {
+    ellipse="...";
+  }
+  return (long_string.length > max_len) ? long_string.substr(0,max_len-1)+ellipse : long_string.substr(0,long_string.length);
 }
 
 
@@ -761,13 +865,23 @@ function get_ind_list(type){
   return newArray;
 }
 
+function get_event_list() {
+  var event_object = main_range_object("Events");
+  var event_list = [];
+  for(var i = 0; i< event_object.object_count; i++) {
+    var event_name = event_object.object_header[i];
+    event_list.push(event_name);
+    }
+  return event_list
+}
+
 function getList(RangeName) {
   //' MemberNamesOnly
 //  var RangeName = 'MemberNamesOnly'
 //  var RangeName = 'EventTypes';
   Logger.log('Called getList, RangeName: ' + RangeName);
-  var events = SpreadsheetApp
-      .getActiveSpreadsheet()//      .openById('10avD_q_RiDwUDuJ8Nw36vWixeJzmPATjW73DnnHRNJo')
+  var ss = get_active_spreadsheet();
+  var events = ss
       .getRangeByName(RangeName)
       .getValues()
   var event_list = [].concat.apply([], events);
@@ -778,22 +892,33 @@ function getList(RangeName) {
 }
 
 //function onChange(e){
-//  Logger.log("onChange")
-//  Logger.log(e)
-//  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-//  var sheet_name = sheet.getName();
-//  if (sheet_name == "Events"){
-//    if (e.changeType == "INSERT_ROW"){
-//      Logger.log("EVENTS ROW ADDED");
-//    }else if (e.changeType == "REMOVE_ROW"){
-//      Logger.log("EVENTS ROW REMOVED");
-//    }
-//  } 
+////  show_att_sheet_alert();
+//  Logger.log("onChange");
+//  Logger.log(e);
+//  _onEdit(e);
+////  var ss = get_active_spreadsheet();
+////  var sheet = ss.getActiveSheet();
+////  var sheet_name = sheet.getName();
+////  if (sheet_name == "Events"){
+////    if (e.changeType == "INSERT_ROW"){
+////      Logger.log("EVENTS ROW ADDED");
+////    }else if (e.changeType == "REMOVE_ROW"){
+////      Logger.log("EVENTS ROW REMOVED");
+////    }
+////  } 
 //}
 
-function onEdit(e){
-  Logger.log("onEDIT" + e)
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+function _onEdit(e){
+  var Logger = startBetterLog();
+  try{
+  Logger.log("onEDIT" + e);
+  Logger.log(e);
+  Logger.log("onEdit, authMode: " + e.authMode);
+  Logger.log("onEdit, user: " + e.user);
+  Logger.log("onEdit, source: " + e.source);
+  Logger.log("onEdit, range: " + e.range);
+  Logger.log("onEdit, value: " + e.value);
+  var sheet = e.range.getSheet();
   var sheet_name = sheet.getName();
   var user_event_range = e.range
   var user_row = user_event_range.getRow();
@@ -821,13 +946,22 @@ function onEdit(e){
       update_scores_org_gpa_serv();
     }
   }
+  } catch (error) {
+    Logger.log(error);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      error,
+      ui.ButtonSet.OK);
+    return "";
+  }
 }
 
 function update_attendance(attendance){
   var MemberObject = main_range_object("Membership");
   Logger.log(attendance);
   var counts = {};
-  counts["Active"] = {};
+  counts["Student"] = {};
   counts["Pledge"] = {};
   var test_len = attendance.object_count;
   for(var i = 2; i< attendance.object_count; i++) {
@@ -839,7 +973,8 @@ function update_attendance(attendance){
   Logger.log(counts)
   var event_name = attendance["Event Name"];
   Logger.log(event_name);
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Events");
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName("Events");
   var max_column = sheet.getLastColumn();
   var event_headers = sheet.getRange(1, 1, 1, max_column);
   var header_values = event_headers.getValues()
@@ -849,8 +984,8 @@ function update_attendance(attendance){
   Logger.log("ROW: " + event_row + " Active: " + active_col + " Pledge: " + pledge_col)
   var active_range = sheet.getRange(event_row, active_col)
   var pledge_range = sheet.getRange(event_row, pledge_col)
-  active_range.setValue(counts["Active"]["PR"])
-  pledge_range.setValue(counts["Pledge"]["PR"])
+  active_range.setValue(counts["Student"]["P"])
+  pledge_range.setValue(counts["Pledge"]["P"])
 }
 
 function update_scores_event(user_row){
@@ -869,7 +1004,8 @@ function update_scores_event(user_row){
 }
 
 function update_score_att(){
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Scoring");
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName("Scoring");
   var EventObject = main_range_object("Events");
   var ScoringObject = main_range_object("Scoring");
   var total_members = get_total_members().Active;
@@ -914,7 +1050,8 @@ function update_score_att(){
 }
 
 function update_score_member_pledge(){
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Scoring");
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName("Scoring");
   var member_value_obj = get_membership_ranges();
   var init_sp_value = member_value_obj.init_sp_range.getValue();
   var init_fa_value = member_value_obj.init_fa_range.getValue();
@@ -967,30 +1104,15 @@ function update_score_member_pledge(){
 }
 
 function get_membership_ranges(){
-  var init_sp_range = SpreadsheetApp
-                      .getActiveSpreadsheet()
-                      .getRangeByName("INIT_SP");
-  var init_fa_range = SpreadsheetApp
-                      .getActiveSpreadsheet()
-                      .getRangeByName("INIT_FA");
-  var pledge_sp_range = SpreadsheetApp
-                        .getActiveSpreadsheet()
-                        .getRangeByName("PLEDGE_SP");
-  var pledge_fa_range = SpreadsheetApp
-                        .getActiveSpreadsheet()
-                        .getRangeByName("PLEDGE_FA");
-  var grad_sp_range = SpreadsheetApp
-                      .getActiveSpreadsheet()
-                      .getRangeByName("GRAD_SP");
-  var grad_fa_range = SpreadsheetApp
-                      .getActiveSpreadsheet()
-                      .getRangeByName("GRAD_FA");
-  var act_sp_range = SpreadsheetApp
-                     .getActiveSpreadsheet()
-                     .getRangeByName("ACT_SP");
-  var act_fa_range = SpreadsheetApp
-                     .getActiveSpreadsheet()
-                     .getRangeByName("ACT_FA");
+  var ss = get_active_spreadsheet();
+  var init_sp_range = ss.getRangeByName("INIT_SP");
+  var init_fa_range = ss.getRangeByName("INIT_FA");
+  var pledge_sp_range = ss.getRangeByName("PLEDGE_SP");
+  var pledge_fa_range = ss.getRangeByName("PLEDGE_FA");
+  var grad_sp_range = ss.getRangeByName("GRAD_SP");
+  var grad_fa_range = ss.getRangeByName("GRAD_FA");
+  var act_sp_range = ss.getRangeByName("ACT_SP");
+  var act_fa_range = ss.getRangeByName("ACT_FA");
   return {init_sp_range: init_sp_range,
           init_fa_range: init_fa_range,
           pledge_sp_range: pledge_sp_range,
@@ -1003,7 +1125,8 @@ function get_membership_ranges(){
 }
 
 function update_scores_org_gpa_serv(){
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Scoring");
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName("Scoring");
   var score_data = get_scores_org_gpa_serv();
   var ScoringObject = main_range_object("Scoring");
   var total_col = ScoringObject["Societies"]["CHAPTER TOTAL"][1];
@@ -1110,7 +1233,8 @@ function update_score(row, sheetName, score_data, myObject){
 //  var row = 4
 //  var shetName = "Events";
   Logger.log("SHEET: " + sheetName + " ROW: " + row)
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName(sheetName);
   var score_ind = myObject["Score"][1];
   var object_date = myObject["Date"][0];
   var object_type = myObject["Type"][0];
@@ -1146,7 +1270,8 @@ function update_score(row, sheetName, score_data, myObject){
 
 function update_main_score(score_data){
   Logger.log(score_data);
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Scoring");
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName("Scoring");
   var score_row = score_data.score_ids.score_row
   var semester_range = sheet.getRange(score_row, score_data.score_ids[score_data.semester]);
   var other_semester = score_data.semester=="FALL" ? "SPRING":"FALL";
@@ -1163,7 +1288,8 @@ function update_main_score(score_data){
 
 function update_dash_score(score_type, score_column){
   Logger.log(score_type);
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Scoring");
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName("Scoring");
   if (score_type != undefined){
     var type_inds = get_ind_list(score_type);
     var type_count = type_inds.length;
@@ -1181,17 +1307,16 @@ function update_dash_score(score_type, score_column){
     total = +total + row_total;
   }
   Logger.log(type_inds);
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Dashboard");
+  var sheet = ss.getSheetByName("Dashboard");
   var RangeName = "SCORE" + "_" + score_type.toUpperCase();
-  var dash_score_range = SpreadsheetApp
-                         .getActiveSpreadsheet()
-                         .getRangeByName(RangeName);
+  var dash_score_range = ss.getRangeByName(RangeName);
   dash_score_range.setValue(total);
 }
 
 function get_current_scores(sheetName){
 //  var sheetName = "Events";
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName(sheetName);
   var max_column = sheet.getLastColumn();
   var max_row = sheet.getLastRow();
   var full_data_range = sheet.getRange(1, 1, max_row, max_column);
@@ -1338,13 +1463,16 @@ function get_ind_from_string(str, range_values){
   }
 }
 
-function main_range_object(sheetName){
+function main_range_object(sheetName, short_header){
 //  var sheetName = "Membership"
 //  var sheetName = "Scoring"
 //  var sheetName = "Events"
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName(sheetName);
   if (sheetName=="Membership"){
-    var short_header = "Member Name"
+    if (short_header == undefined){
+      var short_header = "Member Name";
+    }
   } else if (sheetName=="Scoring"){
     var short_header = "Short Name"
   } else if (sheetName=="Events"){
@@ -1352,18 +1480,24 @@ function main_range_object(sheetName){
   }
   var max_row = sheet.getLastRow() - 1;
   var max_column = sheet.getLastColumn();
-  var full_data_range = sheet.getRange(2, 1, max_row, max_column);
-  var full_data_values = full_data_range.getValues();
   var header_range = sheet.getRange(1, 1, 1, max_column);
   var header_values = header_range.getValues();
   var short_names_ind = get_ind_from_string(short_header, header_values);
-  var short_names_range = sheet.getRange(2, short_names_ind, max_row, 1);
-  var short_names = short_names_range.getValues();
-  short_names = [].concat.apply([], short_names);
-  short_names = cleanArray(short_names, 100);
+  if (max_row > 2){
+    var full_data_range = sheet.getRange(2, 1, max_row, max_column);
+    var full_data_values = full_data_range.getValues();
+    var sorted_range = full_data_range.sort({column: short_names_ind, ascending: true});
+    var short_names_range = sheet.getRange(2, short_names_ind, max_row, 1);
+    var short_names = short_names_range.getValues();
+    short_names = [].concat.apply([], short_names);
+    short_names = cleanArray(short_names, 100);
+  } else {
+    short_names = [];
+  }
   var myObject = new Array();
   myObject["object_header"] = new Array();
-  for (val in short_names){
+  myObject["header_values"] = header_values[0];
+  for (var val in short_names){
 //    short_names.forEach(function (item) {
 //      var test = item;
 //      console.log(item);
@@ -1381,8 +1515,9 @@ function main_range_object(sheetName){
 }
 
 function range_object(sheet, range_row){
+  var ss = get_active_spreadsheet();
   if (typeof sheet === "string"){
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheet);
+    var sheet = ss.getSheetByName(sheet);
   }
   var max_column = sheet.getLastColumn()
   var range = sheet.getRange(range_row, 1, 1, max_column);
@@ -1419,13 +1554,23 @@ function range_object_fromValues(header_values, range_values, range_row){
 }
 
 function test_onEdit() {
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName("Attendance");
+  var range = sheet.getRange(1, 1, 1, 1);
+  var value = range.getValue();
   onEdit({
     user : Session.getActiveUser().getEmail(),
-    source : SpreadsheetApp.getActiveSpreadsheet(),
-    range : SpreadsheetApp.getActiveSpreadsheet().getActiveCell(),
-    value : SpreadsheetApp.getActiveSpreadsheet().getActiveCell().getValue(),
+    source : ss,
+    range : range, //ss.getActiveCell(),
+    value : value, //ss.getActiveCell().getValue(),
     authMode : "LIMITED"
   });
+  var ui = SpreadsheetApp.getUi();
+  var result = ui.alert(
+     'ERROR',
+     'Value: '+
+      value,
+      ui.ButtonSet.OK);
 }
 
 function show_att_sheet_alert(){
@@ -1445,13 +1590,204 @@ function show_event_sheet_alert() {
   showaddEvent();
 }
 
-function getChapterMembers(){
-  var chapterName = "Chi";
-  var ChapterMembers = getChapterMembers_(chapterName)
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getActiveSheet();
-  for (var i = 0; i < ChapterMembers.length; i++) {
-    sheet.getRange(i+1, 1, 1, ChapterMembers[i].length).setValues(new Array(ChapterMembers[i]));
+function CSVToArray( strData, strDelimiter ){
+  // Check to see if the delimiter is defined. If not,
+  // then default to comma.
+  strDelimiter = (strDelimiter || ",");
+  // Create a regular expression to parse the CSV values.
+  var objPattern = new RegExp(
+    (
+      // Delimiters.
+      "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
+      // Quoted fields.
+      "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
+      // Standard fields.
+      "([^\"\\" + strDelimiter + "\\r\\n]*))"
+    ),
+    "gi"
+  );
+
+  // Create an array to hold our data. Give the array
+  // a default empty first row.
+  var arrData = [[]];
+
+  // Create an array to hold our individual pattern
+  // matching groups.
+  var arrMatches = null;
+
+  // Keep looping over the regular expression matches
+  // until we can no longer find a match.
+  while (arrMatches = objPattern.exec( strData )){
+
+    // Get the delimiter that was found.
+    var strMatchedDelimiter = arrMatches[ 1 ];
+
+    // Check to see if the given delimiter has a length
+    // (is not the start of string) and if it matches
+    // field delimiter. If it does not, then we know
+    // that this delimiter is a row delimiter.
+    if (
+      strMatchedDelimiter.length &&
+      (strMatchedDelimiter != strDelimiter)
+    ){
+      // Since we have reached a new row of data,
+      // add an empty row to our data array.
+      arrData.push( [] );
+    }
+
+
+    // Now that we have our delimiter out of the way,
+    // let's check to see which kind of value we
+    // captured (quoted or unquoted).
+    if (arrMatches[ 2 ]){
+
+      // We found a quoted value. When we capture
+      // this value, unescape any double quotes.
+      var strMatchedValue = arrMatches[ 2 ].replace(
+        new RegExp( "\"\"", "g" ),
+        "\""
+      );
+
+    } else {
+
+      // We found a non-quoted value.
+      var strMatchedValue = arrMatches[ 3 ];
+    }
+    // Now that we have our value string, let's add
+    // it to the data array.
+    arrData[ arrData.length - 1 ].push( strMatchedValue );
+  }
+  // Return the parsed data.
+  return( arrData );
+}
+
+function get_chapter_members(chapter_name){
+//  var chapter_name = "Chi";
+  var folder = DriveApp.getFolderById('0BwvK5gYQ6D4nOXB2UHFUV0w5WnM');
+  var files = folder.getFiles();
+  var old_date = new Date(2000, 01, 01);
+  var new_file = null;
+  while (files.hasNext()) {
+    var file = files.next();
+    var file_name = file.getName()
+    Logger.log(file_name);
+    var date_str = file_name.split("_")[0];
+    var year = date_str.substring(0, 4);
+    var month = date_str.substring(4, 6);
+    var day = parseInt(date_str.substring(6, 8));
+    if (day === NaN){
+      continue;
+    }
+    var date = new Date(year, month, day);
+    if (date > old_date){
+      old_date = date;
+      new_file = file;
+    }
+  }
+  var csvFile = new_file.getBlob().getDataAsString();
+  var csvData = CSVToArray(csvFile, ",");
+//  Logger.log(csvData);
+  var header = csvData[0];
+  var chapter_index = header.indexOf("Constituent Specific Attributes Chapter Name Description");
+  var status_index = header.indexOf("Constituency Code");
+  var badge_index = header.indexOf("Constituent ID");
+  var last_index = header.indexOf("Last Name");
+  var first_index = header.indexOf("First Name");
+  var email_index = header.indexOf("Email Address Number");
+  var phone_index = header.indexOf("Mobile Phone Number");
+//  var role_index = header.indexOf("Constituent Specific Attributes Chapter Name Description");
+//  var major_index = header.indexOf("Constituent Specific Attributes Chapter Name Description");
+//  var school_index = header.indexOf("Constituent Specific Attributes Chapter Name Description");
+  var CentralMemberObject = {};
+  CentralMemberObject['badge_numbers'] = [];
+  for (var j in csvData){
+    var row = csvData[j];
+    var chapter_row = row[chapter_index];
+    if (chapter_row == chapter_name){
+      var member_object={};
+      var badge_number = row[badge_index];
+      member_object['First Name'] = row[first_index];
+      member_object['Last Name'] = row[last_index];
+      member_object['Badge Number'] = badge_number;
+      member_object['Chapter Status'] = row[status_index];
+      member_object['Chapter Role'] = row[last_index]+"_ROLE";//row[];
+      member_object['Current Major'] = row[last_index]+"_MAJOR";//row[];
+      member_object['School Status'] = row[last_index]+"_STATUS";//row[];
+      member_object['Phone Number'] = row[phone_index];
+      member_object['Email Address'] = row[email_index];
+      CentralMemberObject['badge_numbers'].push(badge_number);
+      CentralMemberObject[badge_number] = member_object;
+    }
+  }
+  Logger.log(CentralMemberObject[badge_number]);
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName("Membership");
+  var max_row = sheet.getLastRow() - 1;
+  var max_row = (max_row != 0) ? max_row:1;
+  var max_column = sheet.getLastColumn();
+  var header_range = sheet.getRange(1, 1, 1, max_column);
+  var header_values = header_range.getValues()[0];
+  var badge_index_chapter = header_values.indexOf("Badge Number");
+  var ChapterMemberObject = main_range_object("Membership", "Badge Number");
+  Logger.log(ChapterMemberObject["object_header"]);
+  var new_members = [];
+  for (var k in CentralMemberObject['badge_numbers']){
+    var badge_number = CentralMemberObject['badge_numbers'][k];
+    if (ChapterMemberObject["object_header"].indexOf(badge_number) < 0){
+      // Member is on Central list, not on chapter list
+      Logger.log("NEW MEMBER!");
+      Logger.log(CentralMemberObject[badge_number]['Last Name']);
+      new_members.push(badge_number);
+    }
+  }
+//  
+  var old_members = [];
+  for (var k in ChapterMemberObject["object_header"]){
+    var badge_number = ChapterMemberObject["object_header"][k];
+    if (CentralMemberObject['badge_numbers'].indexOf(badge_number) < 0){
+      // Member is on chapter list, not on central list
+      Logger.log("OLD MEMBER!");
+      Logger.log(ChapterMemberObject[badge_number]['Last Name'][0]);
+      old_members.push(badge_number)
+    }
+  }
+  new_members.sort();
+  new_members.reverse();
+  for (var m in new_members){
+    var this_row = 1;
+    var previous_member = undefined;
+    var new_badge = new_members[m];
+    for (var k in ChapterMemberObject["object_header"]){
+//      Logger.log(ChapterMemberObject["object_header"]);
+      var badge_number = ChapterMemberObject["object_header"][k];
+      var badge_next = ChapterMemberObject["object_header"][+k+1];
+      badge_next = badge_next ? badge_next:new_badge+1;
+//      Logger.log([badge_number, new_badge, badge_next]);
+      if (new_badge > badge_number && new_badge < badge_next){
+        this_row = ChapterMemberObject[badge_number]['object_row'];
+        previous_member = ChapterMemberObject[badge_number]["Member Name"];
+        break;
+      }
+    }
+    sheet.insertRowAfter(this_row);
+    var range = sheet.getRange(this_row+1, 1, 1, 10);
+    var member_object = CentralMemberObject[new_badge];
+    var new_values = [];
+    for (var j in ChapterMemberObject["header_values"]){
+      var header = ChapterMemberObject["header_values"][j];
+      if (header == "Member Name"){
+        var full_name = member_object["First Name"]+" "+member_object["Last Name"];
+        new_values.push(full_name);
+        continue;
+      }
+      var new_value = member_object[header];
+      if ( new_value !== undefined){
+        new_values.push(new_value);
+      }
+    }
+    Logger.log(new_values);
+    range.setValues([new_values]);
+    align_attendance_members(previous_member, full_name);
   }
 }
 
@@ -1459,7 +1795,8 @@ function get_event_data(SheetName) {
 //  var SheetName="Events"
 //  var SheetName="Attendance"
   Logger.log(SheetName)
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SheetName);
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName(SheetName);
   if (sheet != null) {
     var max_row = sheet.getLastRow() - 1
     var max_row = (max_row != 0) ? max_row:1;
@@ -1487,8 +1824,58 @@ function get_event_data(SheetName) {
          }
 }
 
-function align_event_attendance(){
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Attendance");
+function align_attendance_members(previous_member, new_member){
+//  var previous_member = "REALLYLONGNAMEFORTESTINGTHINGSLIKETHIS";
+//  var new_member = "REALL3YLONGNAMEFORTESTINGTHINGSLIKETHIS";
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName("Attendance");
+  var max_row = sheet.getLastRow() - 1;
+  max_row = (max_row != 0) ? max_row:1;
+  var max_column = sheet.getLastColumn();
+//  var range = sheet.getRange(1, 3, max_row, max_column);
+//  var range_values = range.getValues();
+//  var sorted_range = sortHorizontal(range_values);
+  var header_range = sheet.getRange(1, 1, 1, max_column);
+  var header_values = header_range.getValues()[0];
+  var previous_index = 2;
+  if (previous_member !== undefined){
+    previous_member = shorten(previous_member, 12, false);
+    for (var i in header_values){
+      var header_name = header_values[i];
+      if (header_name == "Event Name" || header_name == "Event Date"){
+        continue;
+      }
+      var new_string = "";
+      for (var j = 0; j < header_name.length; j++){
+        var char = header_name[j];
+        if (j % 2 == 0){
+          new_string = new_string.concat(char);
+        }
+      }
+      if (new_string == previous_member){
+        previous_index = parseInt(i)+1;
+      }
+    }
+  }
+  sheet.insertColumnAfter(previous_index);
+  var new_range = sheet.getRange(1, +previous_index+1);
+  new_member = shorten(new_member, 12, false);
+  var formula = '=regexreplace("'+new_member+'", "(.)", "$1"&char(10))';
+  Logger.log(formula);
+  new_range.setFormula(formula);
+  var val = new_range.getValue();
+  val = val.substring(0, val.length - 1);
+  new_range.setValue(val);
+  sheet.setColumnWidth(+previous_index+1, 21)
+  var format_range = ss.getRangeByName("FORMAT");
+  format_range.copyFormatToRange(sheet, +previous_index+1, +previous_index+1, 2, 100);
+  new_range = sheet.getRange(1, +previous_index+1, 100, 1);
+  new_range.clearDataValidations();
+}
+
+function align_attendance_events(){
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName("Attendance");
   var event_data = get_event_data("Events");
   var att_data = get_event_data("Attendance");
   var event_values = event_data.range.getValues();

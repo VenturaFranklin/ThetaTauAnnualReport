@@ -13,7 +13,7 @@ function showError(msg, element) {
     // The code in this function runs when the page is loaded.
     $(function () {
         google.script.run.withSuccessHandler(buildOptionList)
-            .getList('MemberNamesOnly');
+            .get_member_list("Student");
     });
 
     function buildOptionList(members) {

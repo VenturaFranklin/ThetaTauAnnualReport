@@ -21,7 +21,7 @@ $(function () {
 
 $(function Loadeventlist() {
         google.script.run.withSuccessHandler(buildOptionList)
-            .getList('EventNames');
+            .get_event_list();
     });
 
 function buildOptionList(events) {

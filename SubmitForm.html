@@ -1,33 +1,33 @@
-<!--
-From: http://www.labnol.org/internet/receive-files-in-google-drive/19697/
-Amit Agarwal
--->
-
-<form id="submissions">
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+<form id="submissions" name="sumbissions">
     <label for="submissionslist">Submission Type: </label>
       <select name="submissions" id="submissionslist" form="submissions">
-          <? for (var i = 0; i < submissions.length; i++) { ?>
+        <? for (var i = 0; i < submissions.length; i++) { ?>
             <? var option = submissions[i] ?>
               <option value="<?= option ?>"><?= option ?></option>
           <? } ?>
       </select>
     <input type="file" name="myFile">
-    <input type="submit" value="Upload File" 
-           onclick="this.value='Uploading..';
+    <input type="button" value="Upload File"
+           onclick="this.value='Uploading...';
                     google.script.run.withSuccessHandler(fileUploaded)
                     .uploadFiles(this.parentNode);
                     return false;">
 </form>
-
 <div id="output"></div>
-
 <script>
     function fileUploaded(status) {
         document.getElementById('submissions').style.display = 'none';
         document.getElementById('output').innerHTML = status;
     }
 </script>
-
 <style>
  input { display:block; margin: 20px; }
 </style>
+</body>
+</html>
