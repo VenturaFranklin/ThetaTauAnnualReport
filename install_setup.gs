@@ -2,9 +2,7 @@ function onInstall(e) {
   onOpen(e);
   setup();
   setup_sheets();
-  chapter_name()
-  get_chapter_members();
-  createTriggers();
+  chapter_name();
 }
 
 function createTriggers() {
@@ -31,7 +29,9 @@ function chapter_name_process(form) {
   var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
   var ss_prop = SpreadsheetApp.openById(properties_id);
   var ss = get_active_spreadsheet();
-  var doc_name = ss_prop.getName();
+  var default_id = "19aWLtjJJ-Uh6XOqOuseLpQcNJYslQHe9Y9Gaj2vSjEw";
+  var default_doc = SpreadsheetApp.openById(default_id);
+  var doc_name = default_doc.getName();
   doc_name = doc_name.replace("DEFAULT ", "");
   doc_name = doc_name.replace("- Chapter", "- "+chapter_name);
   Logger.log(doc_name);
@@ -63,6 +63,8 @@ function chapter_name_process(form) {
   range.setValue(chapter_name + " CHAPTER ANNUAL REPORT");
   range.getValue();
   create_submit_folder(chapter_name, region);
+  get_chapter_members();
+  createTriggers();
 }
 
 function create_submit_folder(chapter_name, region) {
@@ -108,7 +110,6 @@ function chapter_name() {
       .setHeight(75);
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showModalDialog(htmlOutput, "Chapter Name");
-  return;
 }
 
 function setup() {
@@ -325,7 +326,6 @@ function get_chapter_members(){
   new_members.reverse();
   for (var m in new_members){
     var this_row = 1;
-    var previous_member = undefined;
     var new_badge = new_members[m];
     for (var k in ChapterMemberObject["object_header"]){
 //      Logger.log(ChapterMemberObject["object_header"]);
@@ -335,7 +335,6 @@ function get_chapter_members(){
 //      Logger.log([badge_number, new_badge, badge_next]);
       if (new_badge > badge_number && new_badge < badge_next){
         this_row = ChapterMemberObject[badge_number]['object_row'];
-        previous_member = ChapterMemberObject[badge_number]["Member Name"];
         break;
       }
     }
@@ -357,7 +356,18 @@ function get_chapter_members(){
     }
     Logger.log(new_values);
     range.setValues([new_values]);
-    align_attendance_members(previous_member, full_name);
+  }
+  var previous_member = undefined;
+  ChapterMemberObject = main_range_object("Membership");
+  for(var i = 0; i< ChapterMemberObject.object_count; i++) {
+    var member_name = ChapterMemberObject.object_header[i];
+    var member_badge = ChapterMemberObject[member_name]["Badge Number"][0];
+    if (new_members.indexOf(member_badge) > -1){
+      if (i>0){
+        previous_member = ChapterMemberObject.object_header[i-1];;
+      }
+      align_attendance_members(previous_member, member_name);
+    }
   }
 }
 
@@ -426,4 +436,5 @@ function RESET() {
     named_range.remove();
   }
   target_doc.rename("BLANK");
+  PropertiesService.getScriptProperties().deleteAllProperties();
 }

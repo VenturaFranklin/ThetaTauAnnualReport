@@ -49,7 +49,8 @@ function onOpen(e) {
 }
 
 function TEST(){
-  var folder = DriveApp.getFolderById('0BwvK5gYQ6D4nWVhUVlo4dUhYV0E');
+  get_active_spreadsheet()
+//  var folder = DriveApp.getFolderById('0BwvK5gYQ6D4nWVhUVlo4dUhYV0E');
 }
 
 function testEvents() {
