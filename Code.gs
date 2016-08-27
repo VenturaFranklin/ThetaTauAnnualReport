@@ -133,7 +133,7 @@ function submitSidebar() {
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setTitle('Submit Item')
       .setWidth(500);
-  Logger.log(htmlOutput.getContent());
+//  Logger.log(htmlOutput.getContent());
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showSidebar(htmlOutput);
 //      .showModalDialog(template, "SUBMIT");
@@ -759,7 +759,7 @@ function get_type_list(score_type){
       newArray.push(type_name);
     }
   }
-  newArray.sort();
+//  newArray.sort();
   Logger.log(newArray);
   return newArray;
 }
@@ -1407,8 +1407,8 @@ function main_range_object(sheetName, short_header, ss){
   var short_names_ind = get_ind_from_string(short_header, header_values);
   if (max_row > 2){
     var full_data_range = sheet.getRange(2, 1, max_row, max_column);
-    var full_data_values = full_data_range.getValues();
     var sorted_range = full_data_range.sort({column: short_names_ind, ascending: true});
+    var full_data_values = sorted_range.getValues();
     var short_names_range = sheet.getRange(2, short_names_ind, max_row, 1);
     var short_names = short_names_range.getValues();
     short_names = [].concat.apply([], short_names);
