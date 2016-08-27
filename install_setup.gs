@@ -3,7 +3,7 @@ function onInstall(e) {
   setup();
   setup_sheets();
   chapter_name()
-  get_chapter_members(chapter_name);
+  get_chapter_members();
   createTriggers();
 }
 
@@ -28,8 +28,11 @@ function chapter_name_process(form) {
 //  var form = {'chapterslist': 'Chi Gamma'}
   var chapter_name = form.chapterslist;
   SCRIPT_PROP.setProperty("chapter", chapter_name);
+  var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
+  var ss_prop = SpreadsheetApp.openById(properties_id);
   var ss = get_active_spreadsheet();
-  var doc_name = ss.getName();
+  var doc_name = ss_prop.getName();
+  doc_name = doc_name.replace("DEFAULT ", "");
   doc_name = doc_name.replace("- Chapter", "- "+chapter_name);
   Logger.log(doc_name);
   ss.rename(doc_name);
@@ -37,8 +40,6 @@ function chapter_name_process(form) {
   var range = sheet.getRange(2, 2);
   range.setValue(chapter_name);
   var test = range.getValue();
-  var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
-  var ss_prop = SpreadsheetApp.openById(properties_id);
   var chapter_object = main_range_object("MAIN", "Organization Name", ss_prop);
   var chapter_info = chapter_object[chapter_name];
   Logger.log(chapter_info);
@@ -130,7 +131,6 @@ function setup() {
 }
 
 function setup_sheets() {
-//  var chapter_name = "Chi";
   var default_id = "19aWLtjJJ-Uh6XOqOuseLpQcNJYslQHe9Y9Gaj2vSjEw";
   var default_doc = SpreadsheetApp.openById(default_id);
   var target_doc = get_active_spreadsheet();
@@ -142,10 +142,7 @@ function setup_sheets() {
   }
   var sheet = target_doc.getSheetByName("Sheet1");
   target_doc.deleteSheet(sheet);
-  var doc_name = default_doc.getName();
-  doc_name = doc_name.replace("DEFAULT ", ""); //DEFAULT Theta Tau Chapter Report - Chapter
   var sheet = target_doc.getSheetByName("Dashboard"); //A1
-  //? CHAPTER ANNUAL REPORT
   var sheet = target_doc.getSheetByName("Chapter"); //B2
   var named_ranges = default_doc.getNamedRanges();
   for (var j in named_ranges){
@@ -234,8 +231,8 @@ function CSVToArray( strData, strDelimiter ){
   return( arrData );
 }
 
-function get_chapter_members(chapter_name){
-//  var chapter_name = "Chi";
+function get_chapter_members(){
+  var chapter_name = get_chapter_name();
   var folder = DriveApp.getFolderById('0BwvK5gYQ6D4nOXB2UHFUV0w5WnM');
   var files = folder.getFiles();
   var old_date = new Date(2000, 01, 01);

@@ -15,7 +15,7 @@
     <input type="file" name="myFile">
     <input type="submit" value="Upload File" 
                onclick="this.value='Uploading...';
-                        insertFile(this.parentNode);
+                        insertFile(this.parentNode, folder_id='<?= folder_id ?>');
                         return false;">
    </form>
 
@@ -68,12 +68,12 @@
         auth2.signOut();
       }
       
-    function insertFile(form, callback) {
+    function insertFile(form, folder_id, callback) {
     var fileData = form.myFile.files[0];
   const boundary = '-------314159265358979323846';
   const delimiter = "\r\n--" + boundary + "\r\n";
   const close_delim = "\r\n--" + boundary + "--";
-
+  console.log(folder_id);
   var reader = new FileReader();
   reader.readAsBinaryString(fileData);
   reader.onload = function(e) {
@@ -81,7 +81,7 @@
     var metadata = {
       'title': fileData.name,
       'mimeType': contentType,
-      'parents': [{'id': '0BwvK5gYQ6D4nWVhUVlo4dUhYV0E'}]
+      'parents': [{'id': folder_id}]
     };
 
     var base64Data = btoa(reader.result);

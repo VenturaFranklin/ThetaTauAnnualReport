@@ -127,10 +127,12 @@ function submitSidebar() {
    .createTemplateFromFile('SubmitForm')
 //  .createHtmlOutputFromFile('SubmitForm');
   template.submissions = get_type_list('Submit');
+  template.folder_id = get_folder_id();
   var htmlOutput = template.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setTitle('Submit Item')
       .setWidth(500);
+  Logger.log(htmlOutput.getContent());
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showSidebar(htmlOutput);
 //      .showModalDialog(template, "SUBMIT");
