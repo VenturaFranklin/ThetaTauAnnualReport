@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <form id="chapter" name="chapter">
+    <label for="chapterslist">Chapter Name: </label>
+      <select name="chapterslist" id="chapterslist" form="chapter" style="width: 100px">
+        <? for (var i = 0; i < chapters.length; i++) { ?>
+            <? var option = chapters[i] ?>
+              <option value="<?= option ?>"><?= option ?></option>
+          <? } ?>
+      </select>
+    <input type="submit" value="Submit" 
+               onclick="google.script.run
+                        .chapter_name_process(this.parentNode);
+                        google.script.host.close();">
+   </form>
+  </body>
+</html>
+
+
