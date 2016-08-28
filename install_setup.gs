@@ -65,6 +65,23 @@ function chapter_name_process(form) {
   create_submit_folder(chapter_name, region);
   get_chapter_members();
   createTriggers();
+  var ui = SpreadsheetApp.getUi();
+  ui.alert('SETUP COMPLETE!');
+}
+
+function protect_ranges(){
+  // Can not have current user removed from protection.
+  var ss = get_active_spreadsheet();
+  var emailAddress = "venturafranklin@gmail.com";
+  var sheet = ss.getSheetByName("Events");
+  var range = sheet.getRange('C:E');
+  var protection = range.protect().setDescription('EventScoreMemberPledge');
+  ss.addEditor(emailAddress);
+  protection.addEditor(emailAddress);
+  protection.removeEditors(protection.getEditors());
+  if (protection.canDomainEdit()) {
+   protection.setDomainEdit(false);
+ }
 }
 
 function create_submit_folder(chapter_name, region) {
