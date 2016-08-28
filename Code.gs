@@ -713,6 +713,24 @@ function uploadFiles(form) {
   }
 }
 
+function post_submit(file_object, submission_type) {
+  var template = HtmlService.createTemplateFromFile('SubmitFormResponse');
+  var file_url = template.fileUrl = file_object.alternateLink;
+  var submission_date = template.date = new Date();
+  var submission_type = template.type = submission_type;
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName("Submissions");
+  var max_column = sheet.getLastColumn();
+  var max_row = sheet.getLastRow();
+  var submit_range = sheet.getRange(max_row + 1, 1, 1, max_column);
+  var file_name = template.name = file_object.title;
+  submit_range.setValues([[submission_date, file_name, submission_type, 0, file_url]])
+  update_scores_submit(max_row + 1);
+  var output = template.evaluate().getContent();
+  Logger.log(output);
+  return output;
+}
+
 function get_score_submit(myScore){
   var event_type = myScore["Type"][0]
   var score_data = get_score_method(event_type);

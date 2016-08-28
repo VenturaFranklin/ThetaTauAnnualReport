@@ -18,13 +18,14 @@
                         insertFile(this.parentNode, folder_id='<?= folder_id ?>');
                         return false;">
    </form>
-
+   <div id="output"></div>
     <!--Add buttons to initiate auth sequence and sign out-->
     <button id="authorize-button" style="display: none;">Authorize</button>
     <button id="signout-button" style="display: none;">Sign Out</button>
 
-    <div id="content"></div>
     <?!= HtmlService.createHtmlOutputFromFile('CREDENTIALS').getContent(); ?>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js">
+    </script>
     <script type="text/javascript">
       // Enter one or more authorization scopes. Refer to the documentation for
       // the API or https://developers.google.com/identity/protocols/googlescopes
@@ -73,7 +74,7 @@
   const boundary = '-------314159265358979323846';
   const delimiter = "\r\n--" + boundary + "\r\n";
   const close_delim = "\r\n--" + boundary + "--";
-  console.log(folder_id);
+//  console.log(folder_id);
   var reader = new FileReader();
   reader.readAsBinaryString(fileData);
   reader.onload = function(e) {
@@ -106,13 +107,22 @@
         'body': multipartRequestBody});
     if (!callback) {
       callback = function(file) {
-        console.log(file);
-        console.log(multipartRequestBody);
+//        console.log(file);
+        var type = $('#submissionslist').val();
+//        console.log(type);
+        google.script.run.withSuccessHandler(fileUploaded)
+                .post_submit(file, type);
+//        console.log(multipartRequestBody);
       };
     }
     request.execute(callback);
   }
 }
+function fileUploaded(status) {
+//        console.log(status);
+        document.getElementById('submissions').style.display = 'none';
+        document.getElementById('output').innerHTML = status;
+    }
     </script>
     <script src="https://apis.google.com/js/api.js?onload=handleClientLoad"></script>
   </body>
