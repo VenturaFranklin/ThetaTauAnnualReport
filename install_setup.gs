@@ -86,6 +86,8 @@ function create_submit_folder(chapter_name, region) {
   }
   var folder_id = folder_chapter.getId();
   SCRIPT_PROP.setProperty("folder", folder_id);
+  var file = DriveApp.getFileById(SCRIPT_PROP.getProperty("key"));
+  folder_chapter.addFile(file);
 }
 
 function get_folder_id() {
@@ -423,9 +425,16 @@ function align_attendance_members(previous_member, new_member){
 
 function RESET() {
   var target_doc = get_active_spreadsheet();
+  var folder_id = SCRIPT_PROP.getProperty("folder");
+  if (folder_id){
+    var folder_chapter = DriveApp.getFolderById(folder_id);
+    var file = DriveApp.getFileById(SCRIPT_PROP.getProperty("key"));
+    folder_chapter.removeFile(file);
+  }
   var sheets = target_doc.getSheets();
   var sheet = target_doc.insertSheet();
   sheet.setName("Sheet1");
+  
   for (var i in sheets){
     var sheet = sheets[i];
     target_doc.deleteSheet(sheet)
