@@ -412,13 +412,7 @@ function align_attendance_members(previous_member, new_member){
       if (header_name == "Event Name" || header_name == "Event Date"){
         continue;
       }
-      var new_string = "";
-      for (var j = 0; j < header_name.length; j++){
-        var char = header_name[j];
-        if (j % 2 == 0){
-          new_string = new_string.concat(char);
-        }
-      }
+      var new_string = att_name(header_name);
       if (new_string == previous_member){
         previous_index = parseInt(i)+1;
       }

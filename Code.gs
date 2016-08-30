@@ -50,6 +50,17 @@ function onOpen(e) {
 
 function TEST(){
   get_active_spreadsheet()
+  var HOST = 0
+  var non_member = 50
+  var att = 0.5
+  var miles = 200
+  var host_cal = eval((non_member/100)*HOST)
+  Logger.log("HOST: "+host_cal);
+  var travel_cal = eval(att*(HOST-1)*(HOST-1))
+  Logger.log("TRAVEL: "+travel_cal);
+  var miles_cal = eval(miles/1000)
+  Logger.log(miles_cal);
+  Logger.log(eval(25*(host_cal+travel_cal+miles_cal)));
 //  var folder = DriveApp.getFolderById('0BwvK5gYQ6D4nWVhUVlo4dUhYV0E');
 }
 
@@ -846,9 +857,15 @@ function getList(RangeName) {
 ////  } 
 //}
 
+function reset_range(range, user_old_value){
+  return;
+  var user_old_value = (user_old_value != undefined) ? user_old_value:"";
+  range.setValue(user_old_value);
+}
+
 function _onEdit(e){
-  var Logger = startBetterLog();
-  try{
+//  var Logger = startBetterLog();
+//  try{
   Logger.log("onEDIT" + e);
   Logger.log(e);
   Logger.log("onEdit, authMode: " + e.authMode);
@@ -858,41 +875,92 @@ function _onEdit(e){
   Logger.log("onEdit, value: " + e.value);
   var sheet = e.range.getSheet();
   var sheet_name = sheet.getName();
-  var user_event_range = e.range
-  var user_row = user_event_range.getRow();
-  var user_col = user_event_range.getColumn();
+  var user_range = e.range
+  var user_row = user_range.getRow();
+  var user_col = user_range.getColumn();
   var user_old_value = e.oldValue
   Logger.log("Row: " + user_row + " Col: " + user_col);
   if (sheet_name == "Events"){
     Logger.log("EVENTS CHANGED");
+    if (user_row == 1 || user_col == 3 ||
+        user_col == 4 || user_col == 5){
+//      reset_range(user_range, user_old_value)
+//      var ui = SpreadsheetApp.getUi();
+//      var result = ui.alert(
+//        'ERROR',
+//        'Score, #Members, & #Pledges are are updated automatically',
+//        ui.ButtonSet.OK);
+    } else {
     update_scores_event(user_row);
+    }
 //    show_event_sheet_alert();
 //    align_event_attendance();
   } else if (sheet_name == "Attendance"){
     if (user_row == 1 || user_col < 3){
-      var user_old_value = (user_old_value != undefined) ? user_old_value:"";
-//      user_event_range.setValue(user_old_value);
-      show_att_sheet_alert();
+      reset_range(user_range, user_old_value);
+//      show_att_sheet_alert();
     } else {
       var attendance = range_object(sheet, user_row)
       update_attendance(attendance);
       update_scores_event(user_row);
     }
-  } else if (sheet_name == "Membership") {
+  } else if (sheet_name == "Scoring") {
+    reset_range(user_range, user_old_value)
+    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//     'Please do not edit the Scoring Sheet',
+//      ui.ButtonSet.OK);
+  } else if (sheet_name == "Submissions") {
+    reset_range(user_range, user_old_value)
+    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//     'Please do not edit the Submissions Sheet\n'+
+//     'Please use the submissions sidebar',
+//      ui.ButtonSet.OK);
+    submitSidebar();
+  } else if (sheet_name == "Dashboard") {
+    reset_range(user_range, user_old_value)
+    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//     'Please do not edit the Dashboard Sheet',
+//      ui.ButtonSet.OK);
+  }else if (sheet_name == "Membership") {
     Logger.log("MEMBER CHANGED");
-    if (user_col > 8){
+    if (user_col > 12){
       update_scores_org_gpa_serv();
+    } else {
+      reset_range(user_range, user_old_value)
+      var ui = SpreadsheetApp.getUi();
+//      var result = ui.alert(
+//        'ERROR',
+//        'Please do not edit member information here\n'+
+//        'Member information is changed by notifying the central office',
+//        ui.ButtonSet.OK);
     }
   }
-  } catch (error) {
-    Logger.log(error);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      error,
-      ui.ButtonSet.OK);
-    return "";
+//  } catch (error) {
+//    Logger.log(error);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      error,
+//      ui.ButtonSet.OK);
+//    return "";
+//  }
+}
+
+function att_name(name){
+  var new_string = "";
+  for (var j = 0; j < name.length; j++){
+    var char = name[j];
+    if (j % 2 == 0){
+      new_string = new_string.concat(char);
+    }
   }
+  return new_string
 }
 
 function update_attendance(attendance){
@@ -903,27 +971,45 @@ function update_attendance(attendance){
   counts["Pledge"] = {};
   var test_len = attendance.object_count;
   for(var i = 2; i< attendance.object_count; i++) {
-    var member_name = attendance.object_header[i];
-    var event_status = attendance[member_name][0];
-    var member_status = MemberObject[member_name]["Chapter Status"][0]
+    var member_name_att = attendance.object_header[i];
+    var member_name_short = att_name(attendance.object_header[i]);
+    var member_object = find_member_shortname(MemberObject, member_name_short);
+    var event_status = attendance[member_name_att][0];
+    var member_status = member_object["Chapter Status"][0]
+//    Logger.log([member_name_short, member_object, event_status, member_status]);
     counts[member_status][event_status] = counts[member_status][event_status] ? counts[member_status][event_status] + 1 : 1;
   }
   Logger.log(counts)
-  var event_name = attendance["Event Name"];
-  Logger.log(event_name);
+  var event_name_att = attendance["Event Name"][0];
+  var event_date_att = attendance["Event Date"][0];
+  Logger.log(event_name_att);
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Events");
-  var max_column = sheet.getLastColumn();
-  var event_headers = sheet.getRange(1, 1, 1, max_column);
-  var header_values = event_headers.getValues()
-  var active_col = get_ind_from_string("# Members", header_values)
-  var pledge_col = get_ind_from_string("# Pledges", header_values)
-  var event_row = attendance.object_row;
+  var EventObject = main_range_object("Events");
+  for (var i = 0; i < EventObject.object_count; i++){
+    var event_name = EventObject.object_header[i];
+    var event_date = EventObject[event_name]["Date"][0];
+    Logger.log([event_name+event_date, event_name_att+event_date_att]);
+    if (event_name+event_date == event_name_att+event_date_att){
+      var active_col = EventObject[event_name]['# Members'][1];
+      var pledge_col = EventObject[event_name]['# Pledges'][1];
+      var event_row = EventObject[event_name].object_row;
+      break;
+    }
+  }
+//  var max_column = sheet.getLastColumn();
+//  var event_headers = sheet.getRange(1, 1, 1, max_column);
+//  var header_values = event_headers.getValues()
+//  var active_col = get_ind_from_string("# Members", header_values)
+//  var pledge_col = get_ind_from_string("# Pledges", header_values)
+//  var event_row = attendance.object_row;
   Logger.log("ROW: " + event_row + " Active: " + active_col + " Pledge: " + pledge_col)
   var active_range = sheet.getRange(event_row, active_col)
   var pledge_range = sheet.getRange(event_row, pledge_col)
-  active_range.setValue(counts["Student"]["P"])
-  pledge_range.setValue(counts["Pledge"]["P"])
+  var num_actives = counts["Student"]["P"] ? counts["Student"]["P"]:0;
+  var num_pledges = counts["Pledge"]["P"] ? counts["Pledge"]["P"]:0;
+  active_range.setValue(num_actives)
+  pledge_range.setValue(num_pledges)
 }
 
 function update_scores_event(user_row){
@@ -941,12 +1027,61 @@ function update_scores_event(user_row){
   }
 }
 
+function update_service_hours(){
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName("Membership");
+  var EventObject = main_range_object("Events");
+  var MemberObject = main_range_object("Membership");
+  var AttendanceObject = main_range_object("Attendance");
+  var score_obj = {};
+  for (var i = 0; i < EventObject.object_count; i++){
+    var event_name = EventObject.object_header[i];
+    var event_type = EventObject[event_name]["Type"][0];
+    if (event_type == "Service Hours"){
+      var event_hours = EventObject[event_name]["Event Hours"][0];
+      var event_date = EventObject[event_name]["Date"][0];
+      var month = event_date.getMonth();
+      var semester = "FALL";
+      if (month<5){
+	    var semester = "SPRING";
+      }
+      var att_obj = AttendanceObject[event_name];
+      for (var j = 2; j < att_obj.object_count; j++){
+        var member_name_raw = AttendanceObject.header_values[j];
+        var member_name_short = att_name(member_name_raw);
+        var member_object = find_member_shortname(MemberObject, member_name_short);
+        var member_name = member_object["Member Name"][0];
+        var att = att_obj[member_name_raw][0];
+        if (att == "P"){
+          score_obj[member_name] = score_obj[member_name] ? score_obj[member_name]:{};
+          score_obj[member_name][semester] = score_obj[member_name][semester] ?
+            score_obj[member_name][semester]+event_hours:event_hours;
+        }
+//        Logger.log(score_obj);
+      }
+    }
+  }
+  for (var member_name in score_obj){
+//    Logger.log(member_name);
+    var member_obj = MemberObject[member_name];
+    var member_row = member_obj.object_row;
+    var fall_col = member_obj["Service Hours Fall"][1];
+    var spring_col = member_obj["Service Hours Spring"][1];
+    var member_fall_range = sheet.getRange(member_row, fall_col);
+    var member_spring_range = sheet.getRange(member_row, spring_col);
+    member_fall_range.setValue(score_obj[member_name]["FALL"]);
+    member_spring_range.setValue(score_obj[member_name]["SPRING"]);
+    Logger.log("FALL: "+fall_col+" SPRING: "+spring_col+" ROW: "+member_row);
+  }
+  update_scores_org_gpa_serv();
+}
+
 function update_score_att(){
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Scoring");
   var EventObject = main_range_object("Events");
   var ScoringObject = main_range_object("Scoring");
-  var total_members = get_total_members().Active;
+  var total_members = get_total_members()["Student"];
   var date_types = [];
   var counts = [];
   for (var i = 0; i < EventObject.object_count; i++){
@@ -1085,20 +1220,27 @@ function update_scores_org_gpa_serv(){
   var gpa_max = ScoringObject["GPA"]["Max/ Semester"][0];
   var gpa_fall_score = eval_score(gpa_fall_method, gpa_max);
   var gpa_spring_score = eval_score(gpa_spring_method, gpa_max);
+  var service_fall_range = sheet.getRange(ScoringObject["Service Hours"].object_row, fall_col);
+  var service_spring_range = sheet.getRange(ScoringObject["Service Hours"].object_row, spring_col);
   var service_range = sheet.getRange(ScoringObject["Service Hours"].object_row, total_col);
-  var service_method = ScoringObject["Service Hours"]["Special"][0];
-  service_method = service_method.replace("HOURS", score_data.percent_service);
+  var service_method_raw = ScoringObject["Service Hours"]["Special"][0];
+  var service_fall_method = service_method_raw.replace("HOURS", score_data.percent_service_fa);
+  var service_spring_method = service_method_raw.replace("HOURS", score_data.percent_service_sp);
   var service_max = ScoringObject["Service Hours"]["Max/ Semester"][0];
-  var service_score = eval_score(service_method, service_max);
+  var service_fall_score = eval_score(service_fall_method, service_max);
+  var service_spring_score = eval_score(service_spring_method, service_max);
   Logger.log("SOC: " + societies_method + ", SCORE: " + socieities_score);
   Logger.log("GPA_FALL: " + gpa_fall_method + ", SCORE: " + gpa_fall_score);
   Logger.log("GPA_SPRING: " + gpa_spring_method + ", SCORE: " + gpa_spring_score);
-  Logger.log("SERV: " + service_method + ", SCORE: " + service_score);
+  Logger.log("SERV_FALL: " + service_fall_method + ", SCORE: " + service_fall_score);
+  Logger.log("SERV_SPRING: " + service_spring_method + ", SCORE: " + service_spring_score);
   societies_range.setValue(socieities_score);
   gpa_fall_range.setValue(gpa_fall_score);
   gpa_spring_range.setValue(gpa_spring_score);
   gpa_range.setValue(gpa_fall_score + gpa_spring_score);
-  service_range.setValue(service_score);
+  service_fall_range.setValue(service_fall_score);
+  service_spring_range.setValue(service_spring_score);
+  service_range.setValue(service_fall_score + service_spring_score);
   update_dash_score("ProDev", total_col);
   update_dash_score("Service", total_col);
 }
@@ -1114,12 +1256,13 @@ function get_scores_org_gpa_serv(){
   var gpa_counts = {};
   var officer_counts = {};
   var org_counts = {};
-  var service_count = 0;
+  var service_count_fa = 0;
+  var service_count_sp = 0;
   var officer_count = 0;
   var org_count = 0;
   var officers = ["Officer (Pro/Tech)", "Officer (Honor)", "Officer (Other)"];
   var orgs = ["Professional/ Technical Orgs", "Honor Orgs", "Other Orgs"];
-  var gpas = ["Fall GPA", "Service Hours", "Spring GPA"];
+  var gpas = ["Fall GPA", "Service Hours Fall", "Spring GPA"];
   var MemberObject = main_range_object("Membership");
   var gpa = 0;
   for (var i = 0; i < MemberObject.object_count; i++){
@@ -1127,7 +1270,9 @@ function get_scores_org_gpa_serv(){
     var org_true = false;
     var officer_true = false;
     for (var j = 0; j <= 2; j++){
-      var gpa = parseInt(MemberObject[member_name][gpas[j]][0]);
+      var gpa_raw = MemberObject[member_name][gpas[j]][0]
+      gpa_raw = gpa_raw == "" ? 0:gpa_raw;
+      var gpa = parseInt(gpa_raw);
       gpa_counts[gpas[j]] = gpa_counts[gpas[j]] ? gpa_counts[gpas[j]]+gpa:gpa;
       var this_org = MemberObject[member_name][orgs[j]][0];
       org_counts[orgs[j]] = org_counts[orgs[j]] ? org_counts[orgs[j]]:0;
@@ -1139,18 +1284,24 @@ function get_scores_org_gpa_serv(){
       officer_true = officer=="YES" ? true:officer_true;
       Logger.log("GPA: " + gpa + " ORG: " + org + " OFFICER: " + officer);
     }
-    var service_hours = MemberObject[member_name]["Service Hours"][0];
-    var service_hours_self = MemberObject[member_name]["Self Service Hours"][0];
-    service_hours = +service_hours + service_hours_self
-    service_count = service_hours >= 16 ? service_count + 1:service_count;
+    var service_hours_fa = MemberObject[member_name]["Service Hours Fall"][0];
+    var service_hours_sp = MemberObject[member_name]["Service Hours Spring"][0];
+    var service_hours_self_fa = MemberObject[member_name]["Self Service Hrs FA"][0];
+    var service_hours_self_sp = MemberObject[member_name]["Self Service Hrs SP"][0];
+    service_hours_fa = +service_hours_fa + service_hours_self_fa
+    service_hours_sp = +service_hours_sp + service_hours_self_sp
+    var service_count_fa = service_hours_fa >= 8 ? service_count_fa + 1:service_count_fa;
+    var service_count_sp = service_hours_sp >= 8 ? service_count_sp + 1:service_count_sp;
     officer_count = officer_true ? officer_count + 1:officer_count;
     org_count = org_true ? org_count + 1:org_count;
   }
-  var percent_service = service_count / MemberObject.object_count;
+  var percent_service_fa = service_count_fa / MemberObject.object_count;
+  var percent_service_sp = service_count_sp / MemberObject.object_count;
   var percent_org = org_count / MemberObject.object_count;
   var gpa_avg_fall = gpa_counts["Fall GPA"] / MemberObject.object_count;
   var gpa_avg_spring = gpa_counts["Spring GPA"] / MemberObject.object_count;
-  return {percent_service: percent_service,
+  return {percent_service_fa: percent_service_fa,
+          percent_service_sp: percent_service_sp,
           percent_org: percent_org,
           officer_count: officer_count,
           gpa_avg_fall: gpa_avg_fall,
@@ -1190,7 +1341,12 @@ function update_score(row, sheetName, score_data, myObject){
   var type_score = total_scores[semester][object_type][0];
   var other_type_rows = total_scores[semester][object_type][1];
   Logger.log("Type Score: " + type_score);
+  score_range.setNote(score_data.score_method_note);
   var score = score_data.score;
+  if (score === null){
+    score_range.setBackground("black");
+    return [];
+  }
   var total = parseFloat(type_score) + parseFloat(score);
   Logger.log(total)
   if (total > parseFloat(score_data.score_max_semester)){
@@ -1202,7 +1358,6 @@ function update_score(row, sheetName, score_data, myObject){
   score_data.type_score = type_score;
   update_main_score(score_data);
   score_range.setValue(score);
-  score_range.setNote(score_data.score_method_note);
   return other_type_rows;
 }
 
@@ -1301,8 +1456,11 @@ function get_score_event(myEvent){
   var score_data = get_score_method(event_type);
   Logger.log(score_data);
   var score_method_edit = edit_score_method_event(myEvent, score_data.score_method);
-  var score = eval(score_method_edit);
-  score = score.toFixed(1);
+  var score = null
+  if (score_method_edit !== null){
+    score = eval(score_method_edit);
+    score = score.toFixed(1);
+  }
   score_data.score = score;
   Logger.log("SCORE RAW: " + score);
   return score_data
@@ -1325,13 +1483,25 @@ function edit_score_method_event(myEvent, score_method){
   var attend = (attend != "") ? attend:0;
   if (~score_method.indexOf("memberATT")){
       var totals = get_total_members();
-      var percent_attend = attend / totals.Active;
+      var percent_attend = attend / totals.Student;
       score_method = score_method.replace("memberATT", percent_attend);
           }
   if (~score_method.indexOf("memberADD")){
       score_method = score_method.replace("memberADD", attend);
           }
-  if (~score_method.indexOf("NON-MEMBER") || ~score_method.indexOf("ALUMNI")){
+  if (~score_method.indexOf("MILES")){
+    var miles = myEvent["MILES"][0];
+    miles = (miles != "") ? miles:0;
+    score_method = score_method.replace("MILES", miles);
+          }
+  if (~score_method.indexOf("HOST")){
+    var host = myEvent["HOST"][0];
+    host = (host == "Yes") ? 1:0;
+    score_method = score_method.replace("HOST", host);
+    score_method = score_method.replace("HOST", host);
+    score_method = score_method.replace("HOST", host);
+          }
+  if (~score_method.indexOf("NON-MEMBER")){
       var non_members = myEvent["# Non- Members"][0];
       var non_members = (non_members != "") ? non_members:0;
       score_method = score_method.replace("NON-MEMBER", non_members);
@@ -1352,7 +1522,12 @@ function edit_score_method_event(myEvent, score_method){
       score_method = score_method.replace("P_FOCUS", focus);
           }
   if (~score_method.indexOf("MEETINGS")){
-      score_method = "MEETINGS";
+    update_score_att();
+    score_method = null;
+          }
+  if (~score_method.indexOf("HOURS")){
+    update_service_hours();
+    score_method = null;
           }
   Logger.log("Score Method Raw: " + score_method)
   return score_method
@@ -1412,20 +1587,27 @@ function main_range_object(sheetName, short_header, ss){
   if (sheetName=="Membership"){
     if (short_header == undefined){
       var short_header = "Member Name";
+      var sort_val = short_header;
     }
   } else if (sheetName=="Scoring"){
-    var short_header = "Short Name"
+    var short_header = "Short Name";
+    var sort_val = short_header;
   } else if (sheetName=="Events"){
-    var short_header = "Event Name"
+    var short_header = "Event Name";
+    var sort_val = "Date";
+  } else if (sheetName=="Attendance"){
+    var short_header = "Event Name";
+    var sort_val = "Event Date";
   }
   var max_row = sheet.getLastRow() - 1;
   var max_column = sheet.getLastColumn();
   var header_range = sheet.getRange(1, 1, 1, max_column);
   var header_values = header_range.getValues();
   var short_names_ind = get_ind_from_string(short_header, header_values);
+  var sort_ind = get_ind_from_string(sort_val, header_values);
   if (max_row > 2){
     var full_data_range = sheet.getRange(2, 1, max_row, max_column);
-    var sorted_range = full_data_range.sort({column: short_names_ind, ascending: true});
+    var sorted_range = full_data_range.sort({column: sort_ind, ascending: true});
     var full_data_values = sorted_range.getValues();
     var short_names_range = sheet.getRange(2, short_names_ind, max_row, 1);
     var short_names = short_names_range.getValues();
@@ -1519,15 +1701,6 @@ function show_att_sheet_alert(){
      'ERROR',
      'Please edit the events or members on the Events or Membership Sheet',
       ui.ButtonSet.OK);
-}
-
-function show_event_sheet_alert() {
-  var ui = SpreadsheetApp.getUi();
-  var result = ui.alert(
-     'ERROR',
-     'Please add/edit/remove events using the form',
-      ui.ButtonSet.OK);
-  showaddEvent();
 }
 
 function get_event_data(SheetName) {
