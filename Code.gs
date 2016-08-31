@@ -959,7 +959,7 @@ function att_name(name){
 
 function update_attendance(attendance){
   var MemberObject = main_range_object("Membership");
-  Logger.log(attendance);
+//  Logger.log(attendance);
   var counts = {};
   counts["Student"] = {};
   counts["Pledge"] = {};
@@ -1038,12 +1038,12 @@ function event_fields_set(myObject){
 }
 
 function update_scores_event(user_row){
-//  var user_row = 26;
+//  var user_row = 2;
   var myObject = range_object("Events", user_row);
   if (myObject.Type[0] == "" || myObject.Date[0] == "" ||
       myObject["Event Name"][0] == ""){
     return;
-  } else if (myObject["# Members"][0] == ""){
+  } else if (myObject["# Members"][0] === ""){
     attendance_add_event(myObject["Event Name"][0], myObject.Date[0]);
   }
   if (!event_fields_set(myObject)){
@@ -1103,8 +1103,10 @@ function update_service_hours(){
     var spring_col = member_obj["Service Hours Spring"][1];
     var member_fall_range = sheet.getRange(member_row, fall_col);
     var member_spring_range = sheet.getRange(member_row, spring_col);
-    member_fall_range.setValue(score_obj[member_name]["FALL"]);
-    member_spring_range.setValue(score_obj[member_name]["SPRING"]);
+    var fall_score = score_obj[member_name]["FALL"] ? score_obj[member_name]["FALL"]:0;
+    member_fall_range.setValue(fall_score);
+    var spring_score = score_obj[member_name]["SPRING"] ? score_obj[member_name]["SPRING"]:0;
+    member_spring_range.setValue(spring_score);
     Logger.log("FALL: "+fall_col+" SPRING: "+spring_col+" ROW: "+member_row);
   }
   update_scores_org_gpa_serv();
@@ -1633,13 +1635,14 @@ function main_range_object(sheetName, short_header, ss){
     var short_header = "Event Name";
     var sort_val = "Event Date";
   }
-  var max_row = sheet.getLastRow() - 1;
+  var max_row = sheet.getLastRow()-1;
+  Logger.log("MAX_"+sheetName+": "+max_row);
   var max_column = sheet.getLastColumn();
   var header_range = sheet.getRange(1, 1, 1, max_column);
   var header_values = header_range.getValues();
   var short_names_ind = get_ind_from_string(short_header, header_values);
   var sort_ind = get_ind_from_string(sort_val, header_values);
-  if (max_row > 2){
+  if (max_row > 0){
     var full_data_range = sheet.getRange(2, 1, max_row, max_column);
     var sorted_range = full_data_range.sort({column: sort_ind, ascending: true});
     var full_data_values = sorted_range.getValues();
@@ -1752,7 +1755,7 @@ function get_sheet_data(SheetName) {
     var range = sheet.getRange(2, 1, max_row, max_column);
     var header_range = sheet.getRange(1, 1, 1, max_column);
     var header_values = header_range.getValues();
-    Logger.log(header_values);
+//    Logger.log(header_values);
     for (i in header_values[0]){
       if (header_values[0][i] == "Date") {
         var date_index = parseInt(i);
@@ -1788,7 +1791,7 @@ function attendance_add_event(event_name, event_date){
 //  var att_values = att_data.range.getValues();
   var attendance_rows = att_data.max_row;
   Logger.log(attendance_rows);
-  sheet.insertRowAfter(attendance_rows);
+  sheet.insertRowBefore(attendance_rows+1);
   var att_row = sheet.getRange(attendance_rows+1, 1, 1, 2);
   att_row.setValues([[event_name, event_date]]);
   var attendance = range_object(sheet, attendance_rows+1);

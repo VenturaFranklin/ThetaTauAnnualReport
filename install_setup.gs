@@ -200,13 +200,6 @@ function setup_dataval(){
     range.setDataValidation(rule);
   }
 
-  var range = ss.getRangeByName("EventsCloseOpen");
-  var rule = SpreadsheetApp.newDataValidation()
-    .requireValueInList(['Closed', 'Open'])
-    .setHelpText('Closed to non-members?')
-    .setAllowInvalid(false).build();
-  range.setDataValidation(rule);
-
   var range = ss.getRangeByName("EventsDate");
   var rule = SpreadsheetApp.newDataValidation()
     .requireDate()
@@ -491,13 +484,13 @@ function RESET() {
     folder_chapter.removeFile(file);
   }
   var sheets = target_doc.getSheets();
-  var sheet = target_doc.insertSheet();
-  sheet.setName("Sheet1");
+  var new_sheet = target_doc.insertSheet();
   
   for (var i in sheets){
     var sheet = sheets[i];
     target_doc.deleteSheet(sheet)
   }
+  new_sheet.setName("Sheet1");
   var named_ranges = target_doc.getNamedRanges();
   for (var j in named_ranges){
     var named_range = named_ranges[j];
