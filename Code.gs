@@ -847,12 +847,13 @@ function getList(RangeName) {
 //}
 
 function reset_range(range, user_old_value){
+  return;
   var user_old_value = (user_old_value != undefined) ? user_old_value:"";
   range.setValue(user_old_value);
 }
 
 function _onEdit(e){
-  var Logger = startBetterLog();
+//  var Logger = startBetterLog();
   try{
   Logger.log("onEDIT" + e);
   Logger.log(e);
@@ -893,12 +894,12 @@ function _onEdit(e){
       update_scores_event(user_row);
     }
   } else if (sheet_name == "Scoring") {
-    reset_range(user_range, user_old_value)
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-     'Please do not edit the Scoring Sheet',
-      ui.ButtonSet.OK);
+//    reset_range(user_range, user_old_value)
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//     'Please do not edit the Scoring Sheet',
+//      ui.ButtonSet.OK);
   } else if (sheet_name == "Submissions") {
     reset_range(user_range, user_old_value)
     var ui = SpreadsheetApp.getUi();
@@ -1000,9 +1001,43 @@ function update_attendance(attendance){
   pledge_range.setValue(num_pledges)
 }
 
+function get_needed_fields(event_type){
+  var ScoringObject = main_range_object("Scoring");
+  var score_object = ScoringObject[event_type];
+  var needed_fields = score_object["Event Fields"][0];
+  return needed_fields.split(', ');
+}
+
+function event_fields_set(myObject){
+  var needed_fields = get_needed_fields(myObject["Type"][0]);
+  var event_row = myObject["object_row"];
+  var sheet = myObject["sheet"];
+  var field_range = sheet.getRange(event_row, 10, 1, 4);
+  field_range.setBackground("black");
+  var needed_field_values = [];
+  for (var i in needed_fields){
+    var needed_field = needed_fields[i];
+    var needed_value = myObject[needed_field][0];
+    needed_field_values.push(needed_value);
+    var needed_col = myObject[needed_field][1];
+    if (needed_col > 9) {
+      var needed_range = sheet.getRange(event_row, needed_col);
+      needed_range.setBackground("white");
+    }
+  }
+  Logger.log(needed_field_values);
+  if (needed_field_values.indexOf("") > -1){
+    return false;
+  }
+  return true;
+}
+
 function update_scores_event(user_row){
-  var user_row = 2;
+//  var user_row = 3;
   var myObject = range_object("Events", user_row);
+  if (!event_fields_set(myObject)){
+    return;
+  }
   var score_data = get_score_event(myObject);
   var other_type_rows = update_score(user_row, "Events", score_data, myObject);
   Logger.log("OTHER ROWS" + other_type_rows);
@@ -1637,6 +1672,8 @@ function range_object(sheet, range_row){
   var header_values = header_range.getValues();
   Logger.log(header_values)
   var myObject = new Array();
+//  myObject["range"] = range; TODO
+  myObject["sheet"] = sheet;
   myObject["object_header"] = new Array();
   myObject["object_row"] = range_row;
   for (header in header_values[0]){
