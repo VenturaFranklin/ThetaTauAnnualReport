@@ -852,7 +852,7 @@ function getList(RangeName) {
 //}
 
 function reset_range(range, user_old_value){
-  return;
+//  return;
   var user_old_value = (user_old_value != undefined) ? user_old_value:"";
   range.setValue(user_old_value);
 }
@@ -899,12 +899,12 @@ function _onEdit(e){
       update_scores_event(user_row);
     }
   } else if (sheet_name == "Scoring") {
-//    reset_range(user_range, user_old_value)
-//    var ui = SpreadsheetApp.getUi();
-//    var result = ui.alert(
-//     'ERROR',
-//     'Please do not edit the Scoring Sheet',
-//      ui.ButtonSet.OK);
+    reset_range(user_range, user_old_value)
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+     'Please do not edit the Scoring Sheet',
+      ui.ButtonSet.OK);
   } else if (sheet_name == "Submissions") {
     reset_range(user_range, user_old_value)
     var ui = SpreadsheetApp.getUi();
