@@ -49,19 +49,8 @@ function onOpen(e) {
 }
 
 function TEST(){
-  get_active_spreadsheet()
-  var HOST = 0
-  var non_member = 50
-  var att = 0.5
-  var miles = 200
-  var host_cal = eval((non_member/100)*HOST)
-  Logger.log("HOST: "+host_cal);
-  var travel_cal = eval(att*(HOST-1)*(HOST-1))
-  Logger.log("TRAVEL: "+travel_cal);
-  var miles_cal = eval(miles/1000)
-  Logger.log(miles_cal);
-  Logger.log(eval(25*(host_cal+travel_cal+miles_cal)));
-//  var folder = DriveApp.getFolderById('0BwvK5gYQ6D4nWVhUVlo4dUhYV0E');
+//  var ss = get_active_spreadsheet();
+//  Logger.log(range.getValues());
 }
 
 function testEvents() {
@@ -858,14 +847,13 @@ function getList(RangeName) {
 //}
 
 function reset_range(range, user_old_value){
-  return;
   var user_old_value = (user_old_value != undefined) ? user_old_value:"";
   range.setValue(user_old_value);
 }
 
 function _onEdit(e){
-//  var Logger = startBetterLog();
-//  try{
+  var Logger = startBetterLog();
+  try{
   Logger.log("onEDIT" + e);
   Logger.log(e);
   Logger.log("onEdit, authMode: " + e.authMode);
@@ -882,14 +870,14 @@ function _onEdit(e){
   Logger.log("Row: " + user_row + " Col: " + user_col);
   if (sheet_name == "Events"){
     Logger.log("EVENTS CHANGED");
-    if (user_row == 1 || user_col == 3 ||
-        user_col == 4 || user_col == 5){
-//      reset_range(user_range, user_old_value)
-//      var ui = SpreadsheetApp.getUi();
-//      var result = ui.alert(
-//        'ERROR',
-//        'Score, #Members, & #Pledges are are updated automatically',
-//        ui.ButtonSet.OK);
+    if (user_row == 1 || user_col == 4 ||
+        user_col == 5 || user_col == 6){
+      reset_range(user_range, user_old_value)
+      var ui = SpreadsheetApp.getUi();
+      var result = ui.alert(
+        'ERROR',
+        'Score, #Members, & #Pledges are are updated automatically',
+        ui.ButtonSet.OK);
     } else {
     update_scores_event(user_row);
     }
@@ -898,7 +886,7 @@ function _onEdit(e){
   } else if (sheet_name == "Attendance"){
     if (user_row == 1 || user_col < 3){
       reset_range(user_range, user_old_value);
-//      show_att_sheet_alert();
+      show_att_sheet_alert();
     } else {
       var attendance = range_object(sheet, user_row)
       update_attendance(attendance);
@@ -907,26 +895,26 @@ function _onEdit(e){
   } else if (sheet_name == "Scoring") {
     reset_range(user_range, user_old_value)
     var ui = SpreadsheetApp.getUi();
-//    var result = ui.alert(
-//     'ERROR',
-//     'Please do not edit the Scoring Sheet',
-//      ui.ButtonSet.OK);
+    var result = ui.alert(
+     'ERROR',
+     'Please do not edit the Scoring Sheet',
+      ui.ButtonSet.OK);
   } else if (sheet_name == "Submissions") {
     reset_range(user_range, user_old_value)
     var ui = SpreadsheetApp.getUi();
-//    var result = ui.alert(
-//     'ERROR',
-//     'Please do not edit the Submissions Sheet\n'+
-//     'Please use the submissions sidebar',
-//      ui.ButtonSet.OK);
+    var result = ui.alert(
+     'ERROR',
+     'Please do not edit the Submissions Sheet\n'+
+     'Please use the submissions sidebar',
+      ui.ButtonSet.OK);
     submitSidebar();
   } else if (sheet_name == "Dashboard") {
     reset_range(user_range, user_old_value)
     var ui = SpreadsheetApp.getUi();
-//    var result = ui.alert(
-//     'ERROR',
-//     'Please do not edit the Dashboard Sheet',
-//      ui.ButtonSet.OK);
+    var result = ui.alert(
+     'ERROR',
+     'Please do not edit the Dashboard Sheet',
+      ui.ButtonSet.OK);
   }else if (sheet_name == "Membership") {
     Logger.log("MEMBER CHANGED");
     if (user_col > 12){
@@ -934,22 +922,22 @@ function _onEdit(e){
     } else {
       reset_range(user_range, user_old_value)
       var ui = SpreadsheetApp.getUi();
-//      var result = ui.alert(
-//        'ERROR',
-//        'Please do not edit member information here\n'+
-//        'Member information is changed by notifying the central office',
-//        ui.ButtonSet.OK);
+      var result = ui.alert(
+        'ERROR',
+        'Please do not edit member information here\n'+
+        'Member information is changed by notifying the central office',
+        ui.ButtonSet.OK);
     }
   }
-//  } catch (error) {
-//    Logger.log(error);
-//    var ui = SpreadsheetApp.getUi();
-//    var result = ui.alert(
-//     'ERROR',
-//      error,
-//      ui.ButtonSet.OK);
-//    return "";
-//  }
+  } catch (error) {
+    Logger.log(error);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      error,
+      ui.ButtonSet.OK);
+    return "";
+  }
 }
 
 function att_name(name){
@@ -1013,7 +1001,7 @@ function update_attendance(attendance){
 }
 
 function update_scores_event(user_row){
-//  var user_row = 17;
+  var user_row = 2;
   var myObject = range_object("Events", user_row);
   var score_data = get_score_event(myObject);
   var other_type_rows = update_score(user_row, "Events", score_data, myObject);
@@ -1584,11 +1572,11 @@ function main_range_object(sheetName, short_header, ss){
     var ss = get_active_spreadsheet();
   }
   var sheet = ss.getSheetByName(sheetName);
-  if (sheetName=="Membership"){
+  if (sheetName=="Membership" || sheetName=="MAIN"){
     if (short_header == undefined){
       var short_header = "Member Name";
-      var sort_val = short_header;
-    }
+      }
+    var sort_val = short_header;
   } else if (sheetName=="Scoring"){
     var short_header = "Short Name";
     var sort_val = short_header;

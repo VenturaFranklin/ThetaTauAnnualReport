@@ -179,6 +179,59 @@ function setup_sheets() {
   }
 }
 
+function setup_dataval(){
+  var ss = get_active_spreadsheet();
+  var events = get_type_list("Events");
+  var range = ss.getRangeByName("EventsType");
+  var rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(events)
+    .setHelpText('Must be a valid event type.')
+    .setAllowInvalid(false).build();
+  range.setDataValidation(rule);
+
+  var yes_no = ["EventsSTEM", "EventsPledge", "EventsHost",
+                "MemberPro", "MemberHonor", "MemberOther"];
+  var rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(['Yes', 'No'])
+    .setAllowInvalid(false).build();
+  for (var i in yes_no){
+    var range_name = yes_no[i];
+    var range = ss.getRangeByName(range_name);
+    range.setDataValidation(rule);
+  }
+
+  var range = ss.getRangeByName("EventsCloseOpen");
+  var rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(['Closed', 'Open'])
+    .setHelpText('Closed to non-members?')
+    .setAllowInvalid(false).build();
+  range.setDataValidation(rule);
+
+  var range = ss.getRangeByName("EventsDate");
+  var rule = SpreadsheetApp.newDataValidation()
+    .requireDate()
+    .setHelpText('Enter a valid date MM/DD/YYYY')
+    .setAllowInvalid(false).build();
+  range.setDataValidation(rule);
+  
+  var range = ss.getRange("Attendance!1:149");
+  var rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(['P', 'E', 'U'], false)
+    .setHelpText('P-Present; E-Excused; U-Unexcused')
+    .setAllowInvalid(false).build();
+  range.setDataValidation(rule);
+  
+  remove = ["Membership!1:1", "Events!1:1",
+            "Attendance!1:1", "Attendance!A:B"];
+  for (var i in remove) {
+    ss.getRange(remove[i]).clearDataValidations();
+  }
+  
+//requireNumberGreaterThan(number)
+//requireTextIsEmail()
+//requireTextIsUrl()
+}
+
 
 function CSVToArray( strData, strDelimiter ){
   // Check to see if the delimiter is defined. If not,
@@ -378,6 +431,8 @@ function get_chapter_members(){
   }
   var previous_member = undefined;
   ChapterMemberObject = main_range_object("Membership");
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName("Attendance");
   for(var i = 0; i< ChapterMemberObject.object_count; i++) {
     var member_name = ChapterMemberObject.object_header[i];
     var member_badge = ChapterMemberObject[member_name]["Badge Number"][0];
@@ -385,23 +440,22 @@ function get_chapter_members(){
       if (i>0){
         previous_member = ChapterMemberObject.object_header[i-1];;
       }
-      align_attendance_members(previous_member, member_name);
+      align_attendance_members(previous_member, member_name, sheet);
     }
   }
+  var format_range = ss.getRangeByName("FORMAT");
+  format_range.copyFormatToRange(sheet, 3, 100, 2, 100);
+  sheet.getRange(3, 100, 2, 100).clearDataValidations();
+  setup_dataval();
 }
 
 
-function align_attendance_members(previous_member, new_member){
+function align_attendance_members(previous_member, new_member, sheet){
 //  var previous_member = "REALLYLONGNAMEFORTESTINGTHINGSLIKETHIS";
 //  var new_member = "REALL3YLONGNAMEFORTESTINGTHINGSLIKETHIS";
-  var ss = get_active_spreadsheet();
-  var sheet = ss.getSheetByName("Attendance");
   var max_row = sheet.getLastRow() - 1;
   max_row = (max_row != 0) ? max_row:1;
   var max_column = sheet.getLastColumn();
-//  var range = sheet.getRange(1, 3, max_row, max_column);
-//  var range_values = range.getValues();
-//  var sorted_range = sortHorizontal(range_values);
   var header_range = sheet.getRange(1, 1, 1, max_column);
   var header_values = header_range.getValues()[0];
   var previous_index = 2;
@@ -421,17 +475,11 @@ function align_attendance_members(previous_member, new_member){
   sheet.insertColumnAfter(previous_index);
   var new_range = sheet.getRange(1, +previous_index+1);
   new_member = shorten(new_member, 12, false);
-  var formula = '=regexreplace("'+new_member+'", "(.)", "$1"&char(10))';
-  Logger.log(formula);
-  new_range.setFormula(formula);
-  var val = new_range.getValue();
+  var regex = new RegExp('.*?(.).*?', 'g');
+  var val = new_member.replace(regex, "$1\n");
   val = val.substring(0, val.length - 1);
   new_range.setValue(val);
   sheet.setColumnWidth(+previous_index+1, 21)
-  var format_range = ss.getRangeByName("FORMAT");
-  format_range.copyFormatToRange(sheet, +previous_index+1, +previous_index+1, 2, 100);
-  new_range = sheet.getRange(1, +previous_index+1, 100, 1);
-  new_range.clearDataValidations();
 }
 
 function RESET() {
