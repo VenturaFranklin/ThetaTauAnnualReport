@@ -48,7 +48,12 @@ function onOpen(e) {
   menu.addToUi();
 }
 
-function TEST(){
+function TEST(test){
+  if (test){
+    return;
+  } else if (!test){
+    return;
+  }
 //  var ss = get_active_spreadsheet();
 //  Logger.log(range.getValues());
 }
@@ -1012,7 +1017,7 @@ function event_fields_set(myObject){
   var needed_fields = get_needed_fields(myObject["Type"][0]);
   var event_row = myObject["object_row"];
   var sheet = myObject["sheet"];
-  var field_range = sheet.getRange(event_row, 10, 1, 4);
+  var field_range = sheet.getRange(event_row, 10, 1, 5);
   field_range.setBackground("black");
   var needed_field_values = [];
   for (var i in needed_fields){
@@ -1033,8 +1038,14 @@ function event_fields_set(myObject){
 }
 
 function update_scores_event(user_row){
-//  var user_row = 3;
+//  var user_row = 26;
   var myObject = range_object("Events", user_row);
+  if (myObject.Type[0] == "" || myObject.Date[0] == "" ||
+      myObject["Event Name"][0] == ""){
+    return;
+  } else if (myObject["# Members"][0] == ""){
+    attendance_add_event(myObject["Event Name"][0], myObject.Date[0]);
+  }
   if (!event_fields_set(myObject)){
     return;
   }
@@ -1728,14 +1739,14 @@ function show_att_sheet_alert(){
       ui.ButtonSet.OK);
 }
 
-function get_event_data(SheetName) {
+function get_sheet_data(SheetName) {
 //  var SheetName="Events"
 //  var SheetName="Attendance"
   Logger.log(SheetName)
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName(SheetName);
   if (sheet != null) {
-    var max_row = sheet.getLastRow() - 1
+    var max_row = sheet.getLastRow();
     var max_row = (max_row != 0) ? max_row:1;
     var max_column = sheet.getLastColumn()
     var range = sheet.getRange(2, 1, max_row, max_column);
@@ -1754,38 +1765,51 @@ function get_event_data(SheetName) {
 //    var sorted_range = range.sort({column: +date_index+1, ascending: true});
 //    sheet.setFrozenRows(1);
   }
-  return {range: range,
+  return {sheet: sheet,
+          range: range,
+          max_row: max_row,
           header: header_values,
           date_index: date_index,
           name_index: name_index
          }
 }
 
-function align_attendance_events(){
-  var ss = get_active_spreadsheet();
-  var sheet = ss.getSheetByName("Attendance");
-  var event_data = get_event_data("Events");
-  var att_data = get_event_data("Attendance");
-  var event_values = event_data.range.getValues();
-  var att_values = att_data.range.getValues();
-  var attendance_rows = att_values.length;
-  Logger.log(attendance_rows);
-  for (row in event_values){
-    var this_row = parseInt(row) + 1
-    var event_name = event_values[row][event_data.name_index];
-    var event_date = event_values[row][event_data.date_index];
-    if (this_row - 1 < attendance_rows){
-      var att_event_name = att_values[row][att_data.name_index];
-      var att_event_date = att_values[row][att_data.date_index];
-    }
-    if (event_name != att_event_name){
-      sheet.insertRowAfter(this_row);
-      var name_range = sheet.getRange(this_row+1, att_data.name_index+1);
-      name_range.setValue(event_name);
-      var date_range = sheet.getRange(this_row+1, +att_data.date_index+1);
-      date_range.setValue(event_date);
-      sheet.setRowHeight(this_row+1, 10);
-    }
-    Logger.log(event_name);
+function attendance_add_event(event_name, event_date){
+  //align_attendance_events(myObject["Event Name"][0], myObject.Date[0])
+//  var event_name = "TEST";
+//  var event_date = "01/01/2018";
+  if (!event_name || !event_date){
+    return;
+    var event_data = get_sheet_data("Events");
+    var event_values = event_data.range.getValues();
   }
+  var att_data = get_sheet_data("Attendance");
+  var sheet = att_data.sheet;
+//  var att_values = att_data.range.getValues();
+  var attendance_rows = att_data.max_row;
+  Logger.log(attendance_rows);
+  sheet.insertRowAfter(attendance_rows);
+  var att_row = sheet.getRange(attendance_rows+1, 1, 1, 2);
+  att_row.setValues([[event_name, event_date]]);
+  var attendance = range_object(sheet, attendance_rows+1);
+  update_attendance(attendance);
+  main_range_object("Attendance");
+//  for (row in event_values){
+//    var this_row = parseInt(row) + 1
+//    var event_name = event_values[row][event_data.name_index];
+//    var event_date = event_values[row][event_data.date_index];
+//    if (this_row - 1 < attendance_rows){
+//      var att_event_name = att_values[row][att_data.name_index];
+//      var att_event_date = att_values[row][att_data.date_index];
+//    }
+//    if (event_name != att_event_name){
+//      sheet.insertRowAfter(this_row);
+//      var name_range = sheet.getRange(this_row+1, att_data.name_index+1);
+//      name_range.setValue(event_name);
+//      var date_range = sheet.getRange(this_row+1, +att_data.date_index+1);
+//      date_range.setValue(event_date);
+//      sheet.setRowHeight(this_row+1, 10);
+//    }
+//    Logger.log(event_name);
+//  }
 }
