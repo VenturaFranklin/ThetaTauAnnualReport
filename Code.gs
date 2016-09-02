@@ -274,9 +274,11 @@ function save_form(csvFile, form_type){
     var date = new Date();
     var currentMonth = date.getMonth() + 1;
     if (currentMonth < 10) { currentMonth = '0' + currentMonth; }
+    var currentDay = date.getDate().toString();
+    if (currentDay < 10) { currentDay = '0' + currentDay; }
     var fileName = date.getFullYear().toString()+
                    currentMonth.toString()+
-                   date.getDate().toString()+"_"+
+                   currentDay.toString()+"_"+
                    chapterName+"_"+
                    form_type+"_"+
                    date.getTime().toString()+
@@ -286,16 +288,20 @@ function save_form(csvFile, form_type){
     Logger.log('fileBlob: ' + file);
     
     var template = HtmlService.createTemplateFromFile('SubmitFormResponse');
-    var file_url = template.fileUrl = file.getUrl();
+    var submission = {};
+    submission.file = file;
+    submission.folder_id = folder_id;
+    submission.id = file.getId();
+    var file_url = submission.alternateLink = template.fileUrl = file.getUrl();
     var submission_date = template.date = date;
     var submission_type = template.type = form_type;
     var sheet = ss.getSheetByName("Submissions");
-//    SpreadsheetApp.setActiveSheet(sheet);
     var max_column = sheet.getLastColumn();
     var max_row = sheet.getLastRow();
     var submit_range = sheet.getRange(max_row + 1, 1, 1, max_column);
-    var file_name = template.name = file.getName();
+    var file_name = submission.title = template.name = file.getName();
     submit_range.setValues([[submission_date, file_name, submission_type, 0, file_url]])
+    sendemail_submission(submission_type, submission);
     return template.evaluate().getContent();
   } catch (error) {
     Logger.log(error);
@@ -749,15 +755,19 @@ function sendemail_submission(submission_type, submission) {
   var email_chapter = SCRIPT_PROP.getProperty("email");
   var chapter = SCRIPT_PROP.getProperty("chapter");
   var subject = "Chapter Submission: "+chapter;
-  var file_id = submission.id;
+  if (submission.file){
+    var file_obj = submission.file;
+    var folder_id = submission.folder_id;
+  } else {
+    var file_id = submission.id;
+    var folder_id = submission.parents[0].id;
+    var file_obj = DriveApp.getFileById(file_id).getBlob();
+  }
   var file_url = submission.alternateLink;
   var file_name = submission.title;
-  var folder_id = submission.parents[0].id;
-  var file_obj = DriveApp.getFileById(file_id).getBlob();
   var folder_url = DriveApp.getFolderById(folder_id).getUrl();
   Logger.log([email_director, email_chapter, chapter, subject, file_id,
              file_url, file_name, folder_id, folder_url]);
-  
 
   var emailBody = "Chapter Submission: "+chapter+
     "\nSubmission Type: "+submission_type+
