@@ -733,7 +733,41 @@ function post_submit(file_object, submission_type) {
   update_scores_submit(max_row + 1);
   var output = template.evaluate().getContent();
   Logger.log(output);
+  sendemail_submission(submission_type, file_object)
   return output;
+}
+
+function sendemail_submission(submission_type, submission) {
+  var email_director = SCRIPT_PROP.getProperty("director");
+  var email_chapter = SCRIPT_PROP.getProperty("email");
+  var chapter = SCRIPT_PROP.getProperty("chapter");
+  var subject = "Chapter Submission: "+chapter;
+  var file_id = submission.id;
+  var file_url = submission.alternateLink;
+  var file_name = submission.title;
+  var folder_id = submission.parents[0];
+  var file_obj = DriveApp.getFileById(file_id).getBlob();
+  var folder_url = DriveApp.getFolderById(folder_id).getUrl();
+  Logger.log([email_director, email_chapter, chapter, subject, file_id/
+             file_url, file_name, folder_id, folder_url]);
+
+  var emailBody = "Chapter Submission: "+chapter+
+    "\nSubmission Type: "+submission_type+
+      "\nSubmission Location: " + folder_url +
+        "\nFile Location: " + file_url +
+          "\nSubmission Title: " + file_name +
+            "\nPlease see attached.";
+
+  var htmlBody = "Chapter Submission: "+chapter+
+    "<br/>Submission Type: "+submission_type+
+      "<br/>Submission Location: " + folder_url +
+        "<br/>File Location: " + file_url +
+          "<br/>Submission Title: " + file_name +
+            "<br/>Please see attached.";
+
+  var optAdvancedArgs = {name: chapter, htmlBody: htmlBody,
+                         replyTo: email_chapter, attachments: [file_obj]};
+  MailApp.sendEmail(email_director, subject, emailBody, optAdvancedArgs);
 }
 
 function get_score_submit(myScore){
