@@ -48,6 +48,7 @@ function chapter_name_process(form) {
   range.setValue(region);
   SCRIPT_PROP.setProperty("region", region);
   var balance = chapter_info["Balance Due"][0];
+  var balance_date = chapter_info["Balance Updated"][0]
   var tax = chapter_info["Tax ID Number"][0];
   range = sheet.getRange(2, 5);
   range.setValue(tax);
@@ -59,6 +60,7 @@ function chapter_name_process(form) {
   var sheet_dash = ss.getSheetByName("Dashboard");
   range = sheet_dash.getRange(2, 5);
   range.setValue(balance);
+  range.setNote("Last Updated: "+balance_date);
   range = sheet_dash.getRange(1, 1);
   range.setValue(chapter_name + " CHAPTER ANNUAL REPORT");
   range.getValue();
@@ -332,8 +334,8 @@ function get_chapter_members(){
   var email_index = header.indexOf("Email Address Number");
   var phone_index = header.indexOf("Mobile Phone Number");
 //  var role_index = header.indexOf("Constituent Specific Attributes Chapter Name Description");
-//  var major_index = header.indexOf("Constituent Specific Attributes Chapter Name Description");
-//  var school_index = header.indexOf("Constituent Specific Attributes Chapter Name Description");
+  var major_index = header.indexOf("Primary Education Major");
+  var school_index = header.indexOf("Primary Education Class of");
   var CentralMemberObject = {};
   CentralMemberObject['badge_numbers'] = [];
   for (var j in csvData){
@@ -345,10 +347,13 @@ function get_chapter_members(){
       member_object['First Name'] = row[first_index];
       member_object['Last Name'] = row[last_index];
       member_object['Badge Number'] = badge_number;
-      member_object['Chapter Status'] = row[status_index];
+      var member_status = row[status_index];
+      member_status = member_status=="Prospective Pledge" ? "Pledge":member_status;
+      member_status = member_status=="Colony" ? "Student":member_status;
+      member_object['Chapter Status'] = member_status;
       member_object['Chapter Role'] = row[last_index]+"_ROLE";//row[];
-      member_object['Current Major'] = row[last_index]+"_MAJOR";//row[];
-      member_object['School Status'] = row[last_index]+"_STATUS";//row[];
+      member_object['Current Major'] = row[major_index];
+      member_object['School Status'] = row[school_index];
       member_object['Phone Number'] = row[phone_index];
       member_object['Email Address'] = row[email_index];
       CentralMemberObject['badge_numbers'].push(badge_number);
