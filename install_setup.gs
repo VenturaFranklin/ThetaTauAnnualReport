@@ -47,6 +47,8 @@ function chapter_name_process(form) {
   range = sheet.getRange(2, 3);
   range.setValue(region);
   SCRIPT_PROP.setProperty("region", region);
+  var director = chapter_info["Regional Director"][0];
+  SCRIPT_PROP.setProperty("director", director);
   var balance = chapter_info["Balance Due"][0];
   var balance_date = chapter_info["Balance Updated"][0]
   var tax = chapter_info["Tax ID Number"][0];
