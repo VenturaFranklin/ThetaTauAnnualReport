@@ -504,5 +504,5 @@ function RESET() {
     named_range.remove();
   }
   target_doc.rename("BLANK");
-  PropertiesService.getScriptProperties().deleteAllProperties();
+  SCRIPT_PROP.deleteAllProperties();
 }

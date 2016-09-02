@@ -6,9 +6,9 @@
  *     running in, inspect e.authMode.
  */
 var betterLogStarted = false;
-var SCRIPT_PROP = PropertiesService.getScriptProperties();
+var SCRIPT_PROP = PropertiesService.getDocumentProperties();
+//Logger.log(SCRIPT_PROP);
 //startBetterLog();
-
 
 function startBetterLog() {
   if (!betterLogStarted) {
@@ -48,12 +48,19 @@ function onOpen(e) {
   menu.addToUi();
 }
 
-function TEST(test){
-  if (test){
-    return;
-  } else if (!test){
-    return;
-  }
+function TEST(){
+//  SCRIPT_PROP.setProperty('key', '1wBICuD_CvSm3BonA_OZg-sOTRJylVWVbLYi9nr8vn8Q');
+//  SCRIPT_PROP.setProperty('chapter', 'Chi');
+//  SCRIPT_PROP.setProperty('director', 'werd@thetatau.org');
+//  SCRIPT_PROP.setProperty('email', 'venturafranklin@gmail.com');
+//  SCRIPT_PROP.setProperty("region", "Western");
+//  SCRIPT_PROP.setProperty("folder", "0BwvK5gYQ6D4nOHNPekh5cmF5RFk");
+  Logger.log(SCRIPT_PROP.getProperty('key'));
+  Logger.log(SCRIPT_PROP.getProperty('chapter'));
+  Logger.log(SCRIPT_PROP.getProperty('director'));
+  Logger.log(SCRIPT_PROP.getProperty('email'));
+  Logger.log(SCRIPT_PROP.getProperty("region"));
+  Logger.log(SCRIPT_PROP.getProperty("folder"));
 //  var ss = get_active_spreadsheet();
 //  Logger.log(range.getValues());
 }
@@ -745,11 +752,12 @@ function sendemail_submission(submission_type, submission) {
   var file_id = submission.id;
   var file_url = submission.alternateLink;
   var file_name = submission.title;
-  var folder_id = submission.parents[0];
+  var folder_id = submission.parents[0].id;
   var file_obj = DriveApp.getFileById(file_id).getBlob();
   var folder_url = DriveApp.getFolderById(folder_id).getUrl();
-  Logger.log([email_director, email_chapter, chapter, subject, file_id/
+  Logger.log([email_director, email_chapter, chapter, subject, file_id,
              file_url, file_name, folder_id, folder_url]);
+  
 
   var emailBody = "Chapter Submission: "+chapter+
     "\nSubmission Type: "+submission_type+
@@ -765,7 +773,7 @@ function sendemail_submission(submission_type, submission) {
           "<br/>Submission Title: " + file_name +
             "<br/>Please see attached.";
 
-  var optAdvancedArgs = {name: chapter, htmlBody: htmlBody,
+  var optAdvancedArgs = {name: chapter +" Chapter", htmlBody: htmlBody,
                          replyTo: email_chapter, attachments: [file_obj]};
   MailApp.sendEmail(email_director, subject, emailBody, optAdvancedArgs);
 }
