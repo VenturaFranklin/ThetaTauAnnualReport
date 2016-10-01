@@ -1103,7 +1103,8 @@ function event_fields_set(myObject){
   var event_row = myObject["object_row"];
   var sheet = myObject["sheet"];
   var field_range = sheet.getRange(event_row, 10, 1, 5);
-  field_range.setBackground("black");
+  field_range.setBackground("black")
+             .setNote("Do not edit");
   var needed_field_values = [];
   for (var i in needed_fields){
     var needed_field = needed_fields[i];
@@ -1112,7 +1113,8 @@ function event_fields_set(myObject){
     var needed_col = myObject[needed_field][1];
     if (needed_col > 9) {
       var needed_range = sheet.getRange(event_row, needed_col);
-      needed_range.setBackground("white");
+      needed_range.setBackground("white")
+                  .clearNote();
     }
   }
   Logger.log(needed_field_values);
@@ -1467,6 +1469,8 @@ function update_score(row, sheetName, score_data, myObject){
   if (score === null){
     score_range.setBackground("black");
     return [];
+  } else {
+    score_range.setBackground("dark gray 1");
   }
   var total = parseFloat(type_score) + parseFloat(score);
   Logger.log(total)
