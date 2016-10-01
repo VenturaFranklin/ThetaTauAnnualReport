@@ -1,8 +1,6 @@
 function onInstall(e) {
   onOpen(e);
   setup();
-  setup_sheets();
-  chapter_name();
 }
 
 function createTriggers() {
@@ -91,7 +89,7 @@ function protect_ranges(){
 function create_submit_folder(chapter_name, region) {
 //  var chapter_name = "chapter_test";
 //  var region = "region_test";
-  folder_id = "0BwvK5gYQ6D4nTDRtY1prZG12UU0";
+  var folder_id = "0BwvK5gYQ6D4nTDRtY1prZG12UU0";
   var folder_submit = DriveApp.getFolderById(folder_id);
   var folder_region = folder_submit.getFoldersByName(region);
   if (folder_region.hasNext()) {
@@ -99,6 +97,26 @@ function create_submit_folder(chapter_name, region) {
   } else {
     folder_region = folder_submit.createFolder(region);
   }
+  var files = folder_region.getFiles();
+  var file_dash = undefined;
+  while (files.hasNext()) {
+    var file = files.next();
+    var file_name = file.getName();
+    Logger.log(file_name);
+    if (file_name.indexOf('Dashboard') > -1){
+      file_dash = file;
+    }
+  }
+  if (!file_dash){
+    var default_id = "1eqiek9iR1AtV7tw0WtrrTLX6BBZK7rOUAl2idD770hI";
+//    var default_doc = SpreadsheetApp.openById(default_id);
+    var default_doc = DriveApp.getFileById(default_id);
+    var file_dash = default_doc.makeCopy(region + " Dashboard", folder_region);
+//    var default_blob = default_doc.getBlob();
+//    var file_dash = folder_region.createFile(default_blob);
+  }
+  var dash_id = file_dash.getId();
+  SCRIPT_PROP.setProperty("dash", dash_id);
   var folder_chapter = folder_region.getFoldersByName(chapter_name);
   if (folder_chapter.hasNext()) {
     folder_chapter = folder_chapter.next()
@@ -107,7 +125,7 @@ function create_submit_folder(chapter_name, region) {
   }
   var folder_id = folder_chapter.getId();
   SCRIPT_PROP.setProperty("folder", folder_id);
-  var file = DriveApp.getFileById(SCRIPT_PROP.getProperty("key"));
+  var file = get_active_spreadsheet();
   folder_chapter.addFile(file);
 }
 
@@ -134,24 +152,42 @@ function chapter_name() {
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showModalDialog(htmlOutput, "Chapter Name");
 }
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename)
+      .getContent();
+}
 
 function setup() {
-  var ui = SpreadsheetApp.getUi();
-  var result = ui.prompt(
-    'Setup Sheet ID',
-    'What is your sheet id?\n'+
-    'Located in the URL at SHEETID, see example below:\n'+
-    'https://docs.google.com/spreadsheets/d/SHEETID/edit#gid=0',
-    ui.ButtonSet.OK_CANCEL);
-  var button = result.getSelectedButton();
-  var text = result.getResponseText();
-  if (button == ui.Button.OK) {
-    ui.alert('Verify you sheet id is: ' + text);
-  } else {
-    // User clicked "Cancel".
-    ui.alert('The scripts will not work without the Sheet ID.');
-  }
-  SCRIPT_PROP.setProperty("key", text);
+//  var ui = SpreadsheetApp.getUi();
+//  var result = ui.prompt(
+//    'Setup Sheet ID',
+//    'What is your sheet id?\n'+
+//    'Located in the URL at SHEETID, see example below:\n'+
+//    '<a href="https://drive.google.com/a/thetatau.org/file/d/0BwvK5gYQ6D4ncDVwRmhyZm9EZEU/view?usp=sharing">TEST</a>',
+//    ui.ButtonSet.OK_CANCEL);
+//  var button = result.getSelectedButton();
+//  var text = result.getResponseText();
+//  if (button == ui.Button.OK) {
+//    ui.alert('Verify you sheet id is: ' + text);
+//    SCRIPT_PROP.setProperty("key", text);
+//  } else {
+//    // User clicked "Cancel".
+//    ui.alert('The scripts will not work without the Sheet ID.');
+//  }
+  var template = HtmlService
+      .createTemplateFromFile('ss_id');
+  var htmlOutput = template.evaluate()
+      .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+      .setWidth(600)
+      .setHeight(400);
+  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
+      .showModalDialog(htmlOutput, "Spreadsheet ID?");
+}
+
+function sheet_id_process(form) {
+  SCRIPT_PROP.setProperty("key", form.sheetid);
+  setup_sheets();
+  chapter_name();
 }
 
 function setup_sheets() {
@@ -487,7 +523,7 @@ function RESET() {
   var folder_id = SCRIPT_PROP.getProperty("folder");
   if (folder_id){
     var folder_chapter = DriveApp.getFolderById(folder_id);
-    var file = DriveApp.getFileById(SCRIPT_PROP.getProperty("key"));
+    var file = get_active_spreadsheet();
     folder_chapter.removeFile(file);
   }
   var sheets = target_doc.getSheets();

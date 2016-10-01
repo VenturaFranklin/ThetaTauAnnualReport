@@ -30,6 +30,7 @@ function clientLog() {
 
 function get_active_spreadsheet() {
   var doc = SpreadsheetApp.openById(SCRIPT_PROP.getProperty("key"));
+//  var doc = SpreadsheetApp.getActiveSpreadsheet();
   return doc
 }
 
@@ -85,6 +86,38 @@ function form_gradDialog() {
       .setHeight(400);
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showModalDialog(html, 'GRAD FORM');
+}
+
+function sync() {
+  var dash_id = "10ebwK7tTKgveVCEOpRle2S17d4UjwmsoXXCPFvC9A-A";//SCRIPT_PROP.getProperty("dash");
+  var dash_file = SpreadsheetApp.openById(dash_id);
+  var chapter = SCRIPT_PROP.getProperty("chapter");
+  var main_sheet = dash_file.getSheetByName("MAIN");
+  var main_max = main_sheet.getMaxRows();
+  var main_values = main_sheet.getRange(1, 1, main_max).getValues();
+  var main_arr = get_column_values(0, main_values);
+  var main_row = main_arr.indexOf(chapter);
+  var submit_sheet = dash_file.getSheetByName("SUBMISSIONS");
+  var submit_row_max = submit_sheet.getMaxRows();
+  var submit_col_max = submit_sheet.getMaxColumns();
+  var submit_values = submit_sheet.getRange(1, 1, submit_row_max, submit_col_max).getValues();
+  var submit_arr = submit_values[0];
+  var submit_col = submit_arr.indexOf(chapter);
+  var officer_sheet = dash_file.getSheetByName("OFFICERS");
+  var officer_row_max = officer_sheet.getMaxRows();
+  var officer_col_max = officer_sheet.getMaxColumns();
+  var officer_values = officer_sheet.getRange(1, 1, officer_row_max, officer_col_max).getValues();
+  var officer_arr = get_column_values(0, officer_values);
+  var officer_rows = getAllIndexes(officer_arr, chapter);
+  Logger.log("TEST");
+}
+
+function getAllIndexes(arr, val) {
+    var indexes = [], i;
+    for(i = 0; i < arr.length; i++)
+        if (arr[i] === val)
+            indexes.push(i);
+    return indexes;
 }
 
 function officerSidebar() {
@@ -873,7 +906,7 @@ function get_event_list() {
 function getList(RangeName) {
   //' MemberNamesOnly
 //  var RangeName = 'MemberNamesOnly'
-//  var RangeName = 'EventTypes';
+//  var RangeName = 'EventTypes';submit_col_max
   Logger.log('Called getList, RangeName: ' + RangeName);
   var ss = get_active_spreadsheet();
   var events = ss

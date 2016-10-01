@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <?!= include('ss_id_css'); ?>
+  </head>
+  <body>
+<div id="start">
+<p>What is your Spreadsheet ID?<br>
+(Click image to enlarge.
+<a href="http://thetatau.org/Websites/thetatauhq/images/Forms/SpreadsheetID_help.png">Open in new window</a>)</p>
+</div>
+<div id="help">
+<img id="myImg" src="http://thetatau.org/Websites/thetatauhq/images/Forms/SpreadsheetID_help.png"
+     alt="Spreadsheet ID" width="300" height="200">
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+
+  <!-- The Close Button -->
+  <span class="close" onclick="document.getElementById('myModal').style.display='none'">&times;</span>
+
+  <!-- Modal Content (The Image) -->
+  <img class="modal-content" id="img01" onclick="document.getElementById('myModal').style.display='none'">
+
+  <!-- Modal Caption (Image Text) -->
+  <div id="caption"></div>
+</div></div>
+    <form>
+    Sheet ID: <input type="text" name="sheetid">
+    <input type="submit" value="Submit" 
+               onclick="google.script.run
+                        .sheet_id_process(this.parentNode);
+                        google.script.host.close();">
+   </form>
+<script>
+// Get the modal
+var modal = document.getElementById('myModal');
+
+// Get the image and insert it inside the modal - use its "alt" text as a caption
+var img = document.getElementById('myImg');
+var modalImg = document.getElementById("img01");
+var captionText = document.getElementById("caption");
+img.onclick = function(){
+    modal.style.display = "block";
+    modalImg.src = this.src;
+    captionText.innerHTML = this.alt;
+}
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() { 
+  modal.style.display = "none";
+}
+</script>
+  </body>
+</html>
+
+
