@@ -4,6 +4,7 @@
     <base target="_top">
   </head>
   <body>
+<div id="form">
 <form id="submissions" name="sumbissions">
     <label for="submissionslist">Submission Type: </label>
       <select name="submissions" id="submissionslist" form="submissions">
@@ -18,6 +19,10 @@
                         insertFile(this.parentNode, folder_id='<?= folder_id ?>');
                         return false;">
    </form>
+</div>
+<div id="auth">
+<p>You need to authorize this seperately.<br>Please Click Authorize.</p>
+</div>
    <div id="output"></div>
     <!--Add buttons to initiate auth sequence and sign out-->
     <button id="authorize-button" style="display: none;">Authorize</button>
@@ -54,11 +59,17 @@
         });
       }
       function updateSigninStatus(isSignedIn) {
+        var e = document.getElementById('form');
+        var e2 = document.getElementById('auth');
         if (isSignedIn) {
           authorizeButton.style.display = 'none';
-          signoutButton.style.display = 'block';
+          signoutButton.style.display = 'none';
+          e.style.display = 'block';
+          e2.style.display = 'none';
         } else {
           authorizeButton.style.display = 'block';
+          e.style.display = 'none';
+          e2.style.display = 'block';
           signoutButton.style.display = 'none';
         }
       }
