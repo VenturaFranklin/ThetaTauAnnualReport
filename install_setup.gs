@@ -68,7 +68,13 @@ function chapter_name_process(form) {
   get_chapter_members();
   createTriggers();
   var ui = SpreadsheetApp.getUi();
-  ui.alert('SETUP COMPLETE!');
+  ui.alert('SETUP COMPLETE!\n'+
+           'Next steps:\n'+
+           '- Fill out Chapter Sheet\n'+
+           '- Verify Membership\n'+
+           '- Add Events & Attendance\n\n'+
+           'Do not edit gray or black cells\n'+
+           'Submit forms in menu "Add-ons-->ThetaTauReports"');
 }
 
 function protect_ranges(){
@@ -147,8 +153,8 @@ function chapter_name() {
   template.chapters = chapter_list
   var htmlOutput = template.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
-      .setWidth(125)
-      .setHeight(75);
+      .setWidth(250)
+      .setHeight(175);
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showModalDialog(htmlOutput, "Chapter Name");
 }

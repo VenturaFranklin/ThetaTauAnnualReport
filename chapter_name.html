@@ -4,6 +4,7 @@
     <base target="_top">
   </head>
   <body>
+  <p>Please select your chapter.</p>
     <form id="chapter" name="chapter">
     <label for="chapterslist">Chapter Name: </label>
       <select name="chapterslist" id="chapterslist" form="chapter" style="width: 100px">
@@ -12,6 +13,7 @@
               <option value="<?= option ?>"><?= option ?></option>
           <? } ?>
       </select>
+     <p>After submission, wait for setup complete message.</p>
     <input type="submit" value="Submit" 
                onclick="google.script.run
                         .chapter_name_process(this.parentNode);
