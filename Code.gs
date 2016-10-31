@@ -62,6 +62,14 @@ function TEST(){
   Logger.log(SCRIPT_PROP.getProperty('email'));
   Logger.log(SCRIPT_PROP.getProperty("region"));
   Logger.log(SCRIPT_PROP.getProperty("folder"));
+  var ui = SpreadsheetApp.getUi();
+  ui.alert('SETUP COMPLETE!\n'+
+           'Next steps:\n'+
+           '- Fill out Chapter Sheet\n'+
+           '- Verify Membership\n'+
+           '- Add Events & Attendance\n\n'+
+           'Do not edit gray or black cells\n'+
+           'Submit forms in menu "Add-ons-->ThetaTauReports"');
 //  var ss = get_active_spreadsheet();
 //  Logger.log(range.getValues());
 }
@@ -1164,7 +1172,7 @@ function update_service_hours(){
       var month = event_date.getMonth();
       var semester = "FALL";
       if (month<5){
-	    var semester = "SPRING";
+      var semester = "SPRING";
       }
       var att_obj = AttendanceObject[event_name];
       for (var j = 2; j < att_obj.object_count; j++){
@@ -1217,7 +1225,7 @@ function update_score_att(){
       var month = object_date.getMonth();
       var semester = "FALL";
       if (month<5){
-	    var semester = "SPRING";
+      var semester = "SPRING";
       }
       date_types[semester] = date_types[semester] ? 
         date_types[semester] + meeting_att:meeting_att;
@@ -1458,8 +1466,8 @@ function update_score(row, sheetName, score_data, myObject){
   var month = object_date.getMonth();
   var semester = "FALL";
   if (month<5){
-	var semester = "SPRING";
-	}
+  var semester = "SPRING";
+  }
   score_data.semester = semester;
   var type_score = total_scores[semester][object_type][0];
   var other_type_rows = total_scores[semester][object_type][1];
@@ -1549,31 +1557,31 @@ function get_current_scores(sheetName){
   date_types["SPRING"] = {};
   date_types["FALL"] = {};
   for(var i = 1; i< date_values.length; i++) {
-		var date = date_values[i];
+    var date = date_values[i];
         var month = date.getMonth();
-		var type_name = type_values[i];
-		var score = score_values[i];
-		var semester = "FALL";
-		if (month<5){
-			var semester = "SPRING";
-		}
+    var type_name = type_values[i];
+    var score = score_values[i];
+    var semester = "FALL";
+    if (month<5){
+      var semester = "SPRING";
+    }
         var old_score = date_types[semester][type_name] ? 
-				date_types[semester][type_name][0] : 0;
+        date_types[semester][type_name][0] : 0;
         var new_score = parseFloat(old_score) + parseFloat(score);
         var old_rows = date_types[semester][type_name] ? 
-				date_types[semester][type_name][1] : [];
+        date_types[semester][type_name][1] : [];
         old_rows.push(parseInt(i) + 1);
-		date_types[semester][type_name] = [new_score, old_rows]
-	  }
+    date_types[semester][type_name] = [new_score, old_rows]
+    }
   return date_types;
 }
 
 function get_column_values(col, range_values){
-	var newArray = new Array();
-	for(var i=0; i<range_values.length; i++){
-		newArray.push(range_values[i][col]);
+  var newArray = new Array();
+  for(var i=0; i<range_values.length; i++){
+    newArray.push(range_values[i][col]);
      }
-	return newArray;
+  return newArray;
 }
 
 function get_score_event(myEvent){
@@ -1679,10 +1687,10 @@ function get_score_method(event_type){
    var score_method =  special;
   }
   var score_ids = {
-		  score_row: score_object.object_row,
-		  FALL: score_object["FALL SCORE"][1],
-		  SPRING: score_object["SPRING SCORE"][1],
-		  chapter: score_object["CHAPTER TOTAL"][1]
+      score_row: score_object.object_row,
+      FALL: score_object["FALL SCORE"][1],
+      SPRING: score_object["SPRING SCORE"][1],
+      chapter: score_object["CHAPTER TOTAL"][1]
   }
   return {score_method: score_method,
           score_method_note: score_method_note,
@@ -1862,7 +1870,8 @@ function get_sheet_data(SheetName) {
           max_row: max_row,
           header: header_values,
           date_index: date_index,
-          name_index: name_index
+          name_index: name_index,
+          max_column: max_column
          }
 }
 
@@ -1879,10 +1888,16 @@ function attendance_add_event(event_name, event_date){
   var sheet = att_data.sheet;
 //  var att_values = att_data.range.getValues();
   var attendance_rows = att_data.max_row;
+  var attendance_cols = att_data.max_column;
   Logger.log(attendance_rows);
   sheet.insertRowBefore(attendance_rows+1);
   var att_row = sheet.getRange(attendance_rows+1, 1, 1, 2);
   att_row.setValues([[event_name, event_date]]);
+  var att_row_full = sheet.getRange(attendance_rows+1, 3, 1, attendance_cols-2);
+  var default_values =
+      Array.apply(null, Array(attendance_cols-2)).map(function() { return 'U' });;
+  att_row_full.setValues([default_values]);
+//  att_row_full.setBackground("white");
   var attendance = range_object(sheet, attendance_rows+1);
   update_attendance(attendance);
   main_range_object("Attendance");
