@@ -62,6 +62,14 @@ function TEST(){
   Logger.log(SCRIPT_PROP.getProperty('email'));
   Logger.log(SCRIPT_PROP.getProperty("region"));
   Logger.log(SCRIPT_PROP.getProperty("folder"));
+  var ui = SpreadsheetApp.getUi();
+  ui.alert('SETUP COMPLETE!\n'+
+           'Next steps:\n'+
+           '- Fill out Chapter Sheet\n'+
+           '- Verify Membership\n'+
+           '- Add Events & Attendance\n\n'+
+           'Do not edit gray or black cells\n'+
+           'Submit forms in menu "Add-ons-->ThetaTauReports"');
 //  var ss = get_active_spreadsheet();
 //  Logger.log(range.getValues());
 }
@@ -1095,13 +1103,20 @@ function get_needed_fields(event_type){
   var ScoringObject = main_range_object("Scoring");
   var score_object = ScoringObject[event_type];
   var needed_fields = score_object["Event Fields"][0];
-  return needed_fields.split(', ');
+  var score_description = score_object["Long Description"][0];
+  return {needed_fields: needed_fields,
+          score_description: score_description
+         }
 }
 
 function event_fields_set(myObject){
-  var needed_fields = get_needed_fields(myObject["Type"][0]);
+  var score_info = get_needed_fields(myObject["Type"][0]);
+  var needed_fields = score_info.needed_fields;
+  var score_description = score_info.score_description;
   var event_row = myObject["object_row"];
   var sheet = myObject["sheet"];
+  var new_range = sheet.getRange(event_row, 3);
+  new_range.setNote(score_description);
   var field_range = sheet.getRange(event_row, 10, 1, 5);
   field_range.setBackground("black")
              .setNote("Do not edit");
@@ -1862,7 +1877,8 @@ function get_sheet_data(SheetName) {
           max_row: max_row,
           header: header_values,
           date_index: date_index,
-          name_index: name_index
+          name_index: name_index,
+          max_column: max_column
          }
 }
 
@@ -1879,10 +1895,16 @@ function attendance_add_event(event_name, event_date){
   var sheet = att_data.sheet;
 //  var att_values = att_data.range.getValues();
   var attendance_rows = att_data.max_row;
+  var attendance_cols = att_data.max_column;
   Logger.log(attendance_rows);
   sheet.insertRowBefore(attendance_rows+1);
   var att_row = sheet.getRange(attendance_rows+1, 1, 1, 2);
   att_row.setValues([[event_name, event_date]]);
+  var att_row_full = sheet.getRange(attendance_rows+1, 3, 1, attendance_cols-2);
+  var default_values =
+      Array.apply(null, Array(attendance_cols-2)).map(function() { return 'U' });;
+  att_row_full.setValues([default_values]);
+//  att_row_full.setBackground("white");
   var attendance = range_object(sheet, attendance_rows+1);
   update_attendance(attendance);
   main_range_object("Attendance");
