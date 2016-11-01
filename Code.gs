@@ -1068,6 +1068,7 @@ function update_attendance(attendance){
     var member_name_short = att_name(attendance.object_header[i]);
     var member_object = find_member_shortname(MemberObject, member_name_short);
     var event_status = attendance[member_name_att][0];
+    event_status = event_status.toUpperCase();
     var member_status = member_object["Chapter Status"][0]
 //    Logger.log([member_name_short, member_object, event_status, member_status]);
     counts[member_status][event_status] = counts[member_status][event_status] ? counts[member_status][event_status] + 1 : 1;
@@ -1669,11 +1670,11 @@ function edit_score_method_event(myEvent, score_method){
           }
   if (~score_method.indexOf("MEETINGS")){
     update_score_att();
-    score_method = null;
+    return null;
           }
   if (~score_method.indexOf("HOURS")){
     update_service_hours();
-    score_method = null;
+    return null;
           }
   Logger.log("Score Method Raw: " + score_method)
   return score_method
