@@ -952,7 +952,7 @@ function reset_range(range, user_old_value){
 
 function _onEdit(e){
 //  var Logger = startBetterLog();
-  try{
+//  try{
   Logger.log("onEDIT" + e);
   Logger.log(e);
   Logger.log("onEdit, authMode: " + e.authMode);
@@ -988,8 +988,14 @@ function _onEdit(e){
       show_att_sheet_alert();
     } else {
       var attendance = range_object(sheet, user_row)
-      update_attendance(attendance);
-      update_scores_event(user_row);
+      var header = attendance.object_header;
+      var clean_header = cleanArray(header, 50);
+      if (clean_header.length == header.length){
+        update_attendance(attendance);
+        update_scores_event(user_row);
+      } else {
+        return;
+      }
     }
   } else if (sheet_name == "Scoring") {
     reset_range(user_range, user_old_value)
@@ -1028,15 +1034,15 @@ function _onEdit(e){
         ui.ButtonSet.OK);
     }
   }
-  } catch (error) {
-    Logger.log(error);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      error,
-      ui.ButtonSet.OK);
-    return "";
-  }
+//  } catch (error) {
+//    Logger.log(error);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      error,
+//      ui.ButtonSet.OK);
+//    return "";
+//  }
 }
 
 function att_name(name){
@@ -1821,21 +1827,21 @@ function range_object_fromValues(header_values, range_values, range_row){
 function test_onEdit() {
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Attendance");
-  var range = sheet.getRange(1, 1, 1, 1);
+  var range = sheet.getRange(2, 3, 1, 1);
   var value = range.getValue();
-  onEdit({
+  _onEdit({
     user : Session.getActiveUser().getEmail(),
     source : ss,
     range : range, //ss.getActiveCell(),
     value : value, //ss.getActiveCell().getValue(),
     authMode : "LIMITED"
   });
-  var ui = SpreadsheetApp.getUi();
-  var result = ui.alert(
-     'ERROR',
-     'Value: '+
-      value,
-      ui.ButtonSet.OK);
+//  var ui = SpreadsheetApp.getUi();
+//  var result = ui.alert(
+//     'ERROR',
+//     'Value: '+
+//      value,
+//      ui.ButtonSet.OK);
 }
 
 function show_att_sheet_alert(){
