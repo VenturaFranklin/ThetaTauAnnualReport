@@ -35,17 +35,19 @@ function get_active_spreadsheet() {
 }
 
 function onOpen(e) {
+  SCRIPT_PROP.setProperty("password", "FALSE");
   var menu = SpreadsheetApp.getUi().createAddonMenu();
-  menu.addItem('Update Members', 'get_chapter_members');
-  menu.addItem('Event Functions', 'showaddEvent');
-  menu.addItem('Update Officers', 'officerSidebar');
-  menu.addItem('Submit Item', 'submitSidebar');
-  menu.addItem('Status Change', 'member_update_sidebar');
-  menu.addItem('Pledge Forms', 'pledge_sidebar');
   menu.addItem('Create Triggers', 'createTriggers');
-  menu.addItem('SETUP', 'onInstall');
-  menu.addItem("TEST", 'TEST');//test_onEdit
+  menu.addItem('Event Functions', 'showaddEvent');
+  menu.addItem('Pledge Forms', 'pledge_sidebar');
   menu.addItem("RESET", 'RESET');
+  menu.addItem('SETUP', 'onInstall');
+  menu.addItem('Status Change', 'member_update_sidebar');
+  menu.addItem('Submit Item', 'submitSidebar');
+  menu.addItem("TEST", 'TEST');//test_onEdit
+  menu.addItem('Unlock', 'unlock');
+  menu.addItem('Update Members', 'get_chapter_members');
+  menu.addItem('Update Officers', 'officerSidebar');
   menu.addToUi();
 }
 
@@ -86,6 +88,17 @@ function form_statusDialog() {
       .setHeight(400);
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showModalDialog(html, 'STATUS FORM');
+}
+
+function unlock() {
+  var ui = SpreadsheetApp.getUi();
+  var result = ui.prompt('What is the password?',
+      ui.ButtonSet.OK_CANCEL);
+  var button = result.getSelectedButton();
+  var text = result.getResponseText();
+  if (button == ui.Button.OK) {
+    SCRIPT_PROP.setProperty("password", text);
+  }  
 }
 
 function form_gradDialog() {
@@ -946,13 +959,17 @@ function getList(RangeName) {
 
 function reset_range(range, user_old_value){
 //  return;
+  var this_password = SCRIPT_PROP.getProperty("password");
+  if (this_password == password){
+    return;
+  }
   var user_old_value = (user_old_value != undefined) ? user_old_value:"";
   range.setValue(user_old_value);
 }
 
 function _onEdit(e){
 //  var Logger = startBetterLog();
-//  try{
+  try{
   Logger.log("onEDIT" + e);
   Logger.log(e);
   Logger.log("onEdit, authMode: " + e.authMode);
@@ -967,11 +984,15 @@ function _onEdit(e){
   var user_col = user_range.getColumn();
   var user_old_value = e.oldValue
   Logger.log("Row: " + user_row + " Col: " + user_col);
+  var this_password = SCRIPT_PROP.getProperty("password");
   if (sheet_name == "Events"){
     Logger.log("EVENTS CHANGED");
     if (user_row == 1 || user_col == 4 ||
         user_col == 5 || user_col == 6){
       reset_range(user_range, user_old_value)
+      if (this_password == password){
+        return;
+      }
       var ui = SpreadsheetApp.getUi();
       var result = ui.alert(
         'ERROR',
@@ -985,6 +1006,9 @@ function _onEdit(e){
   } else if (sheet_name == "Attendance"){
     if (user_row == 1 || user_col < 3){
       reset_range(user_range, user_old_value);
+      if (this_password == password){
+        return;
+      }
       show_att_sheet_alert();
     } else {
       var attendance = range_object(sheet, user_row)
@@ -999,6 +1023,9 @@ function _onEdit(e){
     }
   } else if (sheet_name == "Scoring") {
     reset_range(user_range, user_old_value)
+    if (this_password == password){
+      return;
+    }
     var ui = SpreadsheetApp.getUi();
     var result = ui.alert(
      'ERROR',
@@ -1006,6 +1033,9 @@ function _onEdit(e){
       ui.ButtonSet.OK);
   } else if (sheet_name == "Submissions") {
     reset_range(user_range, user_old_value)
+    if (this_password == password){
+      return;
+    }
     var ui = SpreadsheetApp.getUi();
     var result = ui.alert(
      'ERROR',
@@ -1015,6 +1045,9 @@ function _onEdit(e){
     submitSidebar();
   } else if (sheet_name == "Dashboard") {
     reset_range(user_range, user_old_value)
+    if (this_password == password){
+      return;
+    }
     var ui = SpreadsheetApp.getUi();
     var result = ui.alert(
      'ERROR',
@@ -1026,6 +1059,9 @@ function _onEdit(e){
       update_scores_org_gpa_serv();
     } else {
       reset_range(user_range, user_old_value)
+      if (this_password == password){
+        return;
+      }
       var ui = SpreadsheetApp.getUi();
       var result = ui.alert(
         'ERROR',
@@ -1034,15 +1070,15 @@ function _onEdit(e){
         ui.ButtonSet.OK);
     }
   }
-//  } catch (error) {
-//    Logger.log(error);
-//    var ui = SpreadsheetApp.getUi();
-//    var result = ui.alert(
-//     'ERROR',
-//      error,
-//      ui.ButtonSet.OK);
-//    return "";
-//  }
+  } catch (error) {
+    Logger.log(error);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      error,
+      ui.ButtonSet.OK);
+    return "";
+  }
 }
 
 function att_name(name){
@@ -1828,7 +1864,7 @@ function range_object_fromValues(header_values, range_values, range_row){
 function test_onEdit() {
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Attendance");
-  var range = sheet.getRange(2, 3, 1, 1);
+  var range = sheet.getRange(1, 3, 1, 1);
   var value = range.getValue();
   _onEdit({
     user : Session.getActiveUser().getEmail(),
