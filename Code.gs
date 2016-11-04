@@ -1158,6 +1158,7 @@ function get_needed_fields(event_type){
   var ScoringObject = main_range_object("Scoring");
   var score_object = ScoringObject[event_type];
   var needed_fields = score_object["Event Fields"][0];
+  needed_fields = needed_fields.split(', ');
   var score_description = score_object["Long Description"][0];
   return {needed_fields: needed_fields,
           score_description: score_description
@@ -1176,6 +1177,7 @@ function event_fields_set(myObject){
   field_range.setBackground("black")
              .setNote("Do not edit");
   var needed_field_values = [];
+  Logger.log(needed_fields);
   for (var i in needed_fields){
     var needed_field = needed_fields[i];
     var needed_value = myObject[needed_field][0];
@@ -1876,7 +1878,7 @@ function range_object_fromValues(header_values, range_values, range_row){
 function test_onEdit() {
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Attendance");
-  var range = sheet.getRange(2, 3, 1, 1);
+  var range = sheet.getRange(3, 3, 1, 1);
   var value = range.getValue();
   _onEdit({
     user : Session.getActiveUser().getEmail(),
