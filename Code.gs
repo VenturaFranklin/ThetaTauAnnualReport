@@ -37,16 +37,17 @@ function get_active_spreadsheet() {
 function onOpen(e) {
   SCRIPT_PROP.setProperty("password", "FALSE");
   var menu = SpreadsheetApp.getUi().createAddonMenu();
-  menu.addItem('Create Triggers', 'createTriggers');
-  menu.addItem('Event Functions', 'showaddEvent');
+//  menu.addItem('Create Triggers', 'createTriggers');
+//  menu.addItem('Event Functions', 'showaddEvent');
   menu.addItem('Pledge Forms', 'pledge_sidebar');
   menu.addItem("RESET", 'RESET');
+  menu.addItem('Refresh', 'refresh')
   menu.addItem('SETUP', 'onInstall');
   menu.addItem('Status Change', 'member_update_sidebar');
   menu.addItem('Submit Item', 'submitSidebar');
-  menu.addItem("TEST", 'TEST');//test_onEdit
+//  menu.addItem("TEST", 'TEST');//test_onEdit
   menu.addItem('Unlock', 'unlock');
-  menu.addItem('Update Members', 'get_chapter_members');
+//  menu.addItem('Update Members', 'get_chapter_members');
   menu.addItem('Update Officers', 'officerSidebar');
   menu.addToUi();
 }
@@ -1081,15 +1082,26 @@ function _onEdit(e){
   }
 }
 
-function att_name(name){
-  var new_string = "";
-  for (var j = 0; j < name.length; j++){
-    var char = name[j];
-    if (j % 2 == 0){
-      new_string = new_string.concat(char);
-    }
+function refresh() {
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName("Events");
+  var max_rows = sheet.getLastRow();
+  for (var user_row = 2; user_row < max_rows; user_row++){
+    update_scores_event(user_row);
   }
-  return new_string
+}
+
+function att_name(name){
+  return name;
+//Used to undo vertical name, not needed
+//  var new_string = "";
+//  for (var j = 0; j < name.length; j++){
+//    var char = name[j];
+//    if (j % 2 == 0){
+//      new_string = new_string.concat(char);
+//    }
+//  }
+//  return new_string
 }
 
 function update_attendance(attendance){
@@ -1864,7 +1876,7 @@ function range_object_fromValues(header_values, range_values, range_row){
 function test_onEdit() {
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Attendance");
-  var range = sheet.getRange(1, 3, 1, 1);
+  var range = sheet.getRange(2, 3, 1, 1);
   var value = range.getValue();
   _onEdit({
     user : Session.getActiveUser().getEmail(),

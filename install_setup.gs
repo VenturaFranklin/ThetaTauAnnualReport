@@ -517,11 +517,12 @@ function align_attendance_members(previous_member, new_member, sheet){
   sheet.insertColumnAfter(previous_index);
   var new_range = sheet.getRange(1, +previous_index+1);
   new_member = shorten(new_member, 12, false);
-  var regex = new RegExp('.*?(.).*?', 'g');
-  var val = new_member.replace(regex, "$1\n");
-  val = val.substring(0, val.length - 1);
+//Writes names vertically, feedback was negative
+//  var regex = new RegExp('.*?(.).*?', 'g');
+//  var val = new_member.replace(regex, "$1\n");
+//  val = val.substring(0, val.length - 1);
   new_range.setValue(val);
-  sheet.setColumnWidth(+previous_index+1, 21)
+  sheet.setColumnWidth(+previous_index+1, 50)
 }
 
 function RESET() {
