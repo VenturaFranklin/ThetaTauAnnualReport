@@ -1178,16 +1178,31 @@ function event_fields_set(myObject){
              .setNote("Do not edit");
   var needed_field_values = [];
   Logger.log(needed_fields);
+  var yes_no_fields = ['STEM?', 'PLEDGE Focus', 'HOST'];
+  var optional_fields = yes_no_fields.slice(0);
+  optional_fields.push('# Non- Members', 'MILES');
   for (var i in needed_fields){
     var needed_field = needed_fields[i];
     var needed_value = myObject[needed_field][0];
-    needed_field_values.push(needed_value);
     var needed_col = myObject[needed_field][1];
-    if (needed_col > 9) {
+    if (optional_fields.indexOf(needed_field) > -1) {
       var needed_range = sheet.getRange(event_row, needed_col);
       needed_range.setBackground("white")
-                  .clearNote();
+      .clearNote();
+      if (yes_no_fields.indexOf(needed_field) > -1){
+        needed_range.setNote('Yes or No');
+        if (needed_value==""){
+          needed_range.setValue('No');
+          needed_value = 'No';
+        }
+      } else {
+        if (needed_value==""){
+          needed_range.setValue(0);
+          needed_value = 0;
+        }
+      }
     }
+    needed_field_values.push(needed_value);
   }
   Logger.log(needed_field_values);
   if (needed_field_values.indexOf("") > -1){
