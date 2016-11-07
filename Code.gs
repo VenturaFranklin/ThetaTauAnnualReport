@@ -208,14 +208,17 @@ function sync() {
   }
   var ss = get_active_spreadsheet();
   var scores = ['Brotherhood', 'Service', 'Operate', 'ProDev'];
+  var score_total = 0;
   for (var score_num in scores){
     var score_type_raw  = scores[score_num];
     var score_type = "SCORE_" + score_type_raw.toUpperCase();
     var score = ss.getRangeByName(score_type).getValue();
+    score_total += score;
     var score_col = main_chapter.first_row.indexOf(score_type_raw)+1;
     main_sheet.getRange(chapter_row, score_col).setValue(score);
   }
-  
+  var score_col = main_chapter.first_row.indexOf("Total")+1;
+  main_sheet.getRange(chapter_row, score_col).setValue(score_total);
   var event_row_max = event_sheet.getLastRow();
   var event_col_max = event_sheet.getLastColumn();
   for (var row_ind in event_extend){
