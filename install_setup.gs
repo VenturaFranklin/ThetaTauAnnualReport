@@ -12,7 +12,15 @@ function createTriggers() {
     .create();
   } catch (error) {
     Logger.log(error);
-  }    
+  } 
+  try {
+    ScriptApp.newTrigger("sync")
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.TUESDAY)
+    .create();
+  } catch (error) {
+    Logger.log(error);
+  }
 }
 
 function get_chapter_name(){
