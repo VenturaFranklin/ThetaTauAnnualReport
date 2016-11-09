@@ -20,6 +20,7 @@ function progress_update(this_message){
 
 function createTriggers() {
   try {
+    progress_update("Creating Edit Trigger");
     var ss = get_active_spreadsheet();
     ScriptApp.newTrigger('_onEdit')
     .forSpreadsheet(ss)
@@ -29,6 +30,7 @@ function createTriggers() {
     Logger.log(error);
   } 
   try {
+    progress_update("Creating Sync Trigger");
     ScriptApp.newTrigger("sync")
     .timeBased()
     .onWeekDay(ScriptApp.WeekDay.TUESDAY)
@@ -92,6 +94,8 @@ function chapter_name_process(form) {
   create_submit_folder(chapter_name, region);
   get_chapter_members();
   createTriggers();
+  progress_update("Started Sync Main Info");
+  sync_main()
   var ui = SpreadsheetApp.getUi();
   ui.alert('SETUP COMPLETE!\n'+
            'Next steps:\n'+
@@ -387,6 +391,7 @@ function get_chapter_members(){
       old_date = date;
       new_file = file;
       var new_file_name = file.getName();
+      var new_date = date;
     }
   }
   progress_update("Found Member list:" + new_file_name);
@@ -482,6 +487,8 @@ function get_chapter_members(){
     }
     sheet.insertRowAfter(this_row);
     var range = sheet.getRange(this_row+1, 1, 1, 10);
+    var range_note = sheet.getRange(this_row+1, 1);
+    range_note.setNote("Member Info Updated: "+new_date);
     var member_object = CentralMemberObject[new_badge];
     var new_values = [];
     for (var j in ChapterMemberObject["header_values"]){
