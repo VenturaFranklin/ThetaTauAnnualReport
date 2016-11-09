@@ -284,6 +284,7 @@ function setup_dataval(){
   for (var i in remove) {
     ss.getRange(remove[i]).clearDataValidations();
   }
+  ss.getRange("Membership!M2:V100").setBackground("white");
   progress_update("Finished Data Val Setup");
 //requireNumberGreaterThan(number)
 //requireTextIsEmail()
