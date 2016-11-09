@@ -3,6 +3,21 @@ function onInstall(e) {
   setup();
 }
 
+var message = ""
+
+function progress_update(this_message){
+  message += "<br>" + this_message;
+  var htmlOutput = HtmlService
+     .createHtmlOutput(message)
+     .setWidth(400)
+     .setHeight(300)
+//     .setTitle('Install Progress');
+  SpreadsheetApp.getUi()
+    .showModalDialog(htmlOutput, 'Install Progress');
+//  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
+//    .showSidebar(htmlOutput);
+}
+
 function createTriggers() {
   try {
     var ss = get_active_spreadsheet();
@@ -32,6 +47,7 @@ function chapter_name_process(form) {
 //  var form = {'chapterslist': 'Chi Gamma'}
   var chapter_name = form.chapterslist;
   SCRIPT_PROP.setProperty("chapter", chapter_name);
+  progress_update("Chapter Name set: " + chapter_name);
   var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
   var ss_prop = SpreadsheetApp.openById(properties_id);
   var ss = get_active_spreadsheet();
@@ -48,6 +64,7 @@ function chapter_name_process(form) {
   var test = range.getValue();
   var chapter_object = main_range_object("MAIN", "Organization Name", ss_prop);
   var chapter_info = chapter_object[chapter_name];
+  progress_update("Chapter Information: " + chapter_info.toString());
   Logger.log(chapter_info);
   var region = chapter_info["Region Description"][0];
   range = sheet.getRange(2, 3);
@@ -101,15 +118,18 @@ function protect_ranges(){
 }
 
 function create_submit_folder(chapter_name, region) {
-  var chapter_name = "Rho Delta";
-  var region = "Western";
+//  var chapter_name = "Rho Delta";
+//  var region = "Western";
+  progress_update("Started Submit Folder Creation");
   var folder_id = "0BwvK5gYQ6D4nTDRtY1prZG12UU0";
   var folder_submit = DriveApp.getFolderById(folder_id);
   var folder_region = folder_submit.getFoldersByName(region);
   if (folder_region.hasNext()) {
     folder_region = folder_region.next()
+    progress_update("Found Region Folder: " + region);
   } else {
     folder_region = folder_submit.createFolder(region);
+    progress_update("Created Region Folder: " + region);
   }
   var files = folder_region.getFiles();
   var file_dash = undefined;
@@ -119,6 +139,7 @@ function create_submit_folder(chapter_name, region) {
     Logger.log(file_name);
     if (file_name.indexOf('Dashboard') > -1){
       file_dash = file;
+      progress_update("Found Region Dashboard");
     }
   }
   if (!file_dash){
@@ -128,14 +149,17 @@ function create_submit_folder(chapter_name, region) {
     var file_dash = default_doc.makeCopy(region + " Dashboard", folder_region);
 //    var default_blob = default_doc.getBlob();
 //    var file_dash = folder_region.createFile(default_blob);
+    progress_update("Created Region Dashboard");
   }
   var dash_id = file_dash.getId();
   SCRIPT_PROP.setProperty("dash", dash_id);
   var folder_chapter = folder_region.getFoldersByName(chapter_name);
   if (folder_chapter.hasNext()) {
     folder_chapter = folder_chapter.next()
+    progress_update("Found Chapter Folder: " + chapter_name);
   } else {
     folder_chapter = folder_region.createFolder(chapter_name);
+    progress_update("Created Chapter Folder: " + chapter_name);
   }
   var folder_id = folder_chapter.getId();
   SCRIPT_PROP.setProperty("folder", folder_id);
@@ -145,6 +169,7 @@ function create_submit_folder(chapter_name, region) {
 
 function get_folder_id() {
   return SCRIPT_PROP.getProperty("folder");
+  progress_update("Finished Submit Folder Creation");
 }
 
 function chapter_name() {
@@ -172,22 +197,6 @@ function include(filename) {
 }
 
 function setup() {
-//  var ui = SpreadsheetApp.getUi();
-//  var result = ui.prompt(
-//    'Setup Sheet ID',
-//    'What is your sheet id?\n'+
-//    'Located in the URL at SHEETID, see example below:\n'+
-//    '<a href="https://drive.google.com/a/thetatau.org/file/d/0BwvK5gYQ6D4ncDVwRmhyZm9EZEU/view?usp=sharing">TEST</a>',
-//    ui.ButtonSet.OK_CANCEL);
-//  var button = result.getSelectedButton();
-//  var text = result.getResponseText();
-//  if (button == ui.Button.OK) {
-//    ui.alert('Verify you sheet id is: ' + text);
-//    SCRIPT_PROP.setProperty("key", text);
-//  } else {
-//    // User clicked "Cancel".
-//    ui.alert('The scripts will not work without the Sheet ID.');
-//  }
   var template = HtmlService
       .createTemplateFromFile('ss_id');
   var htmlOutput = template.evaluate()
@@ -200,6 +209,7 @@ function setup() {
 
 function sheet_id_process(form) {
   SCRIPT_PROP.setProperty("key", form.sheetid);
+  progress_update("Spread Sheet ID set:" + form.sheetid);
   setup_sheets();
   chapter_name();
 }
@@ -214,10 +224,9 @@ function setup_sheets() {
     var sheet_name = sheet.getName();
     sheet.copyTo(target_doc).setName(sheet_name);
   }
+  progress_update("Default Document Copied");
   var sheet = target_doc.getSheetByName("Sheet1");
   target_doc.deleteSheet(sheet);
-  var sheet = target_doc.getSheetByName("Dashboard"); //A1
-  var sheet = target_doc.getSheetByName("Chapter"); //B2
   var named_ranges = default_doc.getNamedRanges();
   for (var j in named_ranges){
     var named_range = named_ranges[j];
@@ -231,9 +240,11 @@ function setup_sheets() {
     Logger.log(name);
     target_doc.setNamedRange(name, new_range);
   }
+  progress_update("Sheets and Ranges Setup");
 }
 
 function setup_dataval(){
+  progress_update("Started Data Val Setup");
   var ss = get_active_spreadsheet();
   var events = get_type_list("Events");
   var range = ss.getRangeByName("EventsType");
@@ -273,7 +284,7 @@ function setup_dataval(){
   for (var i in remove) {
     ss.getRange(remove[i]).clearDataValidations();
   }
-  
+  progress_update("Finished Data Val Setup");
 //requireNumberGreaterThan(number)
 //requireTextIsEmail()
 //requireTextIsUrl()
@@ -352,6 +363,8 @@ function CSVToArray( strData, strDelimiter ){
 }
 
 function get_chapter_members(){
+  progress_update("Started Get Chapter Members<br>"+
+                  "This will take some time, please be patient...");
   var chapter_name = get_chapter_name();
   var folder = DriveApp.getFolderById('0BwvK5gYQ6D4nOXB2UHFUV0w5WnM');
   var files = folder.getFiles();
@@ -359,7 +372,7 @@ function get_chapter_members(){
   var new_file = null;
   while (files.hasNext()) {
     var file = files.next();
-    var file_name = file.getName()
+    var file_name = file.getName();
     Logger.log(file_name);
     var date_str = file_name.split("_")[0];
     var year = date_str.substring(0, 4);
@@ -372,8 +385,10 @@ function get_chapter_members(){
     if (date > old_date){
       old_date = date;
       new_file = file;
+      var new_file_name = file.getName();
     }
   }
+  progress_update("Found Member list:" + new_file_name);
   var csvFile = new_file.getBlob().getDataAsString();
   var csvData = CSVToArray(csvFile, ",");
 //  Logger.log(csvData);
@@ -390,6 +405,7 @@ function get_chapter_members(){
   var school_index = header.indexOf("Primary Education Class of");
   var CentralMemberObject = {};
   CentralMemberObject['badge_numbers'] = [];
+  progress_update("Finding chapter members...");
   for (var j in csvData){
     var row = csvData[j];
     var chapter_row = row[chapter_index];
@@ -412,6 +428,7 @@ function get_chapter_members(){
       CentralMemberObject[badge_number] = member_object;
     }
   }
+  progress_update("Found "+ CentralMemberObject['badge_numbers'].length +" Chapter Members");
   Logger.log(CentralMemberObject[badge_number]);
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Membership");
@@ -433,6 +450,7 @@ function get_chapter_members(){
       new_members.push(badge_number);
     }
   }
+  progress_update("Found "+ new_members.length +" NEW Chapter Members");
 //  
   var old_members = [];
   for (var k in ChapterMemberObject["object_header"]){
@@ -444,6 +462,7 @@ function get_chapter_members(){
       old_members.push(badge_number)
     }
   }
+  progress_update("Found "+ old_members.length +" PREVIOUS Chapter Members");
   new_members.sort();
   new_members.reverse();
   for (var m in new_members){
@@ -483,6 +502,7 @@ function get_chapter_members(){
   ChapterMemberObject = main_range_object("Membership");
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Attendance");
+  progress_update("Started Updating Attendance Sheet");
   for(var i = 0; i< ChapterMemberObject.object_count; i++) {
     var member_name = ChapterMemberObject.object_header[i];
     var member_badge = ChapterMemberObject[member_name]["Badge Number"][0];
@@ -493,10 +513,12 @@ function get_chapter_members(){
       align_attendance_members(previous_member, member_name, sheet);
     }
   }
+  progress_update("Finished Updating Attendance Sheet");
   var format_range = ss.getRangeByName("FORMAT");
   format_range.copyFormatToRange(sheet, 3, 100, 2, 100);
   sheet.getRange(3, 100, 2, 100).clearDataValidations();
   setup_dataval();
+  progress_update("Finished Get Chapter Members");
 }
 
 
