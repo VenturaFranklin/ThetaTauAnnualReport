@@ -122,8 +122,8 @@ function protect_ranges(){
 }
 
 function create_submit_folder(chapter_name, region) {
-//  var chapter_name = "Rho Delta";
-//  var region = "Western";
+  var chapter_name = "Epsilon Delta";
+  var region = "Western";
   progress_update("Started Submit Folder Creation");
   var folder_id = "0BwvK5gYQ6D4nTDRtY1prZG12UU0";
   var folder_submit = DriveApp.getFolderById(folder_id);
@@ -157,6 +157,21 @@ function create_submit_folder(chapter_name, region) {
   }
   var dash_id = file_dash.getId();
   SCRIPT_PROP.setProperty("dash", dash_id);
+  var dash = SpreadsheetApp.openById(dash_id);
+  var main_sheet = dash.getSheetByName("MAIN");
+  var main_values = main_sheet.getDataRange().getValues();
+  var found_chapter = false;
+  for (var row in main_values){
+    if (row.indexOf(chapter_name) > -1){
+      found_chapter = true;
+    }
+  }
+  if (!found_chapter){
+    var values = [[chapter_name, SCRIPT_PROP.getProperty("email"),
+                  SCRIPT_PROP.getProperty("tax"), SCRIPT_PROP.getProperty("balance")]];
+    main_sheet.getRange(main_values.length+1, 1, 1, 4)
+    .setValues(values);
+  }
   var folder_chapter = folder_region.getFoldersByName(chapter_name);
   if (folder_chapter.hasNext()) {
     folder_chapter = folder_chapter.next()
