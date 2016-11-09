@@ -8,7 +8,7 @@
 var betterLogStarted = false;
 var SCRIPT_PROP = PropertiesService.getDocumentProperties();
 //Logger.log(SCRIPT_PROP);
-startBetterLog();
+//startBetterLog();
 
 function startBetterLog() {
   if (!betterLogStarted) {
@@ -43,6 +43,7 @@ function onOpen(e) {
   menu.addItem("RESET", 'RESET');
   menu.addItem('Refresh', 'refresh')
   menu.addItem('SETUP', 'onInstall');
+  menu.addItem('SYNC', 'sync');
   menu.addItem('Status Change', 'member_update_sidebar');
   menu.addItem('Submit Item', 'submitSidebar');
 //  menu.addItem("TEST", 'TEST');//test_onEdit
