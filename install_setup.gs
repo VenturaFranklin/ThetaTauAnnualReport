@@ -101,8 +101,8 @@ function protect_ranges(){
 }
 
 function create_submit_folder(chapter_name, region) {
-//  var chapter_name = "chapter_test";
-//  var region = "region_test";
+  var chapter_name = "Rho Delta";
+  var region = "Western";
   var folder_id = "0BwvK5gYQ6D4nTDRtY1prZG12UU0";
   var folder_submit = DriveApp.getFolderById(folder_id);
   var folder_region = folder_submit.getFoldersByName(region);
@@ -139,7 +139,7 @@ function create_submit_folder(chapter_name, region) {
   }
   var folder_id = folder_chapter.getId();
   SCRIPT_PROP.setProperty("folder", folder_id);
-  var file = get_active_spreadsheet();
+  var file = DriveApp.getFileById(SCRIPT_PROP.getProperty("key"));
   folder_chapter.addFile(file);
 }
 
@@ -529,7 +529,7 @@ function align_attendance_members(previous_member, new_member, sheet){
 //  var regex = new RegExp('.*?(.).*?', 'g');
 //  var val = new_member.replace(regex, "$1\n");
 //  val = val.substring(0, val.length - 1);
-  new_range.setValue(val);
+  new_range.setValue(new_member);
   sheet.setColumnWidth(+previous_index+1, 50)
 }
 
@@ -538,7 +538,7 @@ function RESET() {
   var folder_id = SCRIPT_PROP.getProperty("folder");
   if (folder_id){
     var folder_chapter = DriveApp.getFolderById(folder_id);
-    var file = get_active_spreadsheet();
+    var file = DriveApp.getFileById(SCRIPT_PROP.getProperty("key"));
     folder_chapter.removeFile(file);
   }
   var sheets = target_doc.getSheets();
