@@ -1197,7 +1197,7 @@ function event_fields_set(myObject){
 }
 
 function update_scores_event(user_row){
-  var user_row = 2;
+//  var user_row = 2;
   var myObject = range_object("Events", user_row);
   if (myObject.Type[0] == "" || myObject.Date[0] == "" ||
       myObject["Event Name"][0] == ""){
