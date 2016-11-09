@@ -8,7 +8,7 @@
 var betterLogStarted = false;
 var SCRIPT_PROP = PropertiesService.getDocumentProperties();
 //Logger.log(SCRIPT_PROP);
-//startBetterLog();
+startBetterLog();
 
 function startBetterLog() {
   if (!betterLogStarted) {
@@ -1196,12 +1196,12 @@ function event_fields_set(myObject){
 }
 
 function update_scores_event(user_row){
-//  var user_row = 2;
+  var user_row = 2;
   var myObject = range_object("Events", user_row);
   if (myObject.Type[0] == "" || myObject.Date[0] == "" ||
       myObject["Event Name"][0] == ""){
     return;
-  } else if (myObject["# Members"][0] === ""){
+  } else if (typeof myObject["# Members"][0] != typeof 2){
     attendance_add_event(myObject["Event Name"][0], myObject.Date[0]);
   }
   if (!event_fields_set(myObject)){
@@ -1888,8 +1888,8 @@ function range_object_fromValues(header_values, range_values, range_row){
 
 function test_onEdit() {
   var ss = get_active_spreadsheet();
-  var sheet = ss.getSheetByName("Attendance");
-  var range = sheet.getRange(3, 3, 1, 1);
+  var sheet = ss.getSheetByName("Events");
+  var range = sheet.getRange(2, 3, 1, 1);
   var value = range.getValue();
   _onEdit({
     user : Session.getActiveUser().getEmail(),
@@ -1920,25 +1920,24 @@ function get_sheet_data(SheetName) {
   Logger.log(SheetName)
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName(SheetName);
-  if (sheet != null) {
-    var max_row = sheet.getLastRow();
-    var max_row = (max_row != 0) ? max_row:1;
-    var max_column = sheet.getLastColumn()
-    var range = sheet.getRange(2, 1, max_row, max_column);
-    var header_range = sheet.getRange(1, 1, 1, max_column);
-    var header_values = header_range.getValues();
-//    Logger.log(header_values);
-    for (i in header_values[0]){
-      if (header_values[0][i] == "Date") {
-        var date_index = parseInt(i);
-        Logger.log("date index: " + date_index);
-      } else if (header_values[0][i] == "Event Name") {
-        var name_index = parseInt(i);
-        Logger.log("name index: " + name_index);
-      }
-    }
-//    var sorted_range = range.sort({column: +date_index+1, ascending: true});
-//    sheet.setFrozenRows(1);
+  if (sheet == null) { return; }
+  var max_row = sheet.getLastRow();
+  var max_row = (max_row != 0) ? max_row:1;
+  var max_column = sheet.getLastColumn()
+  var range = sheet.getRange(2, 1, max_row, max_column);
+  var header_range = sheet.getRange(1, 1, 1, max_column);
+  var header_values = header_range.getValues();
+  //    Logger.log(header_values);
+  var date_index = header_values[0].indexOf("Event Date");
+  Logger.log("date index: " + date_index);
+  var name_index =header_values[0].indexOf("Event Name");
+  Logger.log("name index: " + name_index);
+  var range_values = range.getValues();
+  var name_date = [];
+  for (var value in range_values){
+    var name = range_values[value][name_index];
+    var date = range_values[value][date_index];
+    name_date.push(name+date);
   }
   return {sheet: sheet,
           range: range,
@@ -1946,20 +1945,24 @@ function get_sheet_data(SheetName) {
           header: header_values,
           date_index: date_index,
           name_index: name_index,
-          max_column: max_column
+          max_column: max_column,
+          name_date: name_date
          }
 }
 
 function attendance_add_event(event_name, event_date){
   //align_attendance_events(myObject["Event Name"][0], myObject.Date[0])
-//  var event_name = "TEST";
-//  var event_date = "01/01/2018";
+//  var event_name = "Test";
+//  var event_date = "Mon Aug 01 2016 00:00:00 GMT-0700 (MST)";
   if (!event_name || !event_date){
     return;
     var event_data = get_sheet_data("Events");
     var event_values = event_data.range.getValues();
   }
   var att_data = get_sheet_data("Attendance");
+  if (att_data.name_date.indexOf(event_name+event_date) > -1){
+    return;
+  }
   var sheet = att_data.sheet;
 //  var att_values = att_data.range.getValues();
   var attendance_rows = att_data.max_row;
@@ -1976,22 +1979,4 @@ function attendance_add_event(event_name, event_date){
   var attendance = range_object(sheet, attendance_rows+1);
   update_attendance(attendance);
   main_range_object("Attendance");
-//  for (row in event_values){
-//    var this_row = parseInt(row) + 1
-//    var event_name = event_values[row][event_data.name_index];
-//    var event_date = event_values[row][event_data.date_index];
-//    if (this_row - 1 < attendance_rows){
-//      var att_event_name = att_values[row][att_data.name_index];
-//      var att_event_date = att_values[row][att_data.date_index];
-//    }
-//    if (event_name != att_event_name){
-//      sheet.insertRowAfter(this_row);
-//      var name_range = sheet.getRange(this_row+1, att_data.name_index+1);
-//      name_range.setValue(event_name);
-//      var date_range = sheet.getRange(this_row+1, +att_data.date_index+1);
-//      date_range.setValue(event_date);
-//      sheet.setRowHeight(this_row+1, 10);
-//    }
-//    Logger.log(event_name);
-//  }
 }
