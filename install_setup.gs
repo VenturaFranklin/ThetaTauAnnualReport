@@ -557,6 +557,13 @@ function align_attendance_members(previous_member, new_member, sheet){
 }
 
 function RESET() {
+  unlock();
+  var this_password = SCRIPT_PROP.getProperty("password");
+  if (this_password != password){
+    var ui = SpreadsheetApp.getUi();
+    ui.alert('Incorrect Password!');
+    return;
+  }
   var target_doc = get_active_spreadsheet();
   var folder_id = SCRIPT_PROP.getProperty("folder");
   if (folder_id){
