@@ -525,6 +525,7 @@ function get_chapter_members(){
   var format_range = ss.getRangeByName("FORMAT");
   format_range.copyFormatToRange(sheet, 3, 100, 2, 100);
   sheet.getRange(3, 100, 2, 100).clearDataValidations();
+  sheet.setRowHeight(1, 100);
   setup_dataval();
   progress_update("Finished Get Chapter Members");
 }
@@ -560,7 +561,7 @@ function align_attendance_members(previous_member, new_member, sheet){
 //  var val = new_member.replace(regex, "$1\n");
 //  val = val.substring(0, val.length - 1);
   new_range.setValue(new_member);
-  sheet.setColumnWidth(+previous_index+1, 50)
+  sheet.setColumnWidth(+previous_index+1, 50);
 }
 
 function RESET() {
