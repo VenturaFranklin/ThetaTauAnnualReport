@@ -1088,6 +1088,12 @@ function att_name(name){
 function update_attendance(attendance){
   var MemberObject = main_range_object("Membership");
 //  Logger.log(attendance);
+  var event_name_att = attendance["Event Name"][0];
+  var event_date_att = attendance["Event Date"][0];
+  Logger.log(event_name_att);
+  if (event_name_att == ""){
+    return;
+  }
   var counts = {};
   counts["Student"] = {};
   counts["Pledge"] = {};
@@ -1103,9 +1109,6 @@ function update_attendance(attendance){
     counts[member_status][event_status] = counts[member_status][event_status] ? counts[member_status][event_status] + 1 : 1;
   }
   Logger.log(counts)
-  var event_name_att = attendance["Event Name"][0];
-  var event_date_att = attendance["Event Date"][0];
-  Logger.log(event_name_att);
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Events");
   var EventObject = main_range_object("Events");
