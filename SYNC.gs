@@ -1,4 +1,9 @@
-function sync() {
+function sync(){
+  sync_region();
+  sync_main();
+}
+
+function sync_region() {
   var dash_id = SCRIPT_PROP.getProperty("dash");
 //  var dash_id = "10ebwK7tTKgveVCEOpRle2S17d4UjwmsoXXCPFvC9A-A";
   var dash_file = SpreadsheetApp.openById(dash_id);
@@ -21,7 +26,7 @@ function sync() {
     if ('Event Name' in event){
       var test_name  = event['Event Name'][0] + event['Date'][0];
       if (!(test_name in event_chapter)){
-        event_extend.push([chapter,	event['Event Name'][0], event['Date'][0], event['Type'][0],
+        event_extend.push([chapter, event['Event Name'][0], event['Date'][0], event['Type'][0],
                            event['Description'][0]]);
       } else {
         var col = event_chapter.first_row.indexOf("Type")+1;
@@ -93,6 +98,90 @@ function sync() {
     submit_sheet.getRange(submit_row_max, 1, 1, submit_col_max)
     .setValues([row]);
   }
+}
+
+function sync_main(){
+  var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
+  var ss_prop = SpreadsheetApp.openById(properties_id);
+  var ss = get_active_spreadsheet();
+  var main_object = main_range_object("MAIN", "Organization Name", ss_prop);
+  var top_avg = calc_top_average(main_object);
+  for (var attr in top_avg.nat_avgs){
+    var top_name = "TOP_"+attr.toUpperCase();
+    var nat_name = "NAT_"+attr.toUpperCase();
+    ss.getRangeByName(top_name).setValue(top_avg.top_avgs[attr].toFixed(1));
+    ss.getRangeByName(nat_name).setValue(top_avg.nat_avgs[attr].toFixed(1));
+  }
+  var chapter_names = top_avg.top_chapter_names.toString()
+  ss.getRangeByName("top_chapter_names").setNotes([
+    [chapter_names],[chapter_names],[chapter_names],
+    [chapter_names],[chapter_names],[chapter_names]]);
+  var chapter = SCRIPT_PROP.getProperty("chapter");
+  var chapter_row = main_object[chapter].object_row;
+  var main_sheet = main_object.sheet;
+  var scores = ['Brotherhood', 'Service', 'Operate', 'ProDev'];
+  for (var score_num in scores){
+    var score_type_raw  = scores[score_num];
+    var score_type = "SCORE_" + score_type_raw.toUpperCase();
+    var score = ss.getRangeByName(score_type).getValue();
+    var score_col = main_object.header_values.indexOf(score_type_raw)+1;
+    main_sheet.getRange(chapter_row, score_col).setValue(score);
+  }
+}
+
+function calc_top_average(main_object){
+  var nat_avgs = {Brotherhood: 0,
+                  Service: 0,
+                  Operate: 0,
+                  ProDev: 0};
+  var top_avgs = {Brotherhood: 0,
+                  Service: 0,
+                  Operate: 0,
+                  ProDev: 0};
+  var min_of_array = 0;
+  var totals = Object.keys(main_object).map(
+    function (key) {
+      if (typeof main_object[key] != typeof {}){return 0;};
+      if ("Total" in main_object[key]){
+        return main_object[key]["Total"][0];}
+      else{return 0;}});
+  var maxs = [];
+  var maxs_length = 1;
+  var next_max = 0;
+  var this_max = 1;
+  while (maxs_length < 5 && next_max <= this_max){
+    this_max = Math.max.apply(Math, totals);
+    maxs.push(this_max);
+    totals.splice(totals.indexOf(this_max), 1);
+    next_max = Math.max.apply(Math, totals);
+    if (next_max != this_max){maxs_length++;}
+  }
+  Logger.log(maxs);
+  maxs_length = maxs.length;
+  var top_chapter_names = [];
+  for (var chapter_count in main_object.object_header){
+    var chapter = main_object.object_header[chapter_count];
+    var Total = main_object[chapter]["Total"][0];
+    Logger.log(Total);
+    for (var attr in nat_avgs){
+      var attr_val = main_object[chapter][attr][0];
+      nat_avgs[attr] += attr_val;
+      if (maxs.indexOf(Total) > -1){
+        if (top_chapter_names.indexOf(chapter) < 0){
+          top_chapter_names.push(chapter);
+        }
+        top_avgs[attr] += attr_val;
+      }
+    }
+  }
+  for (var attr in nat_avgs){
+    nat_avgs[attr] = nat_avgs[attr]/(parseInt(chapter_count)+1);
+    top_avgs[attr] = top_avgs[attr]/maxs_length;
+  }
+  return {top_chapter_names: top_chapter_names,
+          top_avgs:top_avgs,
+          nat_avgs: nat_avgs,
+         }
 }
 
 function sync_officers(oer){

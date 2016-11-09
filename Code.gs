@@ -1824,6 +1824,7 @@ function main_range_object(sheetName, short_header, ss){
   var myObject = new Array();
   myObject["object_header"] = new Array();
   myObject["header_values"] = header_values[0];
+  myObject["sheet"] = sheet;
   for (var val in short_names){
 //    short_names.forEach(function (item) {
 //      var test = item;
