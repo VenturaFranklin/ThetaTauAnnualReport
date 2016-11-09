@@ -26,7 +26,7 @@ function sync_region() {
     if ('Event Name' in event){
       var test_name  = event['Event Name'][0] + event['Date'][0];
       if (!(test_name in event_chapter)){
-        event_extend.push([chapter, event['Event Name'][0], event['Date'][0], event['Type'][0],
+        event_extend.push([chapter,	event['Event Name'][0], event['Date'][0], event['Type'][0],
                            event['Description'][0]]);
       } else {
         var col = event_chapter.first_row.indexOf("Type")+1;
@@ -62,7 +62,10 @@ function sync_region() {
     act_sp_range: 'Spring Active',
     act_fa_range: 'Fall Active'
   }
-  var chapter_row = main_chapter[chapter+chapter][1];
+  var chapter_row = main_values.length;
+  if (chapter+chapter in main_chapter){
+    chapter_row = main_chapter[chapter+chapter][1];
+  }
   for (var score_type_raw in member_value_obj){
     var score_type = score_dict[score_type_raw];
     var col = main_chapter.first_row.indexOf(score_type)+1;
@@ -138,7 +141,6 @@ function calc_top_average(main_object){
                   Service: 0,
                   Operate: 0,
                   ProDev: 0};
-  var min_of_array = 0;
   var totals = Object.keys(main_object).map(
     function (key) {
       if (typeof main_object[key] != typeof {}){return 0;};
@@ -165,6 +167,7 @@ function calc_top_average(main_object){
     Logger.log(Total);
     for (var attr in nat_avgs){
       var attr_val = main_object[chapter][attr][0];
+      if (attr_val ==""){continue;};
       nat_avgs[attr] += attr_val;
       if (maxs.indexOf(Total) > -1){
         if (top_chapter_names.indexOf(chapter) < 0){
