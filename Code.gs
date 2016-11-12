@@ -173,7 +173,9 @@ function submitSidebar() {
    var template = HtmlService
    .createTemplateFromFile('SubmitForm')
 //  .createHtmlOutputFromFile('SubmitForm');
-  template.submissions = get_type_list('Submit');
+   var list_info = get_type_list('Submit', true);
+  template.submissions = list_info.type_list;
+  template.descriptions = list_info.type_desc;
   template.folder_id = get_folder_id();
   var htmlOutput = template.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
@@ -861,21 +863,31 @@ function cleanArray(actual, short_length) {
   return newArray;
 }
 
-function get_type_list(score_type){
+function get_type_list(score_type, desc){
 //  var score_type = "Submit";
 //  var score_type = "Events";
   var ScoringObject = main_range_object("Scoring");
   var newArray = new Array();
+  var descArray = {};
   for (var type_ind = 0;  type_ind < parseInt(ScoringObject.object_count); type_ind++){
     var type_name = ScoringObject.object_header[type_ind];
+    var description = ScoringObject[type_name]["Long Description"][0];
     var thistype = ScoringObject[type_name]["Score Type"][0];
     if (~thistype.indexOf(score_type)){
       newArray.push(type_name);
+      descArray[type_name] = description;
     }
   }
 //  newArray.sort();
   Logger.log(newArray);
-  return newArray;
+  if (!desc){
+    return newArray;
+  } else {
+    return {
+      type_list: newArray,
+      type_desc: descArray
+    }
+  }
 }
 
 function get_ind_list(type){

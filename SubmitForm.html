@@ -13,6 +13,13 @@
               <option value="<?= option ?>"><?= option ?></option>
           <? } ?>
       </select>
+    <label>Submission Description: </label> <br>
+    <? for (var desc in descriptions){ ?>
+      <? var desc_id = desc.split(" ")[0]?>
+      <? var description = descriptions[desc] ?>
+        <div id="<?= desc_id ?>" class="group"><?= description ?></div>
+    <? } ?>
+    <br>
     <input type="file" name="myFile">
     <input type="submit" value="Upload File" 
                onclick="this.value='Uploading...';
@@ -134,6 +141,16 @@ function fileUploaded(status) {
         document.getElementById('submissions').style.display = 'none';
         document.getElementById('output').innerHTML = status;
     }
+$(function () {
+  $('.group').hide();
+  $('#Article').show();
+  $('#submissionslist').change(function () {
+//  console.log($(this).val());
+  $('.group').hide();
+  $('#'+$(this).val().split(" ")[0]).show();
+  })
+});
+    
     </script>
     <script src="https://apis.google.com/js/api.js?onload=handleClientLoad"></script>
   </body>
