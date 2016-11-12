@@ -1,3 +1,14 @@
+function run_install(e){
+  unlock();
+  var this_password = SCRIPT_PROP.getProperty("password");
+  if (this_password != password){
+    var ui = SpreadsheetApp.getUi();
+    ui.alert('Incorrect Password!');
+    return;
+  }
+  onInstall(e);
+}
+
 function onInstall(e) {
   onOpen(e);
   setup();

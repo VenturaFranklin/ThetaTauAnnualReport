@@ -42,7 +42,7 @@ function onOpen(e) {
   menu.addItem('Pledge Forms', 'pledge_sidebar');
   menu.addItem("RESET", 'RESET');
   menu.addItem('Refresh', 'refresh')
-  menu.addItem('SETUP', 'onInstall');
+  menu.addItem('SETUP', 'run_install');
   menu.addItem('SYNC', 'sync');
   menu.addItem('Status Change', 'member_update_sidebar');
   menu.addItem('Submit Item', 'submitSidebar');
@@ -59,21 +59,23 @@ function TEST(){
 //  SCRIPT_PROP.setProperty('director', 'werd@thetatau.org');
 //  SCRIPT_PROP.setProperty('email', 'venturafranklin@gmail.com');
 //  SCRIPT_PROP.setProperty("region", "Western");
-//  SCRIPT_PROP.setProperty("folder", "0BwvK5gYQ6D4nOHNPekh5cmF5RFk");
-  Logger.log(SCRIPT_PROP.getProperty('key'));
-  Logger.log(SCRIPT_PROP.getProperty('chapter'));
-  Logger.log(SCRIPT_PROP.getProperty('director'));
-  Logger.log(SCRIPT_PROP.getProperty('email'));
-  Logger.log(SCRIPT_PROP.getProperty("region"));
-  Logger.log(SCRIPT_PROP.getProperty("folder"));
-  var ui = SpreadsheetApp.getUi();
-  ui.alert('SETUP COMPLETE!\n'+
-           'Next steps:\n'+
-           '- Fill out Chapter Sheet\n'+
-           '- Verify Membership\n'+
-           '- Add Events & Attendance\n\n'+
-           'Do not edit gray or black cells\n'+
-           'Submit forms in menu "Add-ons-->ThetaTauReports"');
+//  SCRIPT_PROP.setProperty("dash", "10ebwK7tTKgveVCEOpRle2S17d4UjwmsoXXCPFvC9A-A");
+//  var dash_id = SCRIPT_PROP.getProperty("dash");
+//  var dash_file = SpreadsheetApp.openById(dash_id);
+//  Logger.log(SCRIPT_PROP.getProperty('key'));
+//  Logger.log(SCRIPT_PROP.getProperty('chapter'));
+//  Logger.log(SCRIPT_PROP.getProperty('director'));
+//  Logger.log(SCRIPT_PROP.getProperty('email'));
+//  Logger.log(SCRIPT_PROP.getProperty("region"));
+//  Logger.log(SCRIPT_PROP.getProperty("folder"));
+//  var ui = SpreadsheetApp.getUi();
+//  ui.alert('SETUP COMPLETE!\n'+
+//           'Next steps:\n'+
+//           '- Fill out Chapter Sheet\n'+
+//           '- Verify Membership\n'+
+//           '- Add Events & Attendance\n\n'+
+//           'Do not edit gray or black cells\n'+
+//           'Submit forms in menu "Add-ons-->ThetaTauReports"');
 //  var ss = get_active_spreadsheet();
 //  Logger.log(range.getValues());
 }
