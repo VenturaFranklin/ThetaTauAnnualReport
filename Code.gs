@@ -1313,6 +1313,8 @@ function update_score_att(){
   var score_method_sp = score_method_raw.replace("MEETINGS", spring_avg);
   var score_fa = eval_score(score_method_fa, score_max);
   var score_sp = eval_score(score_method_sp, score_max);
+  score_sp = score_sp >= 0 ? score_sp:0;
+  score_fa = score_fa >= 0 ? score_fa:0;
   score_range_fa.setValue(score_fa);
   score_range_sp.setValue(score_sp);
   score_range_tot.setValue(+score_fa + score_sp);
@@ -1363,10 +1365,14 @@ function update_score_member_pledge(){
   var score_pledge_sp_range = sheet.getRange(score_pledge_row,
                                       ScoringObject["Pledge Ratio"]["SPRING SCORE"][1]);
   var score_pledge_tot_range = sheet.getRange(score_pledge_row,total_col);
+  score_sp = score_sp >= 0 ? score_sp:0;
+  score_fa = score_fa >= 0 ? score_fa:0;
   score_fa_range.setValue(score_fa);
   score_sp_range.setValue(score_sp);
   score_tot_range.setValue(score_fa + score_sp);
   update_dash_score("Operate", total_col);
+  score_pledge_sp = score_pledge_sp >= 0 ? score_pledge_sp:0;
+  score_pledge_fa = score_pledge_fa >= 0 ? score_pledge_fa:0;
   score_pledge_fa_range.setValue(score_pledge_fa);
   score_pledge_sp_range.setValue(score_pledge_sp);
   score_pledge_tot_range.setValue(score_pledge_fa + score_pledge_sp);
