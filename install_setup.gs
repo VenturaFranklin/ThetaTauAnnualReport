@@ -22,11 +22,8 @@ function progress_update(this_message){
      .createHtmlOutput(message)
      .setWidth(400)
      .setHeight(300)
-//     .setTitle('Install Progress');
   SpreadsheetApp.getUi()
-    .showModalDialog(htmlOutput, 'Install Progress');
-//  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
-//    .showSidebar(htmlOutput);
+    .showModalDialog(htmlOutput, 'Progress');
 }
 
 function createTriggers() {
@@ -104,6 +101,7 @@ function chapter_name_process(form) {
   range.getValue();
   create_submit_folder(chapter_name, region);
   get_chapter_members();
+  setup_dataval();
   createTriggers();
   progress_update("Started Sync Main Info");
   sync_main()
@@ -133,8 +131,8 @@ function protect_ranges(){
 }
 
 function create_submit_folder(chapter_name, region) {
-  // var chapter_name = "Epsilon Delta";
-  // var region = "Western";
+//  var chapter_name = "Epsilon Delta";
+//  var region = "Western";
   progress_update("Started Submit Folder Creation");
   var folder_id = "0BwvK5gYQ6D4nTDRtY1prZG12UU0";
   var folder_submit = DriveApp.getFolderById(folder_id);
@@ -423,39 +421,38 @@ function get_chapter_members(){
   progress_update("Found Member list:" + new_file_name);
   var csvFile = new_file.getBlob().getDataAsString();
   var csvData = CSVToArray(csvFile, ",");
-//  Logger.log(csvData);
   var header = csvData[0];
   var chapter_index = header.indexOf("Constituent Specific Attributes Chapter Name Description");
-  var status_index = header.indexOf("Constituency Code");
-  var badge_index = header.indexOf("Constituent ID");
-  var last_index = header.indexOf("Last Name");
-  var first_index = header.indexOf("First Name");
-  var email_index = header.indexOf("Email Address Number");
-  var phone_index = header.indexOf("Mobile Phone Number");
-//  var role_index = header.indexOf("Constituent Specific Attributes Chapter Name Description");
-  var major_index = header.indexOf("Primary Education Major");
-  var school_index = header.indexOf("Primary Education Class of");
   var CentralMemberObject = {};
   CentralMemberObject['badge_numbers'] = [];
   progress_update("Finding chapter members...");
+  var indx = {
+    "First Name": header.indexOf("First Name"),
+    "Last Name": header.indexOf("Last Name"),
+    "Badge Number": header.indexOf("Constituent ID"),
+    "Chapter Status": header.indexOf("Constituency Code"),
+    "Chapter Role": header.indexOf("Last Name"), //Organization Relation Relationship
+    "Current Major": header.indexOf("Primary Education Major"),
+    "School Status": header.indexOf("Primary Education Class of"),
+    "Phone Number": header.indexOf("Mobile Phone Number"),
+    "Email Address": header.indexOf("Email Address Number")
+  };
   for (var j in csvData){
     var row = csvData[j];
     var chapter_row = row[chapter_index];
     if (chapter_row == chapter_name){
       var member_object={};
-      var badge_number = row[badge_index];
-      member_object['First Name'] = row[first_index];
-      member_object['Last Name'] = row[last_index];
-      member_object['Badge Number'] = badge_number;
-      var member_status = row[status_index];
-      member_status = member_status=="Prospective Pledge" ? "Pledge":member_status;
-      member_status = member_status=="Colony" ? "Student":member_status;
-      member_object['Chapter Status'] = member_status;
-      member_object['Chapter Role'] = row[last_index]+"_ROLE";//row[];
-      member_object['Current Major'] = row[major_index];
-      member_object['School Status'] = row[school_index];
-      member_object['Phone Number'] = row[phone_index];
-      member_object['Email Address'] = row[email_index];
+      var badge_number = row[indx["Badge Number"]];
+      for (var col_name in indx){
+        if (col_name == "Chapter Status"){
+          var member_status = row[indx["Chapter Status"]];
+          member_status = member_status=="Prospective Pledge" ? "Pledge":member_status;
+          member_status = member_status=="Colony" ? "Student":member_status;
+          member_object[col_name] = member_status;
+          continue;
+        }
+        member_object[col_name] = row[indx[col_name]];
+      }
       CentralMemberObject['badge_numbers'].push(badge_number);
       CentralMemberObject[badge_number] = member_object;
     }
@@ -473,6 +470,7 @@ function get_chapter_members(){
   var ChapterMemberObject = main_range_object("Membership", "Badge Number");
   Logger.log(ChapterMemberObject["object_header"]);
   var new_members = [];
+  var verify_members = [];
   for (var k in CentralMemberObject['badge_numbers']){
     var badge_number = CentralMemberObject['badge_numbers'][k];
     if (ChapterMemberObject["object_header"].indexOf(badge_number) < 0){
@@ -480,21 +478,55 @@ function get_chapter_members(){
       Logger.log("NEW MEMBER!");
       Logger.log(CentralMemberObject[badge_number]['Last Name']);
       new_members.push(badge_number);
+    } else {
+      Logger.log("VERIFY MEMBER!");
+      Logger.log(CentralMemberObject[badge_number]['Last Name']);
+      verify_members.push(badge_number);
+      // Member is already on chapter list, need to check for update
     }
   }
   progress_update("Found "+ new_members.length +" NEW Chapter Members");
+  progress_update("Found "+ verify_members.length +" Previous Chapter Members");
 //  
   var old_members = [];
   for (var k in ChapterMemberObject["object_header"]){
     var badge_number = ChapterMemberObject["object_header"][k];
     if (CentralMemberObject['badge_numbers'].indexOf(badge_number) < 0){
       // Member is on chapter list, not on central list
+      // Need to remove from Membership Sheet
       Logger.log("OLD MEMBER!");
       Logger.log(ChapterMemberObject[badge_number]['Last Name'][0]);
       old_members.push(badge_number)
     }
   }
-  progress_update("Found "+ old_members.length +" PREVIOUS Chapter Members");
+  progress_update("Found "+ old_members.length +" Chapter Members to Remove");
+  verify_members.sort();
+  verify_members.reverse();  
+  for (var q in verify_members){
+    var badge = verify_members[q];
+    var this_row = ChapterMemberObject[badge]['object_row'];
+    var member = CentralMemberObject[badge];
+    for (var col_name in indx){
+      var col_val = ChapterMemberObject[badge][col_name][0];
+      var member_val = CentralMemberObject[badge][col_name];
+      if (col_val != member_val){
+        var col = ChapterMemberObject[badge][col_name][1];
+        sheet.getRange(this_row, col).setValue(member_val);
+      }
+    }
+  }
+  old_members.sort();
+  old_members.reverse();
+  var delete_att = [];
+  for (var p in old_members){
+    var badge = old_members[p];
+    var this_row = ChapterMemberObject[badge]['object_row'];
+    delete_att.push(ChapterMemberObject[badge]['Member Name']);
+    var badge_ind = ChapterMemberObject["object_header"].indexOf(badge);
+    ChapterMemberObject["object_header"].splice(badge_ind, 1);
+    delete ChapterMemberObject[badge];
+    sheet.deleteRow(this_row);
+  }
   new_members.sort();
   new_members.reverse();
   for (var m in new_members){
@@ -532,28 +564,46 @@ function get_chapter_members(){
     Logger.log(new_values);
     range.setValues([new_values]);
   }
+  update_attendance(new_members, delete_att);
+  progress_update("Finished Get Chapter Members");
+}
+
+function update_attendance(new_members, delete_att){
+//  var delete_att = ["Jeremy Faber", "Eugene Balaguer", "Jacob Landsiedel"];
+  progress_update("Started Updating Attendance Sheet");
   var previous_member = undefined;
-  ChapterMemberObject = main_range_object("Membership");
+  var ChapterMemberObject = main_range_object("Membership");
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Attendance");
-  progress_update("Started Updating Attendance Sheet");
+  var max_column = sheet.getLastColumn();
+  var header_range = sheet.getRange(1, 1, 1, max_column);
+  var header_values = header_range.getValues()[0];
+  for (var ind in delete_att){
+    var name = delete_att[ind];
+    name = shorten(name, 12, false);
+    var header_values = header_range.getValues()[0];
+    var col = header_values.indexOf(name)+1;
+    if (col > 2){
+      sheet.deleteColumn(col);
+    }
+  }
   for(var i = 0; i< ChapterMemberObject.object_count; i++) {
     var member_name = ChapterMemberObject.object_header[i];
-    var member_badge = ChapterMemberObject[member_name]["Badge Number"][0];
+    var member_badge = ChapterMemberObject[member_name]["Badge Number"][0].toString();
     if (new_members.indexOf(member_badge) > -1){
       if (i>0){
-        previous_member = ChapterMemberObject.object_header[i-1];;
+        previous_member = ChapterMemberObject.object_header[i-1];
       }
       align_attendance_members(previous_member, member_name, sheet);
     }
   }
   progress_update("Finished Updating Attendance Sheet");
   var format_range = ss.getRangeByName("FORMAT");
-  format_range.copyFormatToRange(sheet, 3, 100, 2, 100);
-  sheet.getRange(3, 100, 2, 100).clearDataValidations();
+  var max_column = sheet.getLastColumn();
+  var max_row = sheet.getLastRow();
+  format_range.copyFormatToRange(sheet, 3, max_column, 2, max_row);
+  sheet.getRange(3, 2, max_row, max_column).clearDataValidations();
   sheet.setRowHeight(1, 100);
-  setup_dataval();
-  progress_update("Finished Get Chapter Members");
 }
 
 

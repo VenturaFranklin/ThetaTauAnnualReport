@@ -41,7 +41,8 @@ function onOpen(e) {
 //  menu.addItem('Event Functions', 'showaddEvent');
   menu.addItem('Pledge Forms', 'pledge_sidebar');
   menu.addItem("RESET", 'RESET');
-  menu.addItem('Refresh', 'refresh')
+  menu.addItem('Refresh Events', 'refresh_events');
+  menu.addItem('Refresh Members', 'refresh_members')
   menu.addItem('SETUP', 'run_install');
   menu.addItem('SYNC', 'sync');
   menu.addItem('Status Change', 'member_update_sidebar');
@@ -855,7 +856,7 @@ function cleanArray(actual, short_length) {
   var newArray = new Array();
   for (var i = 0; i < actual.length; i++) {
     if (actual[i]) {
-      var newactual = actual[i]
+      var newactual = actual[i].toString()
       newactual = shorten(newactual, short_length)
       newArray.push(newactual);
     }
@@ -1078,7 +1079,11 @@ function _onEdit(e){
   }
 }
 
-function refresh() {
+function refresh_members(){
+  get_chapter_members();
+}
+
+function refresh_events() {
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Events");
   var max_rows = sheet.getLastRow();
