@@ -192,7 +192,9 @@ function create_submit_folder(chapter_name, region) {
   var folder_id = folder_chapter.getId();
   SCRIPT_PROP.setProperty("folder", folder_id);
   var file = DriveApp.getFileById(SCRIPT_PROP.getProperty("key"));
-  folder_chapter.addFile(file);
+  DriveApp.addFolder(folder_chapter); // Adds the chapter folder to user drive
+  folder_chapter.addFile(file); // Adds the ss to chapter folder
+  DriveApp.removeFile(file); // Removes ss from user drive
 }
 
 function get_folder_id() {
