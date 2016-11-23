@@ -1492,7 +1492,7 @@ function get_scores_org_gpa_serv(){
     for (var j = 0; j <= 2; j++){
       var gpa_raw = MemberObject[member_name][gpas[j]][0]
       gpa_raw = gpa_raw == "" ? 0:gpa_raw;
-      var gpa = parseInt(gpa_raw);
+      var gpa = parseFloat(gpa_raw);
       gpa_counts[gpas[j]] = gpa_counts[gpas[j]] ? gpa_counts[gpas[j]]+gpa:gpa;
       var this_org = MemberObject[member_name][orgs[j]][0];
       org_counts[orgs[j]] = org_counts[orgs[j]] ? org_counts[orgs[j]]:0;
