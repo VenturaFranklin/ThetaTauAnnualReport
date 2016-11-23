@@ -81,20 +81,6 @@ function TEST(){
 //  Logger.log(range.getValues());
 }
 
-function testEvents() {
-  Logger.log(HtmlService
-      .createTemplateFromFile('Officers')
-      .getCodeWithComments());
-}
-
-function form_statusDialog() {
-  var html = HtmlService.createHtmlOutputFromFile('FORM_STATUS')
-      .setWidth(800)
-      .setHeight(400);
-  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
-      .showModalDialog(html, 'STATUS FORM');
-}
-
 function unlock() {
   var ui = SpreadsheetApp.getUi();
   var result = ui.prompt('What is the password?',
@@ -104,14 +90,6 @@ function unlock() {
   if (button == ui.Button.OK) {
     SCRIPT_PROP.setProperty("password", text);
   }  
-}
-
-function form_gradDialog() {
-  var html = HtmlService.createHtmlOutputFromFile('FORM_GRAD')
-      .setWidth(800)
-      .setHeight(400);
-  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
-      .showModalDialog(html, 'GRAD FORM');
 }
 
 function getAllIndexes(arr, val) {
