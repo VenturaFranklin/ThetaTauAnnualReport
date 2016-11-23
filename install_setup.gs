@@ -408,10 +408,11 @@ function get_chapter_members(){
     var date_str = file_name.split("_")[0];
     var year = date_str.substring(0, 4);
     var month = date_str.substring(4, 6);
-    var day = parseInt(date_str.substring(6, 8));
-    if (day === NaN){
+    var day = parseInt(date_str.substring(6, 8), 10);
+    if (isNaN(day)){
       continue;
     }
+    month = parseInt(month, 10)-1;
     var date = new Date(year, month, day);
     if (date > old_date){
       old_date = date;
