@@ -103,7 +103,7 @@ function save_form(csvFile, form_type){
     Logger.log("fileBlob Name: " + file.getName())
     Logger.log('fileBlob: ' + file);
     
-    var template = HtmlService.createTemplateFromFile('SubmitFormResponse');
+    var template = HtmlService.createTemplateFromFile('response');
     var submission = {};
     submission.file = file;
     submission.folder_id = folder_id;
@@ -532,7 +532,7 @@ function uploadFiles(form) {
     Logger.log('fileBlob: ' + blob);
     var file = folder.createFile(blob);    
 //    file.setDescription("Uploaded by " + form.myName);
-    var template = HtmlService.createTemplateFromFile('SubmitFormResponse');
+    var template = HtmlService.createTemplateFromFile('response');
     var file_url = template.fileUrl = file.getUrl();
     var submission_date = template.date = new Date();
     var submission_type = template.type = form.submissions;
@@ -553,7 +553,7 @@ function uploadFiles(form) {
 }
 
 function post_submit(file_object, submission_type) {
-  var template = HtmlService.createTemplateFromFile('SubmitFormResponse');
+  var template = HtmlService.createTemplateFromFile('response');
   var file_url = template.fileUrl = file_object.alternateLink;
   var submission_date = template.date = new Date();
   var submission_type = template.type = submission_type;

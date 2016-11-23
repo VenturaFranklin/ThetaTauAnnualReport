@@ -36,7 +36,7 @@
     <table>
     <tr>
     <td><label for="eventlist">Event Name: </label></td>
-    <td><select id="eventnames" form="edit-event-form" name="eventnames">
+    <td><select id="eventnames-edit" form="edit-event-form" name="eventnames-edit">
     <option value="Loading">Loading...</option>
     </select></td>
     </tr>
@@ -45,10 +45,20 @@
     </div>
     <div id="delete-event" class="group">
     <h2>Delete Event</h2>
+    <form name="delete-event-form" id="delete-event-form">
+    <table>
+    <tr>
+    <td><label for="eventlist">Event Name: </label></td>
+    <td><select id="eventnames-delete" form="delete-event-form" name="eventnames-delete">
+    <option value="Loading">Loading...</option>
+    </select></td>
+    </tr>
+    </table>
+    </form>
     </div>
     <div id="duplicate-event" class="group">
     <h2>Duplicate Event</h2>
     </div>
-<?!= HtmlService.createHtmlOutputFromFile('Events_Javascript').getContent(); ?>
+<?!= HtmlService.createHtmlOutputFromFile('side_event_javascript').getContent(); ?>
 </body>
 </html>

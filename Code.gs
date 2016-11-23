@@ -38,19 +38,18 @@ function onOpen(e) {
   SCRIPT_PROP.setProperty("password", "FALSE");
   var menu = SpreadsheetApp.getUi().createAddonMenu();
 //  menu.addItem('Create Triggers', 'createTriggers');
-//  menu.addItem('Event Functions', 'showaddEvent');
-  menu.addItem('Pledge Forms', 'pledge_sidebar');
+//  menu.addItem('Event Functions', 'side_event');
+  menu.addItem('Pledge Forms', 'side_pledge');
   menu.addItem("RESET", 'RESET');
   menu.addItem('Refresh Events', 'refresh_events');
   menu.addItem('Refresh Members', 'refresh_members')
   menu.addItem('SETUP', 'run_install');
   menu.addItem('SYNC', 'sync');
-  menu.addItem('Status Change', 'member_update_sidebar');
-  menu.addItem('Submit Item', 'submitSidebar');
+  menu.addItem('Status Change', 'side_member');
+  menu.addItem('Submit Item', 'side_submit');
 //  menu.addItem("TEST", 'TEST');//test_onEdit
   menu.addItem('Unlock', 'unlock');
-//  menu.addItem('Update Members', 'get_chapter_members');
-  menu.addItem('Update Officers', 'officerSidebar');
+  menu.addItem('Update Officers', 'side_officers');
   menu.addToUi();
 }
 
@@ -100,17 +99,6 @@ function getAllIndexes(arr, val) {
     return indexes;
 }
 
-function officerSidebar() {
-  var template = HtmlService
-      .createTemplateFromFile('Officers');
-  var htmlOutput = template.evaluate()
-      .setSandboxMode(HtmlService.SandboxMode.IFRAME)
-      .setTitle('Update Officers')
-      .setWidth(500);
-  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
-      .showSidebar(htmlOutput);
-}
-
 function get_member_list(status){
 //  var status = "Student";
 //  var status = "Pledge";
@@ -125,57 +113,6 @@ function get_member_list(status){
     }
   }
   return member_list
-}
-
-function pledge_sidebar(){
-  var template = HtmlService
-      .createTemplateFromFile('pledge_select');
-  template.pledge = get_member_list("Pledge");
-  var htmlOutput = template.evaluate()
-      .setSandboxMode(HtmlService.SandboxMode.IFRAME)
-      .setTitle('Update Pledges');
-  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
-      .showSidebar(htmlOutput);
-}
-
-function member_update_sidebar() {
-  var template = HtmlService
-      .createTemplateFromFile('member_select');
-  var htmlOutput = template.evaluate()
-      .setSandboxMode(HtmlService.SandboxMode.IFRAME)
-      .setTitle('Update Members');
-  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
-      .showSidebar(htmlOutput);
-}
-
-function submitSidebar() {
-   var template = HtmlService
-   .createTemplateFromFile('SubmitForm')
-//  .createHtmlOutputFromFile('SubmitForm');
-   var list_info = get_type_list('Submit', true);
-  template.submissions = list_info.type_list;
-  template.descriptions = list_info.type_desc;
-  template.folder_id = get_folder_id();
-  var htmlOutput = template.evaluate()
-      .setSandboxMode(HtmlService.SandboxMode.IFRAME)
-      .setTitle('Submit Item')
-      .setWidth(500);
-//  Logger.log(htmlOutput.getContent());
-  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
-      .showSidebar(htmlOutput);
-//      .showModalDialog(template, "SUBMIT");
-}
-
-function showaddEvent() {
-  Logger.log('Called addEvent');
-  var html = HtmlService.createTemplateFromFile('Events');
-  html.events = get_type_list("Events");
-  var htmlOutput  = html.evaluate()
-    .setSandboxMode(HtmlService.SandboxMode.IFRAME)
-    .setTitle('Event Functions')
-    .setWidth(300);
-  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
-      .showSidebar(htmlOutput);
 }
 
 function format_date(date) {
