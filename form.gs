@@ -1,6 +1,6 @@
 function pledge_update(form) {
   Logger.log(form);
-  var html = HtmlService.createTemplateFromFile('FORM_INIT');
+  var html = HtmlService.createTemplateFromFile('form_init');
   var INIT = []
   var DEPL = []
   if (typeof form["name"] === 'string'){
@@ -36,7 +36,7 @@ function member_update(form) {
 //              "CoOp": ["Adam Schilpero...", "Austin Mutschl...", "Cole Mobberley"]};
   Logger.log(form);
   var MemberObject = main_range_object("Membership");
-  var html = HtmlService.createTemplateFromFile('FORM_STATUS');
+  var html = HtmlService.createTemplateFromFile('form_status');
   var CSMTA = []
   for (var k in form){
     var type = k;
