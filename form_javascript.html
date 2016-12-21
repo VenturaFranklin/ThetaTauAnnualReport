@@ -1,0 +1,27 @@
+<script>
+// Prevent forms from submitting.
+function preventFormSubmit() {
+  var forms = document.querySelectorAll('form');
+  for (var i = 0; i < forms.length; i++) {
+    forms[i].addEventListener('submit',
+      function(event) {
+        event.preventDefault();
+      });
+  }
+}
+window.addEventListener('load', preventFormSubmit);
+
+function submit_ss_id(formObject) {
+  google.script.run.withSuccessHandler(close_dialog)
+  .sheet_id_process(formObject);
+}
+
+function submit_chapter_name(formObject) {
+  google.script.run.withSuccessHandler(close_dialog)
+  .chapter_name_process(formObject);
+}
+
+function close_dialog(url) {
+  google.script.host.close();
+}
+</script>
