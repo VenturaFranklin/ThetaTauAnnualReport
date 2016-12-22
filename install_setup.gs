@@ -52,6 +52,10 @@ function get_chapter_name(){
   return SCRIPT_PROP.getProperty("chapter")
 }
 
+function get_chapter_fee(){
+  return SCRIPT_PROP.getProperty("chapter_fee")
+}
+
 function chapter_name_process(form) {
 //  Logger.log(form);
 //  var form = {'chapterslist': 'Chi Gamma'}
@@ -583,7 +587,7 @@ function update_attendance(new_members, delete_att){
   var header_values = header_range.getValues()[0];
   for (var ind in delete_att){
     var name = delete_att[ind];
-    name = shorten(name, 12, false);
+    name = shorten(name, 15, false);
     var header_values = header_range.getValues()[0];
     var col = header_values.indexOf(name)+1;
     if (col > 2){
