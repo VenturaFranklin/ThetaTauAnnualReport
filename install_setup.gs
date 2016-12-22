@@ -57,7 +57,7 @@ function get_chapter_fee(){
 }
 
 function chapter_name_process(form) {
-//  Logger.log(form);
+  Logger.log(form);
 //  var form = {'chapterslist': 'Chi Gamma'}
   var chapter_name = form.chapterslist;
   SCRIPT_PROP.setProperty("chapter", chapter_name);
@@ -571,11 +571,11 @@ function get_chapter_members(){
     Logger.log(new_values);
     range.setValues([new_values]);
   }
-  update_attendance(new_members, delete_att);
+  setup_attendance(new_members, delete_att);
   progress_update("Finished Get Chapter Members");
 }
 
-function update_attendance(new_members, delete_att){
+function setup_attendance(new_members, delete_att){
 //  var delete_att = ["Jeremy Faber", "Eugene Balaguer", "Jacob Landsiedel"];
   progress_update("Started Updating Attendance Sheet");
   var previous_member = undefined;
