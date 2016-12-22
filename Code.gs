@@ -37,7 +37,7 @@ function get_active_spreadsheet() {
 function onOpen(e) {
   SCRIPT_PROP.setProperty("password", "FALSE");
   var menu = SpreadsheetApp.getUi().createAddonMenu();
-//  menu.addItem('Create Triggers', 'createTriggers');
+  menu.addItem('Create Triggers', 'createTriggers');
 //  menu.addItem('Event Functions', 'side_event');
   menu.addItem('Pledge Forms', 'side_pledge');
   menu.addItem("RESET", 'RESET');
@@ -116,6 +116,7 @@ function get_member_list(status){
 }
 
 function format_date(date) {
+  //"YYYY-MM-DD" to DD/MM/YYYY 
   try{
     var raw = date.split("-");
     return raw[1] + "/" + raw[2] + "/" + raw[0]
@@ -344,7 +345,7 @@ function _onEdit(e){
      'Please do not edit the Submissions Sheet\n'+
      'Please use the submissions sidebar',
       ui.ButtonSet.OK);
-    submitSidebar();
+    side_submit();
   } else if (sheet_name == "Dashboard") {
     reset_range(user_range, user_old_value)
     if (this_password == password){
@@ -371,6 +372,9 @@ function _onEdit(e){
         'Member information is changed by notifying the central office',
         ui.ButtonSet.OK);
     }
+  } else if (sheet_name == "Chapter") {
+    Logger.log("CHAPTER CHANGED");
+    update_score_member_pledge()
   }
   } catch (error) {
     Logger.log(error);
