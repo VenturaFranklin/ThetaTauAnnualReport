@@ -10,7 +10,6 @@ function run_install(e){
 }
 
 function onInstall(e) {
-  start_logging()
   onOpen(e);
   setup();
 }
@@ -62,6 +61,7 @@ function chapter_name_process(form) {
 //  var form = {'chapterslist': 'Chi Gamma'}
   var chapter_name = form.chapterslist;
   SCRIPT_PROP.setProperty("chapter", chapter_name);
+  Logger = start_logging();
   progress_update("Chapter Name set: " + chapter_name);
   var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
   var ss_prop = SpreadsheetApp.openById(properties_id);
@@ -609,7 +609,7 @@ function setup_attendance(new_members, delete_att){
   var format_range = ss.getRangeByName("FORMAT");
   var max_column = sheet.getLastColumn();
   var max_row = sheet.getLastRow();
-  format_range.copyFormatToRange(sheet, 3, max_column, 2, max_row);
+  format_range.copyFormatToRange(sheet, 3, max_column, 2, 100);
   sheet.getRange(3, 2, max_row, max_column).clearDataValidations();
   sheet.setRowHeight(1, 100);
 }
@@ -628,7 +628,7 @@ function align_attendance_members(previous_member, new_member, sheet){
     previous_member = shorten(previous_member, 12, false);
     for (var i in header_values){
       var header_name = header_values[i];
-      if (header_name == "Event Name" || header_name == "Event Date"){
+      if (header_name == "Event Name" || header_name == "Date"){
         continue;
       }
       var new_string = att_name(header_name);

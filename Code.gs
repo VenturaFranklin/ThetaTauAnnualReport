@@ -32,17 +32,18 @@ function start_logging() {
   newDateObj.setTime(newDateObj.getTime() + (30 * 60 * 1000));
   SCRIPT_PROP.setProperty("logger_stop", newDateObj);
   SCRIPT_PROP.setProperty("logger", true);
-  startBetterLog();
+  return startBetterLog();
 }
 
 function startBetterLog() {
   if (!betterLogStarted) {
-    Logger.log("Starting Better Logger");
+    var chapter_name = get_chapter_name();
+    Logger.log("Starting Better Logger for chapter: " + chapter_name);
     Logger = BetterLog.useSpreadsheet('1mo5t1Uu7zmP9t7w2hL1mWrdba4CtgD_Q9ImbAKjGZyM',
-                                      get_chapter_name());
+                                      chapter_name);
     betterLogStarted = true;
   }
-  
+  return Logger;
 }
 
 function clientLog() {
@@ -189,8 +190,8 @@ function cleanArray(actual, short_length) {
   var newArray = new Array();
   for (var i = 0; i < actual.length; i++) {
     if (actual[i]) {
-      var newactual = actual[i].toString()
-      newactual = shorten(newactual, short_length)
+      var newactual = actual[i].toString();
+      newactual = shorten(newactual, short_length);
       newArray.push(newactual);
     }
   }
@@ -442,11 +443,41 @@ function att_name(name){
 //  return new_string
 }
 
+function att_event_exists(sheet_name, myObject) {
+  Logger.log("(" + arguments.callee.name + ") " + sheet_name);
+  Logger.log(myObject);
+  if (sheet_name == "Attendance") {
+    var check_1 = 'Event Name';
+    var check_2 = 'Date';
+  } else {
+    var check_1 = '# Members';
+    var check_2 = '# Pledges';
+  }
+  var name_check = myObject["Event Name"][0];
+  var date_check = myObject["Date"][0];
+  var Object = main_range_object(sheet_name);
+  for (var i = 0; i < Object.object_count; i++){
+    var event_name = Object.object_header[i];
+    var event_date = Object[event_name]["Date"][0];
+    Logger.log("(" + arguments.callee.name + ") " +[event_name+event_date, name_check+date_check]);
+    if (event_name+event_date == name_check+date_check){
+      var active_col = Object[event_name][check_1][1];
+      var pledge_col = Object[event_name][check_2][1];
+      var event_row = Object[event_name].object_row;
+      break;
+    }
+  }
+  return {active_col: active_col,
+          pledge_col: pledge_col,
+          event_row: event_row
+         }
+}
+
 function update_attendance(attendance){
   var MemberObject = main_range_object("Membership");
 //  Logger.log("(" + arguments.callee.name + ") " +attendance);
   var event_name_att = attendance["Event Name"][0];
-  var event_date_att = attendance["Event Date"][0];
+  var event_date_att = attendance["Date"][0];
   Logger.log("(" + arguments.callee.name + ") " +event_name_att);
   if (event_name_att == ""){
     return;
@@ -466,29 +497,16 @@ function update_attendance(attendance){
     counts[member_status][event_status] = counts[member_status][event_status] ? counts[member_status][event_status] + 1 : 1;
   }
   Logger.log("(" + arguments.callee.name + ") " +counts)
+  var event_info = att_event_exists("Events", attendance)
+  Logger.log("(" + arguments.callee.name + ") " +"ROW: " + event_info.event_row +
+             " Active: " + event_info.active_col + " Pledge: " + event_info.pledge_col)
+  if (typeof event_info.event_row == 'undefined'){
+    Logger.log("(" + arguments.callee.name + ") Event may have been deleted?");
+    return}; // This might mean that the event has been deleted
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Events");
-  var EventObject = main_range_object("Events");
-  for (var i = 0; i < EventObject.object_count; i++){
-    var event_name = EventObject.object_header[i];
-    var event_date = EventObject[event_name]["Date"][0];
-    Logger.log("(" + arguments.callee.name + ") " +[event_name+event_date, event_name_att+event_date_att]);
-    if (event_name+event_date == event_name_att+event_date_att){
-      var active_col = EventObject[event_name]['# Members'][1];
-      var pledge_col = EventObject[event_name]['# Pledges'][1];
-      var event_row = EventObject[event_name].object_row;
-      break;
-    }
-  }
-//  var max_column = sheet.getLastColumn();
-//  var event_headers = sheet.getRange(1, 1, 1, max_column);
-//  var header_values = event_headers.getValues()
-//  var active_col = get_ind_from_string("# Members", header_values)
-//  var pledge_col = get_ind_from_string("# Pledges", header_values)
-//  var event_row = attendance.object_row;
-  Logger.log("(" + arguments.callee.name + ") " +"ROW: " + event_row + " Active: " + active_col + " Pledge: " + pledge_col)
-  var active_range = sheet.getRange(event_row, active_col)
-  var pledge_range = sheet.getRange(event_row, pledge_col)
+  var active_range = sheet.getRange(event_info.event_row, event_info.active_col)
+  var pledge_range = sheet.getRange(event_info.event_row, event_info.pledge_col)
   var num_actives = counts["Student"]["P"] ? counts["Student"]["P"]:0;
   var num_pledges = counts["Pledge"]["P"] ? counts["Pledge"]["P"]:0;
   active_range.setValue(num_actives)
@@ -629,7 +647,7 @@ function main_range_object(sheetName, short_header, ss){
       break;
     case "Attendance":
       var short_header = "Event Name";
-      var sort_val = "Event Date";
+      var sort_val = "Date";
       break;
     case "Submissions":
       var short_header = "File Name";
@@ -758,7 +776,7 @@ function get_sheet_data(SheetName) {
   var header_range = sheet.getRange(1, 1, 1, max_column);
   var header_values = header_range.getValues();
   //    Logger.log("(" + arguments.callee.name + ") " +header_values);
-  var date_index = header_values[0].indexOf("Event Date");
+  var date_index = header_values[0].indexOf("Date");
   Logger.log("(" + arguments.callee.name + ") " +"date index: " + date_index);
   var name_index =header_values[0].indexOf("Event Name");
   Logger.log("(" + arguments.callee.name + ") " +"name index: " + name_index);

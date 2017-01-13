@@ -164,7 +164,7 @@ function calc_top_average(main_object){
   for (var chapter_count in main_object.object_header){
     var chapter = main_object.object_header[chapter_count];
     var Total = main_object[chapter]["Total"][0];
-    Logger.log("(" + arguments.callee.name + ") " +Total);
+//    Logger.log("(" + arguments.callee.name + ") " +Total);
     for (var attr in nat_avgs){
       var attr_val = main_object[chapter][attr][0];
       if (attr_val ==""){continue;};

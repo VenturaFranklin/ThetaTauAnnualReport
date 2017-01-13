@@ -1,35 +1,64 @@
-<!-- Load the jQuery and jQuery UI libraries. -->
-<script src="https://code.jquery.com/jquery-1.8.3.min.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-<script src="https://code.jquery.com/ui/1.10.0/jquery-ui.min.js"></script>
-
-<!-- Custom client-side JavaScript code. -->
-<script>
-//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js
-  // When the page loads.
-$(function () {
-  $('.group').hide();
-  $('#add-event').show();
-  $('#EventMethods').change(function () {
-      $('.group').hide();
-      $('#'+$(this).val()).show();
-      if ((this).val() == "edit-event-form"){
-          Loadeventlist();
-      }
-  })
-});
-
-$(function Loadeventlist() {
-        google.script.run.withSuccessHandler(buildOptionList)
-            .get_event_list();
-    });
-
-function buildOptionList(events) {
-    var list = $('#eventnames');
-    list.empty();
-    for (var i = 0; i < events.length; i++) {
-        var option = $('<option></option>').attr("value", events[i]).text(events[i]);
-        list.append(option);
-    }
-}
-</script>
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <label for="EventMethods">Select an Event Task: </label>
+    <select id="EventMethods">
+      <option value="add-event">Add</option>
+      <option value="delete-event">Delete</option>
+      <option value="duplicate-event">Duplicate</option>
+      <option value="edit-event">Edit</option>
+    </select>
+    <div id="add-event" class="group" >
+    <h2>Add Event</h2>
+    <form name="add-event-form" id="add-event-form">
+      <label for="eventlist">Event Type: </label>
+      <select name="events" id="eventlist" form="add-event-form">
+          <? for (var i = 0; i < events.length; i++) { ?>
+            <? var option = events[i] ?>
+              <option value="<?= option ?>"><?= option ?></option>
+          <? } ?>
+      </select>
+      <br>
+      <label for="event-title">Event Name: </label>
+      <input type="text" name="event-title" id="event-title" />
+      <label for="date">Date: </label>
+      <input type="date" name="date" />
+      <br>
+      <input type="submit" name="add" id="add-button" value="Add" />
+    </form>
+    </div>
+    <div id="edit-event" class="group">
+    <h2>Edit Event</h2>
+    <form name="edit-event-form" id="edit-event-form">
+    <table>
+    <tr>
+    <td><label for="eventlist">Event Name: </label></td>
+    <td><select id="eventnames-edit" form="edit-event-form" name="eventnames-edit">
+    <option value="Loading">Loading...</option>
+    </select></td>
+    </tr>
+    </table>
+    </form>
+    </div>
+    <div id="delete-event" class="group">
+    <h2>Delete Event</h2>
+    <form name="delete-event-form" id="delete-event-form">
+    <table>
+    <tr>
+    <td><label for="eventlist">Event Name: </label></td>
+    <td><select id="eventnames-delete" form="delete-event-form" name="eventnames-delete">
+    <option value="Loading">Loading...</option>
+    </select></td>
+    </tr>
+    </table>
+    </form>
+    </div>
+    <div id="duplicate-event" class="group">
+    <h2>Duplicate Event</h2>
+    </div>
+<?!= HtmlService.createHtmlOutputFromFile('side_event_javascript').getContent(); ?>
+</body>
+</html>

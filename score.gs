@@ -1,15 +1,25 @@
 function update_scores_event(user_row){
-//  var user_row = 2;
+//  var user_row = 3;
+  Logger.log("(" + arguments.callee.name + ")");
   var myObject = range_object("Events", user_row);
+  var att_obj = true;
+  
+  var att_info = att_event_exists("Attendance", myObject)
+  // This might mean that the attendance event has been deleted
+  if (typeof att_info.event_row == 'undefined'){
+    att_obj = false};
+  
   if (myObject.Type[0] == "" || myObject.Date[0] == "" ||
       myObject["Event Name"][0] == ""){
     return;
-  } else if (typeof myObject["# Members"][0] != typeof 2){
+  } else if (typeof myObject["# Members"][0] != typeof 2 || !att_obj){
     attendance_add_event(myObject["Event Name"][0], myObject.Date[0]);
+    myObject = range_object("Events", user_row);
   }
   if (!event_fields_set(myObject)){
     return;
   }
+  // update_attendance?
   var score_data = get_score_event(myObject);
   var other_type_rows = update_score(user_row, "Events", score_data, myObject);
   Logger.log("(" + arguments.callee.name + ") " +"OTHER ROWS" + other_type_rows);
