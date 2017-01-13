@@ -12,7 +12,7 @@ function update_scores_event(user_row){
   }
   var score_data = get_score_event(myObject);
   var other_type_rows = update_score(user_row, "Events", score_data, myObject);
-  Logger.log("OTHER ROWS" + other_type_rows);
+  Logger.log("(" + arguments.callee.name + ") " +"OTHER ROWS" + other_type_rows);
   for (i in other_type_rows){
     if (parseInt(other_type_rows[i])!=parseInt(user_row)){
       var myObject = range_object("Events", other_type_rows[i]);
@@ -52,12 +52,12 @@ function update_service_hours(){
           score_obj[member_name][semester] = score_obj[member_name][semester] ?
             score_obj[member_name][semester]+event_hours:event_hours;
         }
-//        Logger.log(score_obj);
+//        Logger.log("(" + arguments.callee.name + ") " +score_obj);
       }
     }
   }
   for (var member_name in score_obj){
-//    Logger.log(member_name);
+//    Logger.log("(" + arguments.callee.name + ") " +member_name);
     var member_obj = MemberObject[member_name];
     var member_row = member_obj.object_row;
     var fall_col = member_obj["Service Hours Fall"][1];
@@ -68,7 +68,7 @@ function update_service_hours(){
     member_fall_range.setValue(fall_score);
     var spring_score = score_obj[member_name]["SPRING"] ? score_obj[member_name]["SPRING"]:0;
     member_spring_range.setValue(spring_score);
-    Logger.log("FALL: "+fall_col+" SPRING: "+spring_col+" ROW: "+member_row);
+    Logger.log("(" + arguments.callee.name + ") " +"FALL: "+fall_col+" SPRING: "+spring_col+" ROW: "+member_row);
   }
   update_scores_org_gpa_serv();
 }
@@ -101,7 +101,7 @@ function update_score_att(){
   }
   var fall_avg = date_types["FALL"]/counts["FALL"];
   var spring_avg = date_types["SPRING"]/counts["SPRING"];
-  Logger.log("FALL ATT: " + fall_avg + " SPRING ATT: " + spring_avg);
+  Logger.log("(" + arguments.callee.name + ") " +"FALL ATT: " + fall_avg + " SPRING ATT: " + spring_avg);
   var score_method_raw = ScoringObject["Meetings"]["Special"][0];
   var score_max = ScoringObject["Meetings"]["Max/ Semester"][0];
   var score_method_fa = score_method_raw.replace("MEETINGS", fall_avg);
@@ -211,11 +211,11 @@ function update_scores_org_gpa_serv(){
   var service_max = ScoringObject["Service Hours"]["Max/ Semester"][0];
   var service_fall_score = eval_score(service_fall_method, service_max);
   var service_spring_score = eval_score(service_spring_method, service_max);
-  Logger.log("SOC: " + societies_method + ", SCORE: " + socieities_score);
-  Logger.log("GPA_FALL: " + gpa_fall_method + ", SCORE: " + gpa_fall_score);
-  Logger.log("GPA_SPRING: " + gpa_spring_method + ", SCORE: " + gpa_spring_score);
-  Logger.log("SERV_FALL: " + service_fall_method + ", SCORE: " + service_fall_score);
-  Logger.log("SERV_SPRING: " + service_spring_method + ", SCORE: " + service_spring_score);
+  Logger.log("(" + arguments.callee.name + ") " +"SOC: " + societies_method + ", SCORE: " + socieities_score);
+  Logger.log("(" + arguments.callee.name + ") " +"GPA_FALL: " + gpa_fall_method + ", SCORE: " + gpa_fall_score);
+  Logger.log("(" + arguments.callee.name + ") " +"GPA_SPRING: " + gpa_spring_method + ", SCORE: " + gpa_spring_score);
+  Logger.log("(" + arguments.callee.name + ") " +"SERV_FALL: " + service_fall_method + ", SCORE: " + service_fall_score);
+  Logger.log("(" + arguments.callee.name + ") " +"SERV_SPRING: " + service_spring_method + ", SCORE: " + service_spring_score);
   societies_range.setValue(socieities_score);
   gpa_fall_range.setValue(gpa_fall_score);
   gpa_spring_range.setValue(gpa_spring_score);
@@ -264,7 +264,7 @@ function get_scores_org_gpa_serv(){
       officer_counts[officers[j]] = officer_counts[officers[j]] ? officer_counts[officers[j]]:0;
       officer_counts[officers[j]] = officer.toUpperCase()=="YES" ? officer_counts[officers[j]]+1:officer_counts[officers[j]];
       officer_true = officer.toUpperCase()=="YES" ? true:officer_true;
-      Logger.log("GPA: " + gpa + " ORG: " + org + " OFFICER: " + officer);
+      Logger.log("(" + arguments.callee.name + ") " +"GPA: " + gpa + " ORG: " + org_true + " OFFICER: " + officer);
     }
     var service_hours_fa = MemberObject[member_name]["Service Hours Fall"][0];
     var service_hours_sp = MemberObject[member_name]["Service Hours Spring"][0];
@@ -293,17 +293,17 @@ function get_scores_org_gpa_serv(){
 
 function update_scores_submit(user_row){
 //  var user_row = 2;
-  Logger.log("ROW: " + user_row);
+  Logger.log("(" + arguments.callee.name + ") " +"ROW: " + user_row);
   var myObject = range_object("Submissions", parseInt(user_row));
   var score_data = get_score_submit(myObject);
   var other_type_rows = update_score(user_row, "Submissions", score_data, myObject);
-  Logger.log(other_type_rows);
+  Logger.log("(" + arguments.callee.name + ") " +other_type_rows);
 }
 
 function update_score(row, sheetName, score_data, myObject){
 //  var row = 4
 //  var shetName = "Events";
-  Logger.log("SHEET: " + sheetName + " ROW: " + row)
+  Logger.log("(" + arguments.callee.name + ") " +"SHEET: " + sheetName + " ROW: " + row)
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName(sheetName);
   var score_ind = myObject["Score"][1];
@@ -311,9 +311,9 @@ function update_score(row, sheetName, score_data, myObject){
   var object_type = myObject["Type"][0];
   var score_range = sheet.getRange(row, score_ind);
   score_range.setValue(0); // To protect the current score from affecting max
-  Logger.log("Date: " + object_date + " Type:" + object_type)
+  Logger.log("(" + arguments.callee.name + ") " +"Date: " + object_date + " Type:" + object_type)
   var total_scores = get_current_scores(sheetName);
-  Logger.log(total_scores)
+  Logger.log("(" + arguments.callee.name + ") " +total_scores)
   var month = object_date.getMonth();
   var semester = "FALL";
   if (month<5){
@@ -322,7 +322,7 @@ function update_score(row, sheetName, score_data, myObject){
   score_data.semester = semester;
   var type_score = total_scores[semester][object_type][0];
   var other_type_rows = total_scores[semester][object_type][1];
-  Logger.log("Type Score: " + type_score);
+  Logger.log("(" + arguments.callee.name + ") " +"Type Score: " + type_score);
   score_range.setNote(score_data.score_method_note);
   var score = score_data.score;
   if (score === null){
@@ -332,12 +332,12 @@ function update_score(row, sheetName, score_data, myObject){
     score_range.setBackground("dark gray 1");
   }
   var total = parseFloat(type_score) + parseFloat(score);
-  Logger.log(total)
+  Logger.log("(" + arguments.callee.name + ") " +total)
   if (total > parseFloat(score_data.score_max_semester)){
     score = score_data.score_max_semester - type_score;
     score = score > 0 ? score:0;
   }
-  Logger.log("FINAL SCORE: " + score);
+  Logger.log("(" + arguments.callee.name + ") " +"FINAL SCORE: " + score);
   score_data.final_score = score;
   score_data.type_score = type_score;
   update_main_score(score_data);
@@ -346,7 +346,7 @@ function update_score(row, sheetName, score_data, myObject){
 }
 
 function update_main_score(score_data){
-  Logger.log(score_data);
+  Logger.log("(" + arguments.callee.name + ") " +score_data);
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Scoring");
   var score_row = score_data.score_ids.score_row
@@ -364,7 +364,7 @@ function update_main_score(score_data){
 }
 
 function update_dash_score(score_type, score_column){
-  Logger.log(score_type);
+  Logger.log("(" + arguments.callee.name + ") " +score_type);
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Scoring");
   if (score_type != undefined){
@@ -383,7 +383,7 @@ function update_dash_score(score_type, score_column){
     var row_total = sheet.getRange(row, score_column).getValue();
     total = +total + row_total;
   }
-  Logger.log(type_inds);
+  Logger.log("(" + arguments.callee.name + ") " +type_inds);
   var sheet = ss.getSheetByName("Dashboard");
   var RangeName = "SCORE" + "_" + score_type.toUpperCase();
   var dash_score_range = ss.getRangeByName(RangeName);
@@ -430,7 +430,7 @@ function get_current_scores(sheetName){
 function get_score_event(myEvent){
   var event_type = myEvent["Type"][0]
   var score_data = get_score_method(event_type);
-  Logger.log(score_data);
+  Logger.log("(" + arguments.callee.name + ") " +score_data);
   var score_method_edit = edit_score_method_event(myEvent, score_data.score_method);
   var score = null
   if (score_method_edit !== null){
@@ -438,7 +438,7 @@ function get_score_event(myEvent){
     score = score.toFixed(1);
   }
   score_data.score = score;
-  Logger.log("SCORE RAW: " + score);
+  Logger.log("(" + arguments.callee.name + ") " +"SCORE RAW: " + score);
   return score_data
 }
 
@@ -494,7 +494,7 @@ function edit_score_method_event(myEvent, score_method){
     update_service_hours();
     return null;
           }
-  Logger.log("Score Method Raw: " + score_method)
+  Logger.log("(" + arguments.callee.name + ") " +"Score Method Raw: " + score_method)
   return score_method
 }
 

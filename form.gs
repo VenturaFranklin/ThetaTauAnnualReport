@@ -1,5 +1,5 @@
 function pledge_update(form) {
-  Logger.log(form);
+  Logger.log("(" + arguments.callee.name + ") " +form);
   var html = HtmlService.createTemplateFromFile('form_init');
   var INIT = []
   var DEPL = []
@@ -23,7 +23,7 @@ function pledge_update(form) {
     .setSandboxMode(HtmlService.SandboxMode.IFRAME)
     .setWidth(700)
     .setHeight(400);
-  Logger.log(htmlOutput.getContent());
+  Logger.log("(" + arguments.callee.name + ") " +htmlOutput.getContent());
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
   .showModalDialog(htmlOutput, 'PLEDGE FORM');
 }
@@ -34,7 +34,7 @@ function member_update(form) {
 //              "Abroad": "Adam Schilpero...", "Transfer": "Adam Schilpero...",
 //              "PreAlumn": ["Derek Hogue", "Esgar Moreno"], "Military": "Adam Schilpero...",
 //              "CoOp": ["Adam Schilpero...", "Austin Mutschl...", "Cole Mobberley"]};
-  Logger.log(form);
+  Logger.log("(" + arguments.callee.name + ") " +form);
   var MemberObject = main_range_object("Membership");
   var html = HtmlService.createTemplateFromFile('form_status');
   var CSMTA = []
@@ -43,12 +43,12 @@ function member_update(form) {
     if (type == "update_type" || type == "memberlist"){
       continue;
     }
-    Logger.log(k);
+    Logger.log("(" + arguments.callee.name + ") " +k);
     var select_members = form[k];
     if (typeof select_members === 'string'){
       select_members = [select_members];
     }
-    Logger.log(select_members);
+    Logger.log("(" + arguments.callee.name + ") " +select_members);
     var members = [];
     for (var i = 0; i < MemberObject.object_count; i++) {
       var member_name = MemberObject.object_header[i];
@@ -76,7 +76,7 @@ function member_update(form) {
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setWidth(700)
       .setHeight(400);
-    Logger.log(htmlOutput.getContent());
+    Logger.log("(" + arguments.callee.name + ") " +htmlOutput.getContent());
     SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showModalDialog(htmlOutput, 'STATUS FORM');
 }
@@ -100,8 +100,8 @@ function save_form(csvFile, form_type){
                    date.getTime().toString()+
                    ".csv";
     var file = folder.createFile(fileName, csvFile);
-    Logger.log("fileBlob Name: " + file.getName())
-    Logger.log('fileBlob: ' + file);
+    Logger.log("(" + arguments.callee.name + ") " +"fileBlob Name: " + file.getName())
+    Logger.log("(" + arguments.callee.name + ") " +'fileBlob: ' + file);
     
     var template = HtmlService.createTemplateFromFile('response');
     var submission = {};
@@ -120,7 +120,7 @@ function save_form(csvFile, form_type){
     sendemail_submission(submission_type, submission);
     return template.evaluate().getContent();
   } catch (error) {
-    Logger.log(error);
+    Logger.log("(" + arguments.callee.name + ") " +error);
     return error.toString();
   }
 }
@@ -135,7 +135,7 @@ function process_oer(form) {
 //              "Social/Brotherhood Chair": "N/A", "officer_start": "2016-08-01", 
 //              "Scholarship Chair": "N/A", "Vice Regent": "David Montgome...", "PD Chair": "N/A", 
 //              "Regent": "Adam Schilpero...", "Project Chair": "N/A"};
-  Logger.log(form);
+  Logger.log("(" + arguments.callee.name + ") " +form);
   var MemberObject = main_range_object("Membership");
   var arr = [form.officer_start, form.officer_end, form.TCS_start, form.TCS_end];
   if (arr.indexOf("") > -1){
@@ -181,15 +181,15 @@ function process_oer(form) {
     var row = ["N/A", formatted, chapterName, key, start, end, member_object["Badge Number"][0],
               member_object["First Name"][0], member_object["Last Name"][0],
               member_object["Phone Number"][0], member_object["Email Address"][0], ""];
-    Logger.log(row);
+    Logger.log("(" + arguments.callee.name + ") " +row);
     data.push(row);
     dash[key] = [chapterName, key, member_object["Member Name"][0],
                  member_object["Phone Number"][0], member_object["Email Address"][0],
                  start, end, date];
   }
-  Logger.log(data);
+  Logger.log("(" + arguments.callee.name + ") " +data);
   var csvFile = create_csv(data);
-  Logger.log(csvFile);
+  Logger.log("(" + arguments.callee.name + ") " +csvFile);
   sync_officers(dash);
   return save_form(csvFile, "OER");
 }
@@ -210,7 +210,7 @@ function process_init(form) {
 //                            "2016-08-01", "2016-08-01", "2016-08-01"],
 //              "testA": ["1", "2", "3", "4", "5", "6", "7"],
 //              "date_depl": ["2015-08-01", "2016-08-02", "2016-08-03"]}
-  Logger.log(form);
+  Logger.log("(" + arguments.callee.name + ") " +form);
 //  return;
   var MemberObject = main_range_object("Membership");
   var INIT = [header_INIT()];
@@ -239,7 +239,7 @@ function process_init(form) {
       form[obj] = [form[obj]];
     }
   }
-  Logger.log(form);
+  Logger.log("(" + arguments.callee.name + ") " +form);
   if (form["name_init"] !== undefined){
     for (var i = 0; i < form["name_init"].length; i++){
       var name = form["name_init"][i];
@@ -285,18 +285,18 @@ function process_init(form) {
       DEPL.push(["N/A", formatted, chapterName, first, last, reason, date_depl]);
     }
   }
-  Logger.log("INIT");
-  Logger.log(INIT);
+  Logger.log("(" + arguments.callee.name + ") " +"INIT");
+  Logger.log("(" + arguments.callee.name + ") " +INIT);
   var csvFile = create_csv(INIT);
-  Logger.log(csvFile);
+  Logger.log("(" + arguments.callee.name + ") " +csvFile);
   var init_out = "";
   if (INIT.length > 1){
     init_out = save_form(csvFile, "INIT");
   }
-  Logger.log("DEPL");
-  Logger.log(DEPL);
+  Logger.log("(" + arguments.callee.name + ") " +"DEPL");
+  Logger.log("(" + arguments.callee.name + ") " +DEPL);
   var csvFile = create_csv(DEPL);
-  Logger.log(csvFile);
+  Logger.log("(" + arguments.callee.name + ") " +csvFile);
   var depl_out = ""
   if (DEPL.length > 1){
     depl_out = save_form(csvFile, "DEPL");
@@ -322,7 +322,7 @@ function process_grad(form) {
 //              "type": ["Degree received", "Degree received", "Degree received", "Abroad",
 //                       "Transfer", "PreAlumn", "PreAlumn", "Military", "CoOp", "CoOp", "CoOp"],
 //              "email": ["ColeMobberley@email.com", "AustinMutschler@email.com", "AdamSchilperoort@email.com"]}
-  Logger.log(form);
+  Logger.log("(" + arguments.callee.name + ") " +form);
 //  return;
   var MemberObject = main_range_object("Membership");
   var MSCR = [header_MSCR()];
@@ -343,7 +343,7 @@ function process_grad(form) {
   }
   for (var i = 0; i < form["type"].length; i++){
     var type = form["type"][i];
-    Logger.log(type);
+    Logger.log("(" + arguments.callee.name + ") " +type);
     var name = form["name"][i];
     var member_object = find_member_shortname(MemberObject, name);
     var badge = member_object["Badge Number"][0];
@@ -431,18 +431,18 @@ function process_grad(form) {
         break;
     }
   }
-  Logger.log("COOP");
-  Logger.log(COOP);
+  Logger.log("(" + arguments.callee.name + ") " +"COOP");
+  Logger.log("(" + arguments.callee.name + ") " +COOP);
   var csvFile = create_csv(COOP);
-  Logger.log(csvFile);
+  Logger.log("(" + arguments.callee.name + ") " +csvFile);
   var coop_out = "";
   if (COOP.length > 1){
     coop_out = save_form(csvFile, "COOP");
   }
-  Logger.log("MSCR");
-  Logger.log(MSCR);
+  Logger.log("(" + arguments.callee.name + ") " +"MSCR");
+  Logger.log("(" + arguments.callee.name + ") " +MSCR);
   var csvFile = create_csv(MSCR);
-  Logger.log(csvFile);
+  Logger.log("(" + arguments.callee.name + ") " +csvFile);
   var mscr_out = ""
   if (MSCR.length > 1){
     mscr_out = save_form(csvFile, "MSCR");
@@ -508,14 +508,14 @@ function create_csv(data){
     return csvFile;
   }
   catch(err) {
-    Logger.log(err);
+    Logger.log("(" + arguments.callee.name + ") " +err);
     Browser.msgBox(err);
   }
 }
 
 
 function uploadFiles(form) {
-  Logger.log(form);
+  Logger.log("(" + arguments.callee.name + ") " +form);
   try {
 //    var folder_name = "Student Files";
     var folder = DriveApp.getFolderById('0BwvK5gYQ6D4nWVhUVlo4dUhYV0E');
@@ -527,9 +527,9 @@ function uploadFiles(form) {
 //      folder = DriveApp.createFolder(folder_name);
 //    }
     var blob = form.myFile;
-    Logger.log("fileBlob Name: " + blob.getName())
-    Logger.log("fileBlob type: " + blob.getContentType())
-    Logger.log('fileBlob: ' + blob);
+    Logger.log("(" + arguments.callee.name + ") " +"fileBlob Name: " + blob.getName())
+    Logger.log("(" + arguments.callee.name + ") " +"fileBlob type: " + blob.getContentType())
+    Logger.log("(" + arguments.callee.name + ") " +'fileBlob: ' + blob);
     var file = folder.createFile(blob);    
 //    file.setDescription("Uploaded by " + form.myName);
     var template = HtmlService.createTemplateFromFile('response');
@@ -547,7 +547,7 @@ function uploadFiles(form) {
     return template.evaluate().getContent();
   } catch (error) {
     var this_error = error.toString();
-    Logger.log(this_error);
+    Logger.log("(" + arguments.callee.name + ") " +this_error);
     return this_error;
   }
 }
@@ -566,7 +566,7 @@ function post_submit(file_object, submission_type) {
   submit_range.setValues([[submission_date, file_name, submission_type, 0, file_url]])
   update_scores_submit(max_row + 1);
   var output = template.evaluate().getContent();
-  Logger.log(output);
+  Logger.log("(" + arguments.callee.name + ") " +output);
   sendemail_submission(submission_type, file_object)
   return output;
 }
@@ -587,7 +587,7 @@ function sendemail_submission(submission_type, submission) {
   var file_url = submission.alternateLink;
   var file_name = submission.title;
   var folder_url = DriveApp.getFolderById(folder_id).getUrl();
-  Logger.log([email_director, email_chapter, chapter, subject, file_id,
+  Logger.log("(" + arguments.callee.name + ") " +[email_director, email_chapter, chapter, subject, file_id,
              file_url, file_name, folder_id, folder_url]);
 
   var emailBody = "Chapter Submission: "+chapter+

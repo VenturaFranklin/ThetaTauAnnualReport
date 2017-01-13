@@ -42,14 +42,14 @@ function side_submit() {
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setTitle('Submit Item')
       .setWidth(500);
-//  Logger.log(htmlOutput.getContent());
+//  Logger.log("(" + arguments.callee.name + ") " +htmlOutput.getContent());
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showSidebar(htmlOutput);
 //      .showModalDialog(template, "SUBMIT");
 }
 
 function side_event() {
-  Logger.log('Called addEvent');
+  Logger.log("(" + arguments.callee.name + ") " +'Called addEvent');
   var html = HtmlService.createTemplateFromFile('side_event');
   html.events = get_type_list("Events");
   var htmlOutput  = html.evaluate()

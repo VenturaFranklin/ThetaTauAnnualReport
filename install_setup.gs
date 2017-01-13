@@ -10,6 +10,7 @@ function run_install(e){
 }
 
 function onInstall(e) {
+  start_logging()
   onOpen(e);
   setup();
 }
@@ -35,7 +36,7 @@ function createTriggers() {
     .onEdit()
     .create();
   } catch (error) {
-    Logger.log(error);
+    Logger.log("(" + arguments.callee.name + ") " +error);
   } 
   try {
     progress_update("Creating Sync Trigger");
@@ -44,7 +45,7 @@ function createTriggers() {
     .onWeekDay(ScriptApp.WeekDay.TUESDAY)
     .create();
   } catch (error) {
-    Logger.log(error);
+    Logger.log("(" + arguments.callee.name + ") " +error);
   }
 }
 
@@ -57,7 +58,7 @@ function get_chapter_fee(){
 }
 
 function chapter_name_process(form) {
-  Logger.log(form);
+  Logger.log("(" + arguments.callee.name + ") " +form);
 //  var form = {'chapterslist': 'Chi Gamma'}
   var chapter_name = form.chapterslist;
   SCRIPT_PROP.setProperty("chapter", chapter_name);
@@ -70,7 +71,7 @@ function chapter_name_process(form) {
   var doc_name = default_doc.getName();
   doc_name = doc_name.replace("DEFAULT ", "");
   doc_name = doc_name.replace("- Chapter", "- "+chapter_name);
-  Logger.log(doc_name);
+  Logger.log("(" + arguments.callee.name + ") " +doc_name);
   ss.rename(doc_name);
   var sheet = ss.getSheetByName("Chapter");
   var range = sheet.getRange(2, 2);
@@ -79,7 +80,7 @@ function chapter_name_process(form) {
   var chapter_object = main_range_object("MAIN", "Organization Name", ss_prop);
   var chapter_info = chapter_object[chapter_name];
   progress_update("Chapter Information: " + chapter_info.toString());
-  Logger.log(chapter_info);
+  Logger.log("(" + arguments.callee.name + ") " +chapter_info);
   var region = chapter_info["Region Description"][0];
   range = sheet.getRange(2, 3);
   range.setValue(region);
@@ -153,7 +154,7 @@ function create_submit_folder(chapter_name, region) {
   while (files.hasNext()) {
     var file = files.next();
     var file_name = file.getName();
-    Logger.log(file_name);
+    Logger.log("(" + arguments.callee.name + ") " +file_name);
     if (file_name.indexOf('Dashboard') > -1){
       file_dash = file;
       progress_update("Found Region Dashboard");
@@ -268,10 +269,10 @@ function setup_sheets() {
     var range = named_range.getRange();
     var sheet = range.getSheet().getSheetName();
     var old_range = range.getA1Notation();
-    Logger.log(old_range);
+    Logger.log("(" + arguments.callee.name + ") " +old_range);
     var new_sheet = target_doc.getSheetByName(sheet);
     var new_range = new_sheet.getRange(old_range);
-    Logger.log(name);
+    Logger.log("(" + arguments.callee.name + ") " +name);
     target_doc.setNamedRange(name, new_range);
   }
   progress_update("Sheets and Ranges Setup");
@@ -408,7 +409,7 @@ function get_chapter_members(){
   while (files.hasNext()) {
     var file = files.next();
     var file_name = file.getName();
-    Logger.log(file_name);
+    Logger.log("(" + arguments.callee.name + ") " +file_name);
     var date_str = file_name.split("_")[0];
     var year = date_str.substring(0, 4);
     var month = date_str.substring(4, 6);
@@ -465,7 +466,7 @@ function get_chapter_members(){
     }
   }
   progress_update("Found "+ CentralMemberObject['badge_numbers'].length +" Chapter Members");
-  Logger.log(CentralMemberObject[badge_number]);
+  Logger.log("(" + arguments.callee.name + ") " +CentralMemberObject[badge_number]);
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Membership");
   var max_row = sheet.getLastRow() - 1;
@@ -475,19 +476,19 @@ function get_chapter_members(){
   var header_values = header_range.getValues()[0];
   var badge_index_chapter = header_values.indexOf("Badge Number");
   var ChapterMemberObject = main_range_object("Membership", "Badge Number");
-  Logger.log(ChapterMemberObject["object_header"]);
+  Logger.log("(" + arguments.callee.name + ") " +ChapterMemberObject["object_header"]);
   var new_members = [];
   var verify_members = [];
   for (var k in CentralMemberObject['badge_numbers']){
     var badge_number = CentralMemberObject['badge_numbers'][k];
     if (ChapterMemberObject["object_header"].indexOf(badge_number) < 0){
       // Member is on Central list, not on chapter list
-      Logger.log("NEW MEMBER!");
-      Logger.log(CentralMemberObject[badge_number]['Last Name']);
+      Logger.log("(" + arguments.callee.name + ") " +"NEW MEMBER!");
+      Logger.log("(" + arguments.callee.name + ") " +CentralMemberObject[badge_number]['Last Name']);
       new_members.push(badge_number);
     } else {
-      Logger.log("VERIFY MEMBER!");
-      Logger.log(CentralMemberObject[badge_number]['Last Name']);
+      Logger.log("(" + arguments.callee.name + ") " +"VERIFY MEMBER!");
+      Logger.log("(" + arguments.callee.name + ") " +CentralMemberObject[badge_number]['Last Name']);
       verify_members.push(badge_number);
       // Member is already on chapter list, need to check for update
     }
@@ -501,8 +502,8 @@ function get_chapter_members(){
     if (CentralMemberObject['badge_numbers'].indexOf(badge_number) < 0){
       // Member is on chapter list, not on central list
       // Need to remove from Membership Sheet
-      Logger.log("OLD MEMBER!");
-      Logger.log(ChapterMemberObject[badge_number]['Last Name'][0]);
+      Logger.log("(" + arguments.callee.name + ") " +"OLD MEMBER!");
+      Logger.log("(" + arguments.callee.name + ") " +ChapterMemberObject[badge_number]['Last Name'][0]);
       old_members.push(badge_number)
     }
   }
@@ -540,11 +541,11 @@ function get_chapter_members(){
     var this_row = 1;
     var new_badge = new_members[m];
     for (var k in ChapterMemberObject["object_header"]){
-//      Logger.log(ChapterMemberObject["object_header"]);
+//      Logger.log("(" + arguments.callee.name + ") " +ChapterMemberObject["object_header"]);
       var badge_number = ChapterMemberObject["object_header"][k];
       var badge_next = ChapterMemberObject["object_header"][+k+1];
       badge_next = badge_next ? badge_next:new_badge+1;
-//      Logger.log([badge_number, new_badge, badge_next]);
+//      Logger.log("(" + arguments.callee.name + ") " +[badge_number, new_badge, badge_next]);
       if (new_badge > badge_number && new_badge < badge_next){
         this_row = ChapterMemberObject[badge_number]['object_row'];
         break;
@@ -568,7 +569,7 @@ function get_chapter_members(){
         new_values.push(new_value);
       }
     }
-    Logger.log(new_values);
+    Logger.log("(" + arguments.callee.name + ") " +new_values);
     range.setValues([new_values]);
   }
   setup_attendance(new_members, delete_att);

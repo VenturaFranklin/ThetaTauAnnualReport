@@ -5,17 +5,44 @@
  *     determine which authorization mode (ScriptApp.AuthMode) the trigger is
  *     running in, inspect e.authMode.
  */
-var betterLogStarted = false;
 var SCRIPT_PROP = PropertiesService.getDocumentProperties();
-//Logger.log(SCRIPT_PROP);
-//startBetterLog();
+var betterLogStarted = false;
+logging_check();
+
+function logging_check(){
+  try {
+    var logger = SCRIPT_PROP.getProperty("logger") == 'true';
+    Logger.log("Checking logging: " + logger);
+    if (logger){
+      var current = new Date();
+      var stop = new Date(SCRIPT_PROP.getProperty("logger_stop"));
+      if (current < stop) {
+        startBetterLog();
+      } else {
+        SCRIPT_PROP.setProperty("logger", false);
+      }
+    }
+  } catch (e) {
+    Logger.log("(" + arguments.callee.name + ") " +error);
+  }
+}
+
+function start_logging() {
+  var newDateObj = new Date();
+  newDateObj.setTime(newDateObj.getTime() + (30 * 60 * 1000));
+  SCRIPT_PROP.setProperty("logger_stop", newDateObj);
+  SCRIPT_PROP.setProperty("logger", true);
+  startBetterLog();
+}
 
 function startBetterLog() {
   if (!betterLogStarted) {
-    Logger = BetterLog.useSpreadsheet('1mo5t1Uu7zmP9t7w2hL1mWrdba4CtgD_Q9ImbAKjGZyM');
+    Logger.log("Starting Better Logger");
+    Logger = BetterLog.useSpreadsheet('1mo5t1Uu7zmP9t7w2hL1mWrdba4CtgD_Q9ImbAKjGZyM',
+                                      get_chapter_name());
     betterLogStarted = true;
   }
-  return Logger;
+  
 }
 
 function clientLog() {
@@ -38,7 +65,6 @@ function onOpen(e) {
   SCRIPT_PROP.setProperty("password", "FALSE");
   var menu = SpreadsheetApp.getUi().createAddonMenu();
   menu.addItem('Create Triggers', 'createTriggers');
-//  menu.addItem('Event Functions', 'side_event');
   menu.addItem('Pledge Forms', 'side_pledge');
   menu.addItem("RESET", 'RESET');
   menu.addItem('Refresh Events', 'refresh_events');
@@ -46,6 +72,7 @@ function onOpen(e) {
   menu.addItem('SETUP', 'run_install');
   menu.addItem('SYNC', 'sync');
   menu.addItem('Status Change', 'side_member');
+  menu.addItem('Start Logging', 'start_logging');
   menu.addItem('Submit Item', 'side_submit');
 //  menu.addItem("TEST", 'TEST');//test_onEdit
   menu.addItem('Unlock', 'unlock');
@@ -54,6 +81,7 @@ function onOpen(e) {
 }
 
 function TEST(){
+//  SCRIPT_PROP.setProperty("logger", false)
 //  SCRIPT_PROP.setProperty('key', '1wBICuD_CvSm3BonA_OZg-sOTRJylVWVbLYi9nr8vn8Q');
 //  SCRIPT_PROP.setProperty('chapter', 'Chi');
 //  SCRIPT_PROP.setProperty('director', 'werd@thetatau.org');
@@ -62,12 +90,12 @@ function TEST(){
 //  SCRIPT_PROP.setProperty("dash", "10ebwK7tTKgveVCEOpRle2S17d4UjwmsoXXCPFvC9A-A");
 //  var dash_id = SCRIPT_PROP.getProperty("dash");
 //  var dash_file = SpreadsheetApp.openById(dash_id);
-//  Logger.log(SCRIPT_PROP.getProperty('key'));
-//  Logger.log(SCRIPT_PROP.getProperty('chapter'));
-//  Logger.log(SCRIPT_PROP.getProperty('director'));
-//  Logger.log(SCRIPT_PROP.getProperty('email'));
-//  Logger.log(SCRIPT_PROP.getProperty("region"));
-//  Logger.log(SCRIPT_PROP.getProperty("folder"));
+//  Logger.log("(" + arguments.callee.name + ") " +SCRIPT_PROP.getProperty('key'));
+//  Logger.log("(" + arguments.callee.name + ") " +SCRIPT_PROP.getProperty('chapter'));
+//  Logger.log("(" + arguments.callee.name + ") " +SCRIPT_PROP.getProperty('director'));
+//  Logger.log("(" + arguments.callee.name + ") " +SCRIPT_PROP.getProperty('email'));
+//  Logger.log("(" + arguments.callee.name + ") " +SCRIPT_PROP.getProperty("region"));
+//  Logger.log("(" + arguments.callee.name + ") " +SCRIPT_PROP.getProperty("folder"));
 //  var ui = SpreadsheetApp.getUi();
 //  ui.alert('SETUP COMPLETE!\n'+
 //           'Next steps:\n'+
@@ -77,7 +105,7 @@ function TEST(){
 //           'Do not edit gray or black cells\n'+
 //           'Submit forms in menu "Add-ons-->ThetaTauReports"');
 //  var ss = get_active_spreadsheet();
-//  Logger.log(range.getValues());
+//  Logger.log("(" + arguments.callee.name + ") " +range.getValues());
 }
 
 function unlock() {
@@ -121,7 +149,7 @@ function format_date(date) {
     var raw = date.split("-");
     return raw[1] + "/" + raw[2] + "/" + raw[0]
   } catch (error) {
-    Logger.log(error);
+    Logger.log("(" + arguments.callee.name + ") " +error);
     return "";
   }
 }
@@ -138,11 +166,11 @@ function find_member_shortname(MemberObject, member_name_raw){
 function get_score_submit(myScore){
   var event_type = myScore["Type"][0]
   var score_data = get_score_method(event_type);
-  Logger.log(score_data);
+  Logger.log("(" + arguments.callee.name + ") " +score_data);
   var score = eval(score_data.score_method);
   score = score.toFixed(1);
   score_data.score = score;
-  Logger.log("SCORE RAW: " + score);
+  Logger.log("(" + arguments.callee.name + ") " +arguments.callee.name + "SCORE RAW: " + score);
   return score_data
 }
 
@@ -185,7 +213,7 @@ function get_type_list(score_type, desc){
     }
   }
 //  newArray.sort();
-  Logger.log(newArray);
+  Logger.log("(" + arguments.callee.name + ") " +newArray);
   if (!desc){
     return newArray;
   } else {
@@ -201,7 +229,7 @@ function get_ind_list(type){
 //  var type = "Operate";
 //  var type = "ProDev";
 //  var type = "Service";
-  Logger.log(type);
+  Logger.log("(" + arguments.callee.name + ") " +type);
   var ScoringObject = main_range_object("Scoring");
   var newArray = new Array();
   for (var type_ind = 0;  type_ind < parseInt(ScoringObject.object_count); type_ind++){
@@ -213,7 +241,7 @@ function get_ind_list(type){
     }
   }
   newArray.sort();
-  Logger.log(newArray);
+  Logger.log("(" + arguments.callee.name + ") " +newArray);
   return newArray;
 }
 
@@ -231,7 +259,7 @@ function getList(RangeName) {
   //' MemberNamesOnly
 //  var RangeName = 'MemberNamesOnly'
 //  var RangeName = 'EventTypes';submit_col_max
-  Logger.log('Called getList, RangeName: ' + RangeName);
+  Logger.log("(" + arguments.callee.name + ") " +'Called getList, RangeName: ' + RangeName);
   var ss = get_active_spreadsheet();
   var events = ss
       .getRangeByName(RangeName)
@@ -239,23 +267,23 @@ function getList(RangeName) {
   var event_list = [].concat.apply([], events);
   var event_list = cleanArray(event_list);
   event_list.sort();
-  Logger.log(event_list);
+  Logger.log("(" + arguments.callee.name + ") " +event_list);
   return event_list;
 }
 
 //function onChange(e){
 ////  show_att_sheet_alert();
-//  Logger.log("onChange");
-//  Logger.log(e);
+//  Logger.log("(" + arguments.callee.name + ") " +arguments.callee.name + "onChange");
+//  Logger.log("(" + arguments.callee.name + ") " +e);
 //  _onEdit(e);
 ////  var ss = get_active_spreadsheet();
 ////  var sheet = ss.getActiveSheet();
 ////  var sheet_name = sheet.getName();
 ////  if (sheet_name == "Events"){
 ////    if (e.changeType == "INSERT_ROW"){
-////      Logger.log("EVENTS ROW ADDED");
+////      Logger.log("(" + arguments.callee.name + ") " +"EVENTS ROW ADDED");
 ////    }else if (e.changeType == "REMOVE_ROW"){
-////      Logger.log("EVENTS ROW REMOVED");
+////      Logger.log("(" + arguments.callee.name + ") " +"EVENTS ROW REMOVED");
 ////    }
 ////  } 
 //}
@@ -271,25 +299,24 @@ function reset_range(range, user_old_value){
 }
 
 function _onEdit(e){
-//  var Logger = startBetterLog();
   try{
-  Logger.log("onEDIT" + e);
-  Logger.log(e);
-  Logger.log("onEdit, authMode: " + e.authMode);
-  Logger.log("onEdit, user: " + e.user);
-  Logger.log("onEdit, source: " + e.source);
-  Logger.log("onEdit, range: " + e.range);
-  Logger.log("onEdit, value: " + e.value);
+  Logger.log("(" + arguments.callee.name + ") " +"onEDIT" + e);
+  Logger.log("(" + arguments.callee.name + ") " +e);
+  Logger.log("(" + arguments.callee.name + ") " +"onEdit, authMode: " + e.authMode);
+  Logger.log("(" + arguments.callee.name + ") " +"onEdit, user: " + e.user);
+  Logger.log("(" + arguments.callee.name + ") " +"onEdit, source: " + e.source);
+  Logger.log("(" + arguments.callee.name + ") " +"onEdit, range: " + e.range);
+  Logger.log("(" + arguments.callee.name + ") " +"onEdit, value: " + e.value);
   var sheet = e.range.getSheet();
   var sheet_name = sheet.getName();
   var user_range = e.range
   var user_row = user_range.getRow();
   var user_col = user_range.getColumn();
   var user_old_value = e.oldValue
-  Logger.log("Row: " + user_row + " Col: " + user_col);
+  Logger.log("(" + arguments.callee.name + ") " +"Row: " + user_row + " Col: " + user_col);
   var this_password = SCRIPT_PROP.getProperty("password");
   if (sheet_name == "Events"){
-    Logger.log("EVENTS CHANGED");
+    Logger.log("(" + arguments.callee.name + ") " +"EVENTS CHANGED");
     if (user_row == 1 || user_col == 4 ||
         user_col == 5 || user_col == 6){
       reset_range(user_range, user_old_value)
@@ -357,7 +384,7 @@ function _onEdit(e){
      'Please do not edit the Dashboard Sheet',
       ui.ButtonSet.OK);
   }else if (sheet_name == "Membership") {
-    Logger.log("MEMBER CHANGED");
+    Logger.log("(" + arguments.callee.name + ") " +"MEMBER CHANGED");
     if (user_col > 12){
       update_scores_org_gpa_serv();
     } else {
@@ -373,15 +400,17 @@ function _onEdit(e){
         ui.ButtonSet.OK);
     }
   } else if (sheet_name == "Chapter") {
-    Logger.log("CHAPTER CHANGED");
+    Logger.log("(" + arguments.callee.name + ") " +"CHAPTER CHANGED");
     update_score_member_pledge()
   }
-  } catch (error) {
-    Logger.log(error);
+  } catch (e) {
+    var message = Utilities.formatString('%s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'', e.stack||'', sheet_name||'');
+    Logger.severe(message);
     var ui = SpreadsheetApp.getUi();
     var result = ui.alert(
      'ERROR',
-      error,
+      message,
       ui.ButtonSet.OK);
     return "";
   }
@@ -415,10 +444,10 @@ function att_name(name){
 
 function update_attendance(attendance){
   var MemberObject = main_range_object("Membership");
-//  Logger.log(attendance);
+//  Logger.log("(" + arguments.callee.name + ") " +attendance);
   var event_name_att = attendance["Event Name"][0];
   var event_date_att = attendance["Event Date"][0];
-  Logger.log(event_name_att);
+  Logger.log("(" + arguments.callee.name + ") " +event_name_att);
   if (event_name_att == ""){
     return;
   }
@@ -433,17 +462,17 @@ function update_attendance(attendance){
     var event_status = attendance[member_name_att][0];
     event_status = event_status.toUpperCase();
     var member_status = member_object["Chapter Status"][0]
-//    Logger.log([member_name_short, member_object, event_status, member_status]);
+//    Logger.log("(" + arguments.callee.name + ") " +[member_name_short, member_object, event_status, member_status]);
     counts[member_status][event_status] = counts[member_status][event_status] ? counts[member_status][event_status] + 1 : 1;
   }
-  Logger.log(counts)
+  Logger.log("(" + arguments.callee.name + ") " +counts)
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Events");
   var EventObject = main_range_object("Events");
   for (var i = 0; i < EventObject.object_count; i++){
     var event_name = EventObject.object_header[i];
     var event_date = EventObject[event_name]["Date"][0];
-    Logger.log([event_name+event_date, event_name_att+event_date_att]);
+    Logger.log("(" + arguments.callee.name + ") " +[event_name+event_date, event_name_att+event_date_att]);
     if (event_name+event_date == event_name_att+event_date_att){
       var active_col = EventObject[event_name]['# Members'][1];
       var pledge_col = EventObject[event_name]['# Pledges'][1];
@@ -457,7 +486,7 @@ function update_attendance(attendance){
 //  var active_col = get_ind_from_string("# Members", header_values)
 //  var pledge_col = get_ind_from_string("# Pledges", header_values)
 //  var event_row = attendance.object_row;
-  Logger.log("ROW: " + event_row + " Active: " + active_col + " Pledge: " + pledge_col)
+  Logger.log("(" + arguments.callee.name + ") " +"ROW: " + event_row + " Active: " + active_col + " Pledge: " + pledge_col)
   var active_range = sheet.getRange(event_row, active_col)
   var pledge_range = sheet.getRange(event_row, pledge_col)
   var num_actives = counts["Student"]["P"] ? counts["Student"]["P"]:0;
@@ -489,7 +518,7 @@ function event_fields_set(myObject){
   field_range.setBackground("black")
              .setNote("Do not edit");
   var needed_field_values = [];
-  Logger.log(needed_fields);
+  Logger.log("(" + arguments.callee.name + ") " +needed_fields);
   var yes_no_fields = ['STEM?', 'PLEDGE Focus', 'HOST'];
   var optional_fields = yes_no_fields.slice(0);
   optional_fields.push('# Non- Members', 'MILES');
@@ -516,7 +545,7 @@ function event_fields_set(myObject){
     }
     needed_field_values.push(needed_value);
   }
-  Logger.log(needed_field_values);
+  Logger.log("(" + arguments.callee.name + ") " +needed_field_values);
   if (needed_field_values.indexOf("") > -1){
     return false;
   }
@@ -560,7 +589,7 @@ function get_total_members(){
     var member_status = MemberObject[member_name]["Chapter Status"][0]
     counts[member_status] = counts[member_status] ? counts[member_status] + 1 : 1;
   }
-  Logger.log(counts);
+  Logger.log("(" + arguments.callee.name + ") " +counts);
   return counts;
 }
 
@@ -608,7 +637,7 @@ function main_range_object(sheetName, short_header, ss){
       break;
   }
   var max_row = sheet.getLastRow()-1;
-  Logger.log("MAX_"+sheetName+": "+max_row);
+  Logger.log("(" + arguments.callee.name + ") " +"MAX_"+sheetName+": "+max_row);
   var max_column = sheet.getLastColumn();
   var header_range = sheet.getRange(1, 1, 1, max_column);
   var header_values = header_range.getValues();
@@ -633,7 +662,7 @@ function main_range_object(sheetName, short_header, ss){
 //    short_names.forEach(function (item) {
 //      var test = item;
 //      console.log(item);
-//     Logger.log(item);
+//     Logger.log("(" + arguments.callee.name + ") " +item);
 //    });
     var short_name_ind = parseInt(val);
     var short_name = short_names[short_name_ind];
@@ -654,10 +683,10 @@ function range_object(sheet, range_row){
   var max_column = sheet.getLastColumn()
   var range = sheet.getRange(range_row, 1, 1, max_column);
   var range_values = range.getValues()
-  Logger.log(range_values)
+  Logger.log("(" + arguments.callee.name + ") " +range_values)
   var header_range = sheet.getRange(1, 1, 1, max_column);
   var header_values = header_range.getValues();
-  Logger.log(header_values)
+  Logger.log("(" + arguments.callee.name + ") " +header_values)
   var myObject = new Array();
 //  myObject["range"] = range; TODO
   myObject["sheet"] = sheet;
@@ -718,7 +747,7 @@ function show_att_sheet_alert(){
 function get_sheet_data(SheetName) {
 //  var SheetName="Events"
 //  var SheetName="Attendance"
-  Logger.log(SheetName)
+  Logger.log("(" + arguments.callee.name + ") " +SheetName)
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName(SheetName);
   if (sheet == null) { return; }
@@ -728,11 +757,11 @@ function get_sheet_data(SheetName) {
   var range = sheet.getRange(2, 1, max_row, max_column);
   var header_range = sheet.getRange(1, 1, 1, max_column);
   var header_values = header_range.getValues();
-  //    Logger.log(header_values);
+  //    Logger.log("(" + arguments.callee.name + ") " +header_values);
   var date_index = header_values[0].indexOf("Event Date");
-  Logger.log("date index: " + date_index);
+  Logger.log("(" + arguments.callee.name + ") " +"date index: " + date_index);
   var name_index =header_values[0].indexOf("Event Name");
-  Logger.log("name index: " + name_index);
+  Logger.log("(" + arguments.callee.name + ") " +"name index: " + name_index);
   var range_values = range.getValues();
   var name_date = [];
   for (var value in range_values){
@@ -768,7 +797,7 @@ function attendance_add_event(event_name, event_date){
 //  var att_values = att_data.range.getValues();
   var attendance_rows = att_data.max_row;
   var attendance_cols = att_data.max_column;
-  Logger.log(attendance_rows);
+  Logger.log("(" + arguments.callee.name + ") " +attendance_rows);
   sheet.insertRowBefore(attendance_rows+1);
   var att_row = sheet.getRange(attendance_rows+1, 1, 1, 2);
   att_row.setValues([[event_name, event_date]]);

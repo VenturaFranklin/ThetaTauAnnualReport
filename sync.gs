@@ -158,13 +158,13 @@ function calc_top_average(main_object){
     next_max = Math.max.apply(Math, totals);
     if (next_max != this_max){maxs_length++;}
   }
-  Logger.log(maxs);
+  Logger.log("(" + arguments.callee.name + ") " +maxs);
   maxs_length = maxs.length;
   var top_chapter_names = [];
   for (var chapter_count in main_object.object_header){
     var chapter = main_object.object_header[chapter_count];
     var Total = main_object[chapter]["Total"][0];
-    Logger.log(Total);
+    Logger.log("(" + arguments.callee.name + ") " +Total);
     for (var attr in nat_avgs){
       var attr_val = main_object[chapter][attr][0];
       if (attr_val ==""){continue;};
