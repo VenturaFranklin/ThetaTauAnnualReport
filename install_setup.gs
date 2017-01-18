@@ -61,7 +61,7 @@ function chapter_name_process(form) {
 //  var form = {'chapterslist': 'Chi Gamma'}
   var chapter_name = form.chapterslist;
   SCRIPT_PROP.setProperty("chapter", chapter_name);
-  Logger = start_logging();
+  start_logging();
   progress_update("Chapter Name set: " + chapter_name);
   var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
   var ss_prop = SpreadsheetApp.openById(properties_id);

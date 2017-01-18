@@ -32,7 +32,7 @@ function start_logging() {
   newDateObj.setTime(newDateObj.getTime() + (30 * 60 * 1000));
   SCRIPT_PROP.setProperty("logger_stop", newDateObj);
   SCRIPT_PROP.setProperty("logger", true);
-  return startBetterLog();
+  startBetterLog();
 }
 
 function startBetterLog() {
@@ -459,8 +459,8 @@ function att_event_exists(sheet_name, myObject) {
   for (var i = 0; i < Object.object_count; i++){
     var event_name = Object.object_header[i];
     var event_date = Object[event_name]["Date"][0];
-    Logger.log("(" + arguments.callee.name + ") " +[event_name+event_date, name_check+date_check]);
     if (event_name+event_date == name_check+date_check){
+      Logger.log("(" + arguments.callee.name + ") " +[event_name+event_date, name_check+date_check]);
       var active_col = Object[event_name][check_1][1];
       var pledge_col = Object[event_name][check_2][1];
       var event_row = Object[event_name].object_row;
