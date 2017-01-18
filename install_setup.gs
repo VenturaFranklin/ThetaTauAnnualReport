@@ -28,6 +28,17 @@ function progress_update(this_message){
 
 function createTriggers() {
   try {
+    unlock();
+    var this_password = SCRIPT_PROP.getProperty("password");
+    if (this_password != password){
+      var ui = SpreadsheetApp.getUi();
+      ui.alert('Incorrect Password!');
+      return;
+    }
+    var triggers = ScriptApp.getProjectTriggers();
+    for (var i = 0; i < triggers.length; i++) {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
     progress_update("Creating Edit Trigger");
     var ss = get_active_spreadsheet();
     ScriptApp.newTrigger('_onEdit')
