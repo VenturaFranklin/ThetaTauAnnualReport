@@ -347,7 +347,7 @@ function _onEdit(e){
       var clean_header = cleanArray(header, 50);
       if (clean_header.length == header.length){
         update_attendance(attendance);
-        update_scores_event(user_row);
+        update_scores_event(attendance);
       } else {
         return;
       }
@@ -444,6 +444,8 @@ function att_name(name){
 }
 
 function att_event_exists(sheet_name, myObject) {
+//  var sheet_name = "Events";
+//  var myObject = range_object("Attendance", 3);
   Logger.log("(" + arguments.callee.name + ") " + sheet_name);
   Logger.log(myObject);
   if (sheet_name == "Attendance") {
@@ -458,9 +460,9 @@ function att_event_exists(sheet_name, myObject) {
   var Object = main_range_object(sheet_name);
   for (var i = 0; i < Object.object_count; i++){
     var event_name = Object.object_header[i];
-    var event_date = Object[event_name]["Date"][0];
-    if (event_name+event_date == name_check+date_check){
-      Logger.log("(" + arguments.callee.name + ") " +[event_name+event_date, name_check+date_check]);
+//    var event_date = Object[event_name]["Date"][0];
+    if (event_name == name_check+date_check){
+      Logger.log("(" + arguments.callee.name + ") " +[event_name, name_check+date_check]);
       var active_col = Object[event_name][check_1][1];
       var pledge_col = Object[event_name][check_2][1];
       var event_row = Object[event_name].object_row;
@@ -705,6 +707,8 @@ function main_range_object(sheetName, short_header, ss){
 }
 
 function range_object(sheet, range_row){
+//  var sheet = "Attendance";
+//  var range_row = 3;
   var ss = get_active_spreadsheet();
   if (typeof sheet === "string"){
     var sheet = ss.getSheetByName(sheet);
@@ -747,7 +751,7 @@ function range_object_fromValues(header_values, range_values, range_row){
 
 function test_onEdit() {
   var ss = get_active_spreadsheet();
-  var sheet = ss.getSheetByName("Events");
+  var sheet = ss.getSheetByName("Attendance");
   var range = sheet.getRange(2, 3, 1, 1);
   var value = range.getValue();
   _onEdit({

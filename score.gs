@@ -1,14 +1,22 @@
-function update_scores_event(user_row){
-//  var user_row = 3;
+function update_scores_event(object){
+//  var object = 3;
+//  var object = range_object("Attendance", 3);
   Logger.log("(" + arguments.callee.name + ")");
-  var myObject = range_object("Events", user_row);
   var att_obj = true;
-  
-  var att_info = att_event_exists("Attendance", myObject)
-  // This might mean that the attendance event has been deleted
-  if (typeof att_info.event_row == 'undefined'){
-    att_obj = false};
-  
+  if (typeof(object)==typeof(2)){
+    var user_row = user_row;
+    var myObject = range_object("Events", user_row);
+    var att_info = att_event_exists("Attendance", myObject)
+    // This might mean that the attendance event has been deleted
+    if (typeof att_info.event_row == 'undefined'){
+      att_obj = false};
+  } else {
+    var event_info = att_event_exists("Events", object);
+    if (typeof event_info.event_row == 'undefined'){
+      return;};
+    var user_row = event_info.event_row;
+    var myObject = range_object("Events", user_row);
+  }
   if (myObject.Type[0] == "" || myObject.Date[0] == "" ||
       myObject["Event Name"][0] == ""){
     return;
@@ -19,7 +27,6 @@ function update_scores_event(user_row){
   if (!event_fields_set(myObject)){
     return;
   }
-  // update_attendance?
   var score_data = get_score_event(myObject);
   var other_type_rows = update_score(user_row, "Events", score_data, myObject);
   Logger.log("(" + arguments.callee.name + ") " +"OTHER ROWS" + other_type_rows);
