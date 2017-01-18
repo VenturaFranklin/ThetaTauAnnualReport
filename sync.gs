@@ -20,11 +20,11 @@ function sync_region() {
   var event_object = main_range_object("Events");
   var submit_object = main_range_object("Submissions");
   var event_extend = [];
-  for (var event in event_object){
-    event = event_object[event];
+  for (var event_name in event_object){
+    var event = event_object[event_name];
     if (typeof event != typeof {}){continue;};
     if ('Event Name' in event){
-      var test_name  = event['Event Name'][0] + event['Date'][0];
+      var test_name  = event;
       if (!(test_name in event_chapter)){
         event_extend.push([chapter,	event['Event Name'][0], event['Date'][0], event['Type'][0],
                            event['Description'][0]]);
@@ -62,9 +62,14 @@ function sync_region() {
     act_sp_range: 'Spring Active',
     act_fa_range: 'Fall Active'
   }
-  var chapter_row = main_values.length;
+  var chapter_row = main_values.length + 1;
   if (chapter+chapter in main_chapter){
     chapter_row = main_chapter[chapter+chapter][1];
+  } else {
+    // Generally this should not happen, needed more for testing.
+    main_sheet.getRange(chapter_row, 1).setValue(chapter);
+    main_sheet.getRange(chapter_row, 2).setValue(SCRIPT_PROP.getProperty("email"));
+    main_sheet.getRange(chapter_row, 3).setValue(SCRIPT_PROP.getProperty("tax"));
   }
   for (var score_type_raw in member_value_obj){
     var score_type = score_dict[score_type_raw];

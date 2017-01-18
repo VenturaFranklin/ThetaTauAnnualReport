@@ -250,7 +250,7 @@ function get_event_list() {
   var event_object = main_range_object("Events");
   var event_list = [];
   for(var i = 0; i< event_object.object_count; i++) {
-    var event_name = event_object.object_header[i];
+    var event_name = event_object.original_names[i];
     event_list.push(event_name);
     }
   return event_list
@@ -625,6 +625,7 @@ function main_range_object(sheetName, short_header, ss){
 //  var sheetName = "Scoring"
 //  var sheetName = "Events"
 //  var sheetName = "Submissions";
+//  var sheetName = "Attendance";
   if (!ss){
     var ss = get_active_spreadsheet();
   }
@@ -674,6 +675,7 @@ function main_range_object(sheetName, short_header, ss){
   }
   var myObject = new Array();
   myObject["object_header"] = new Array();
+  myObject["original_names"] = new Array();
   myObject["header_values"] = header_values[0];
   myObject["sheet"] = sheet;
   for (var val in short_names){
@@ -684,11 +686,16 @@ function main_range_object(sheetName, short_header, ss){
 //    });
     var short_name_ind = parseInt(val);
     var short_name = short_names[short_name_ind];
+    myObject["original_names"].push(short_name);
     var range_values = full_data_values[short_name_ind]
     var temp = range_object_fromValues(header_values[0], range_values, short_name_ind + 2);
+    if (sheetName == "Events" || sheetName == "Attendance"){
+      // This prevents event duplicates
+      short_name = short_name+temp["Date"][0];
+    }
     myObject[short_name] = temp;
-    myObject["object_count"] = myObject["object_count"] ? myObject["object_count"]+1 : 1;
     myObject["object_header"].push(short_name);
+    myObject["object_count"] = myObject["object_count"] ? myObject["object_count"]+1 : 1;
   }
   return myObject
 }
