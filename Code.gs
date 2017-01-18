@@ -490,6 +490,10 @@ function update_attendance(attendance){
     var member_name_att = attendance.object_header[i];
     var member_name_short = att_name(attendance.object_header[i]);
     var member_object = find_member_shortname(MemberObject, member_name_short);
+    if (typeof member_object == 'undefined') {
+      // Member may no longer exists on Membership sheet
+      continue;
+    }
     var event_status = attendance[member_name_att][0];
     event_status = event_status.toUpperCase();
     var member_status = member_object["Chapter Status"][0]
