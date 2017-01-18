@@ -165,6 +165,7 @@ function create_submit_folder(chapter_name, region) {
 //    var default_doc = SpreadsheetApp.openById(default_id);
     var default_doc = DriveApp.getFileById(default_id);
     var file_dash = default_doc.makeCopy(region + " Dashboard", folder_region);
+    file_dash.setSharing(DriveApp.Access.DOMAIN, DriveApp.Permission.EDIT);
 //    var default_blob = default_doc.getBlob();
 //    var file_dash = folder_region.createFile(default_blob);
     progress_update("Created Region Dashboard");
