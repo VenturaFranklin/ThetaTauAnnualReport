@@ -168,7 +168,8 @@ function find_member_shortname(MemberObject, member_name_raw){
 function get_score_submit(myScore){
   var event_type = myScore["Type"][0]
   var score_data = get_score_method(event_type);
-  Logger.log("(" + arguments.callee.name + ") " +score_data);
+  Logger.log("(" + arguments.callee.name + ") ");
+  Logger.log(score_data);
   var score = eval(score_data.score_method);
   score = score.toFixed(1);
   score_data.score = score;
@@ -215,7 +216,8 @@ function get_type_list(score_type, desc){
     }
   }
 //  newArray.sort();
-  Logger.log("(" + arguments.callee.name + ") " +newArray);
+  Logger.log("(" + arguments.callee.name + ") ");
+  Logger.log(newArray);
   if (!desc){
     return newArray;
   } else {
@@ -243,7 +245,8 @@ function get_ind_list(type){
     }
   }
   newArray.sort();
-  Logger.log("(" + arguments.callee.name + ") " +newArray);
+  Logger.log("(" + arguments.callee.name + ") ");
+  Logger.log(newArray);
   return newArray;
 }
 
@@ -302,8 +305,8 @@ function reset_range(range, user_old_value){
 
 function _onEdit(e){
   try{
-  Logger.log("(" + arguments.callee.name + ") " +"onEDIT" + e);
-  Logger.log("(" + arguments.callee.name + ") " +e);
+  Logger.log("(" + arguments.callee.name + ") " +"onEDIT");
+  Logger.log(e)
   Logger.log("(" + arguments.callee.name + ") " +"onEdit, authMode: " + e.authMode);
   Logger.log("(" + arguments.callee.name + ") " +"onEdit, user: " + e.user);
   Logger.log("(" + arguments.callee.name + ") " +"onEdit, source: " + e.source);
@@ -624,7 +627,8 @@ function get_total_members(){
     var member_status = MemberObject[member_name]["Chapter Status"][0]
     counts[member_status] = counts[member_status] ? counts[member_status] + 1 : 1;
   }
-  Logger.log("(" + arguments.callee.name + ") " +counts);
+  Logger.log("(" + arguments.callee.name + ") ");
+  Logger.log(counts);
   return counts;
 }
 

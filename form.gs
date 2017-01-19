@@ -210,7 +210,8 @@ function process_init(form) {
 //                            "2016-08-01", "2016-08-01", "2016-08-01"],
 //              "testA": ["1", "2", "3", "4", "5", "6", "7"],
 //              "date_depl": ["2015-08-01", "2016-08-02", "2016-08-03"]}
-  Logger.log("(" + arguments.callee.name + ") " +form);
+  Logger.log("(" + arguments.callee.name + ") ");
+  Logger.log(form);
 //  return;
   var MemberObject = main_range_object("Membership");
   var INIT = [header_INIT()];
@@ -239,7 +240,7 @@ function process_init(form) {
       form[obj] = [form[obj]];
     }
   }
-  Logger.log("(" + arguments.callee.name + ") " +form);
+  Logger.log(form);
   if (form["name_init"] !== undefined){
     for (var i = 0; i < form["name_init"].length; i++){
       var name = form["name_init"][i];

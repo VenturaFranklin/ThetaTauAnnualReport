@@ -363,7 +363,8 @@ function update_score(row, sheetName, score_data, myObject){
 }
 
 function update_main_score(score_data){
-  Logger.log("(" + arguments.callee.name + ") " +score_data);
+  Logger.log("(" + arguments.callee.name + ") ");
+  Logger.log(score_data);
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Scoring");
   var score_row = score_data.score_ids.score_row
@@ -447,7 +448,8 @@ function get_current_scores(sheetName){
 function get_score_event(myEvent){
   var event_type = myEvent["Type"][0]
   var score_data = get_score_method(event_type);
-  Logger.log("(" + arguments.callee.name + ") " +score_data);
+  Logger.log("(" + arguments.callee.name + ") ");
+  Logger.log(score_data);
   var score_method_edit = edit_score_method_event(myEvent, score_data.score_method);
   var score = null
   if (score_method_edit !== null){
