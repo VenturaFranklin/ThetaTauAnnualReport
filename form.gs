@@ -196,11 +196,12 @@ function process_oer(form) {
 
 function process_init(form) {
 //  var form = {"badge": ["109 ($20)", "109 ($20)", "106 ($67)", "102 ($165)", "109 ($20)", "102 ($165)", "102 ($165)"],
-//              "reason": ["Lost interest", "Too much time required", "Voluntarily decided not to continue"],
+//              "reason": "Lost interest",
 //              "name_init": ["Nicholas Larson", "David Montgome...", "Ryan Richard", "Justine Saugen",
 //                            "Mark Silvern", "Monica Sproul", "Daniel Tranfag..."],
 //              "testB": ["1", "2", "3", "4", "5", "6", "7"],
-//              "date_init": "2016-08-01", "name_depl": ["Esgar Moreno", "Adam Schilpero...", "Jessyca Thomas"],
+//              "date_init": "2016-08-01",
+//              "name_depl": "Esgar Moreno",
 //              "guard": ["None", "Goldgloss & Plain", "Goldgloss & Chased/Engraved",
 //                        "10k Gold & Chased/Engraved", "10k Gold & Crown Set Pearl",
 //                        "10k Gold & Close Set Pearl", "Goldgloss & Plain"],
@@ -209,7 +210,7 @@ function process_init(form) {
 //              "date_grad": ["2016-08-01", "2016-08-01", "2015-08-01", "2016-08-01",
 //                            "2016-08-01", "2016-08-01", "2016-08-01"],
 //              "testA": ["1", "2", "3", "4", "5", "6", "7"],
-//              "date_depl": ["2015-08-01", "2016-08-02", "2016-08-03"]}
+//              "date_depl": "2015-08-01"}
   Logger.log("(" + arguments.callee.name + ") ");
   Logger.log(form);
 //  return;
@@ -230,14 +231,19 @@ function process_init(form) {
                   date.getMinutes() + ':' + date.getSeconds();
   var init_count = 0;
   var depl_count = 0;
+  var depl_objs = ["reason", "date_depl", "name_depl"];
   if (typeof form["name_depl"] === 'string'){
     for (var obj in form){
-      form[obj] = [form[obj]];
+      if (depl_objs.indexOf(obj) > -1){
+        form[obj] = [form[obj]];
+      }
     }
   }
   if (typeof form["name_init"] === 'string'){
     for (var obj in form){
-      form[obj] = [form[obj]];
+      if (depl_objs.indexOf(obj) < 0){
+        form[obj] = [form[obj]];
+      }
     }
   }
   Logger.log(form);
@@ -245,6 +251,12 @@ function process_init(form) {
     for (var i = 0; i < form["name_init"].length; i++){
       var name = form["name_init"][i];
       var member_object = find_member_shortname(MemberObject, name);
+      if (typeof member_object == 'undefined') {
+        // Something bad happened
+        ss.toast('An Error Occured processing: '
+                 +name, 'ERROR', 5);
+        return [false, name];
+      }
       var first = member_object["First Name"][0];
       var last = member_object["Last Name"][0];
       var date_grad = form["date_grad"][i];
