@@ -157,7 +157,13 @@ function format_date(date) {
 }
 
 function find_member_shortname(MemberObject, member_name_raw){
-  var member_name = member_name_raw.split("...")[0]
+  try {
+    var member_name = member_name_raw.split("...")[0]
+  } catch (error) {
+    Logger.log("(" + arguments.callee.name + ") ");
+    Logger.log(error);
+    return;
+  }
   for (var full_name in MemberObject){
     if (~full_name.indexOf(member_name)){
       return MemberObject[full_name]
@@ -828,15 +834,25 @@ function get_sheet_data(SheetName) {
          }
 }
 
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}
+
 function attendance_add_event(event_name, event_date){
   //align_attendance_events(myObject["Event Name"][0], myObject.Date[0])
 //  var event_name = "Test";
 //  var event_date = "Mon Aug 01 2016 00:00:00 GMT-0700 (MST)";
   if (!event_name || !event_date){
     return;
-    var event_data = get_sheet_data("Events");
-    var event_values = event_data.range.getValues();
+//    var event_data = get_sheet_data("Events");
+//    var event_values = event_data.range.getValues();
   }
+  sleep(2000); // Sometimes the function gets called twice, need to sleep
   var att_data = get_sheet_data("Attendance");
   if (att_data.name_date.indexOf(event_name+event_date) > -1){
     return;
