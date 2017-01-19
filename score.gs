@@ -58,6 +58,13 @@ function update_service_hours(){
 	    var semester = "SPRING";
       }
       var att_obj = AttendanceObject[event_name];
+      if (typeof att_obj == 'undefined') {
+      // Event may no longer exists on Attendance sheet
+        Logger.log("(" + arguments.callee.name + ") " + "Missing Event: " + event_name);
+        ss.toast('Missing Event!' + event_name + 'Is missing from the attendance sheet',
+                 'ERROR', 5);
+        continue;
+      }
       for (var j = 2; j < att_obj.object_count; j++){
         var member_name_raw = AttendanceObject.header_values[j];
         var member_name_short = att_name(member_name_raw);
