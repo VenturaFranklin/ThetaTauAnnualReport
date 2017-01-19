@@ -4,7 +4,7 @@ function update_scores_event(object){
   Logger.log("(" + arguments.callee.name + ")");
   var att_obj = true;
   if (typeof(object)==typeof(2)){
-    var user_row = user_row;
+    var user_row = object;
     var myObject = range_object("Events", user_row);
     var att_info = att_event_exists("Attendance", myObject)
     // This might mean that the attendance event has been deleted
