@@ -13,7 +13,7 @@ function pledge_update(form) {
     var name = form["name"][k];
     if (status == "Initiated"){
       INIT.push(name);
-    } else {
+    } else if (status == "Depledged") {
       DEPL.push(name);
     }
   }
