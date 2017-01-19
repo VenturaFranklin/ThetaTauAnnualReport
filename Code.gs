@@ -68,8 +68,9 @@ function onOpen(e) {
   menu.addItem('Create Triggers', 'createTriggers');
   menu.addItem('Pledge Forms', 'side_pledge');
   menu.addItem("RESET", 'RESET');
+  menu.addItem('Refresh Attendance', 'refresh_attendance');
   menu.addItem('Refresh Events', 'refresh_events');
-  menu.addItem('Refresh Members', 'refresh_members')
+  menu.addItem('Refresh Members', 'refresh_members');
   menu.addItem('SETUP', 'run_install');
   menu.addItem('SYNC', 'sync');
   menu.addItem('Status Change', 'side_member');
@@ -342,7 +343,7 @@ function _onEdit(e){
       }
       show_att_sheet_alert();
     } else {
-      var attendance = range_object(sheet, user_row)
+      var attendance = range_object(sheet, user_row);
       var header = attendance.object_header;
       var clean_header = cleanArray(header, 50);
       if (clean_header.length == header.length){
@@ -419,6 +420,16 @@ function _onEdit(e){
 
 function refresh_members(){
   get_chapter_members();
+}
+
+function refresh_attendance() {
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName("Attendance");
+  var max_rows = sheet.getLastRow();
+  for (var user_row = 2; user_row < max_rows; user_row++){
+    var attendance = range_object(sheet, user_row);
+    update_attendance(attendance);
+  }
 }
 
 function refresh_events() {
