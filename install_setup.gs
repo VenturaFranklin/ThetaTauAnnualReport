@@ -584,13 +584,23 @@ function get_chapter_members(){
     Logger.log("(" + arguments.callee.name + ") " +new_values);
     range.setValues([new_values]);
   }
-  setup_attendance(new_members, delete_att);
+  setup_attendance();
   progress_update("Finished Get Chapter Members");
 }
 
-function setup_attendance(new_members, delete_att){
+function shorten_membership_list(object_header) {
+  var short_list = [];
+  for (var i in object_header){
+    var short = shorten(object_header[i], 12, false);
+    short_list.push(short);
+  }
+  return short_list;
+}
+
+function setup_attendance(){
 //  var delete_att = ["Jeremy Faber", "Eugene Balaguer", "Jacob Landsiedel"];
   progress_update("Started Updating Attendance Sheet");
+  Logger.log("(" + arguments.callee.name + ") ");
   var previous_member = undefined;
   var ChapterMemberObject = main_range_object("Membership");
   var ss = get_active_spreadsheet();
@@ -598,24 +608,31 @@ function setup_attendance(new_members, delete_att){
   var max_column = sheet.getLastColumn();
   var header_range = sheet.getRange(1, 1, 1, max_column);
   var header_values = header_range.getValues()[0];
-  for (var ind in delete_att){
-    var name = delete_att[ind];
-    name = shorten(name, 15, false);
+  ChapterMemberObject["short_names"] = shorten_membership_list(ChapterMemberObject["object_header"]);
+  progress_update("Removing From Att, not on Membership");
+  var AttendanceObject = main_range_object("Attendance", "None", ss);
+  var att_header_values = AttendanceObject["header_values"];
+  att_header_values.reverse();
+  for(var i in att_header_values) {
+    var member_name = att_header_values[i];
+    if (ChapterMemberObject["short_names"].indexOf(member_name) > -1){
+      continue;
+    }
     var header_values = header_range.getValues()[0];
-    var col = header_values.indexOf(name)+1;
+    var member_name_short = shorten(member_name, 12, false);
+    var col = header_values.indexOf(member_name_short)+1;
     if (col > 2){
       sheet.deleteColumn(col);
     }
   }
-  for(var i = 0; i< ChapterMemberObject.object_count; i++) {
-    var member_name = ChapterMemberObject.object_header[i];
-    var member_badge = ChapterMemberObject[member_name]["Badge Number"][0].toString();
-    if (new_members.indexOf(member_badge) > -1){
-      if (i>0){
-        previous_member = ChapterMemberObject.object_header[i-1];
-      }
-      align_attendance_members(previous_member, member_name, sheet);
+  var AttendanceObject = main_range_object("Attendance", "None", ss);
+  for(var i in ChapterMemberObject["short_names"]) {
+    var member_name_short = ChapterMemberObject["short_names"][i];
+    if (AttendanceObject["header_values"].indexOf(member_name_short) > -1){
+      continue;
     }
+    previous_member = ChapterMemberObject["short_names"][i-1];
+    align_attendance_members(previous_member, member_name_short, sheet);
   }
   progress_update("Finished Updating Attendance Sheet");
   var format_range = ss.getRangeByName("FORMAT");
@@ -637,7 +654,6 @@ function align_attendance_members(previous_member, new_member, sheet){
   var header_values = header_range.getValues()[0];
   var previous_index = 2;
   if (previous_member !== undefined){
-    previous_member = shorten(previous_member, 12, false);
     for (var i in header_values){
       var header_name = header_values[i];
       if (header_name == "Event Name" || header_name == "Date"){
@@ -651,11 +667,6 @@ function align_attendance_members(previous_member, new_member, sheet){
   }
   sheet.insertColumnAfter(previous_index);
   var new_range = sheet.getRange(1, +previous_index+1);
-  new_member = shorten(new_member, 12, false);
-//Writes names vertically, feedback was negative
-//  var regex = new RegExp('.*?(.).*?', 'g');
-//  var val = new_member.replace(regex, "$1\n");
-//  val = val.substring(0, val.length - 1);
   new_range.setValue(new_member);
   sheet.setColumnWidth(+previous_index+1, 50);
 }
