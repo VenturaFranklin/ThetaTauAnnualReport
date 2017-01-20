@@ -22,6 +22,8 @@ function update_scores_event(object){
     return;
   } else if (typeof myObject["# Members"][0] != typeof 2 || !att_obj){
     attendance_add_event(myObject["Event Name"][0], myObject.Date[0]);
+    event_add_calendar(myObject["Event Name"][0], myObject.Date[0],
+                       myObject["Type"][0], myObject["Description"][0]);
     myObject = range_object("Events", user_row);
   }
   if (!event_fields_set(myObject)){
