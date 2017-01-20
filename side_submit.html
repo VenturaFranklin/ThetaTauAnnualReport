@@ -19,7 +19,14 @@ HELP</a><br>
     <? for (var desc in descriptions){ ?>
       <? var desc_id = desc.split(" ")[0]?>
       <? var description = descriptions[desc] ?>
-        <div id="<?= desc_id ?>" class="group"><?= description ?></div>
+        <div id="<?= desc_id ?>" class="group"><?= description ?>
+        <? if (desc_id == "Pledge"){ ?>
+        <br>Program type: 
+        <select name="program" id="program" form="submissions">
+          <option value="unmodified">Unmodified</option>
+          <option value="modified">Modified</option>
+        </select><? } ?>
+        </div>
     <? } ?>
     <br>
     <input type="file" name="myFile">
@@ -68,6 +75,7 @@ HELP</a><br>
         });
       }
       function updateSigninStatus(isSignedIn) {
+      console.log("Signed in: " + isSignedIn);
         var e = document.getElementById('form');
         var e2 = document.getElementById('auth');
         if (isSignedIn) {
@@ -129,9 +137,10 @@ HELP</a><br>
       callback = function(file) {
 //        console.log(file);
         var type = $('#submissionslist').val();
+        var program = $('#program').val();
 //        console.log(type);
         google.script.run.withSuccessHandler(fileUploaded)
-                .post_submit(file, type);
+                .post_submit(file, type, program);
 //        console.log(multipartRequestBody);
       };
     }

@@ -565,7 +565,7 @@ function uploadFiles(form) {
   }
 }
 
-function post_submit(file_object, submission_type) {
+function post_submit(file_object, submission_type, program) {
   var template = HtmlService.createTemplateFromFile('response');
   var file_url = template.fileUrl = file_object.alternateLink;
   var submission_date = template.date = new Date();
@@ -576,6 +576,9 @@ function post_submit(file_object, submission_type) {
   var max_row = sheet.getLastRow();
   var submit_range = sheet.getRange(max_row + 1, 1, 1, max_column);
   var file_name = template.name = file_object.title;
+  if (submission_type == "Pledge Program"){
+    submission_type = submission_type + " - " + program;
+  }
   submit_range.setValues([[submission_date, file_name, submission_type, 0, file_url]])
   update_scores_submit(max_row + 1);
   var output = template.evaluate().getContent();

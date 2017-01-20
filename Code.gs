@@ -173,7 +173,13 @@ function find_member_shortname(MemberObject, member_name_raw){
 
 function get_score_submit(myScore){
   var event_type = myScore["Type"][0]
-  var score_data = get_score_method(event_type);
+  if (~event_type.indexOf("Pledge Program")){
+    var info = event_type.split(" - ");
+    event_type = info[0];
+    var mod = info[1]=="modified";
+    Logger.log("(" + arguments.callee.name + ") " + "mod: " + mod);
+  }
+  var score_data = get_score_method(event_type, mod);
   Logger.log("(" + arguments.callee.name + ") ");
   Logger.log(score_data);
   var score = eval(score_data.score_method);

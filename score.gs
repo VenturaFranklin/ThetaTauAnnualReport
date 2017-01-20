@@ -524,7 +524,7 @@ function edit_score_method_event(myEvent, score_method){
   return score_method
 }
 
-function get_score_method(event_type){
+function get_score_method(event_type, mod){
   var ScoringObject = main_range_object("Scoring");
   var score_object = ScoringObject[event_type];
   var score_type = score_object["Score Type"][0];
@@ -541,6 +541,12 @@ function get_score_method(event_type){
   if (score_type == "Submit"){
    var score_method = base;
   }
+  if (event_type == "Pledge Program"){
+    special = special.replace("UNMODIFIED", +!mod);
+    special = special.replace("MODIFIED", +mod);
+    var score_method = special;
+  }
+
   if (score_type == "Events/Special" || score_type == "Special"){
    var score_method =  special;
   }
