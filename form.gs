@@ -37,6 +37,7 @@ function member_update(form) {
   Logger.log("(" + arguments.callee.name + ") " +form);
   var MemberObject = main_range_object("Membership");
   var html = HtmlService.createTemplateFromFile('form_status');
+  Logger.log(html);
   var CSMTA = []
   for (var k in form){
     var type = k;
@@ -318,26 +319,20 @@ function process_init(form) {
 }
 
 function process_grad(form) {
-//  var form = {"date_start": ["2016-08-01", "2016-08-01", "2016-08-01",
-//                "2016-08-01", "2016-08-01", "2016-08-01", "2016-08-01",
-//                "2016-08-01", "2016-08-01", "2016-08-01", "2016-08-01"],
-//              "new_location": ["Test Cole 1", "Test Austin 1", "Test Adam 1", "Test Adam 2",
-//                 "Test Adam 3", "Test Derek", "Test Esgar", "Test Adam 4",
-//                 "Test Cole 2", "Test Austin 2", "Test Adam 5"],
-//              "phone": ["520-664-5654", "520-664-5654", "520-664-5654"],
-//              "prealumn": ["Undergrad > 4 yrs", "Undergrad < 4 yrs"],
-//              "name": ["Cole Mobberley", "Austin Mutschler", "Adam Schilperoort", "Adam Schilperoort",
-//                       "Adam Schilperoort", "Derek Hogue", "Esgar Moreno", "Adam Schilperoort",
-//                       "Cole Mobberley", "Austin Mutschler", "Adam Schilperoort"],
-//              "degree": ["Cole Mobberley MAJOR", "Austin Mutschler MAJOR", "Adam Schilperoort MAJOR"],
-//              "dist": ["> 60 mi", "> 60 mi", "< 60 mi", "> 60 mi", "> 60 mi"],
-//              "date_end": ["2016-08-03", "2016-08-03", "2016-08-03", "2016-08-03", "2016-08-03"],
-//              "type": ["Degree received", "Degree received", "Degree received", "Abroad",
-//                       "Transfer", "PreAlumn", "PreAlumn", "Military", "CoOp", "CoOp", "CoOp"],
-//              "email": ["ColeMobberley@email.com", "AustinMutschler@email.com", "AdamSchilperoort@email.com"]}
-  Logger.log("(" + arguments.callee.name + ") " +form);
+  var form = {"date_start":["2017-01-01", "2017-01-02", "2017-01-03", "2017-01-04", "2017-01-05", "2017-01-06"],
+              "new_location":["Test", "Test1", "Test2", "TEst3", "Arizona State University"],
+              "phone":"(714) 656-5839",
+              "name":["Allison Katz", "Adam Schilperoort", "Alec Sonderman", "AlexanderNEW Gerwe", "Amelia Sylvester", "AmmarNEW Mustafa"],
+              "degree":"Mechanical Engineeering",
+              "dist":["100", "1000", "1000"], "date_end":["2017-02-02", "2017-02-03", "2017-02-04"],
+              "type":["Degree received", "CoOp", "Military", "Abroad", "Transfer", "Withdrawn"], "email":"allisonbeth@cox.net"}
+//  form = {"date_start": "2017-01-01", "new_location": "Test", "name": "Adam Schilperoort",
+//          "dist": "100", "date_end": "2017-01-30", "type": "Abroad"};
+  Logger.log("(" + arguments.callee.name + ") ");
+  Logger.log(form);
 //  return;
   var MemberObject = main_range_object("Membership");
+  var sheet = MemberObject["sheet"];
   var MSCR = [header_MSCR()];
 //  var MSCR_type = ["Degree received", "Transfer", "PreAlumn"];
   var COOP = [header_COOP()];
@@ -351,9 +346,12 @@ function process_grad(form) {
   var nonalum_count = 0;
   if (typeof form["type"] === 'string'){
     for (var obj in form){
-      form[obj] = [form[obj]];
+      if (typeof obj === 'string'){
+        form[obj] = [form[obj]];
+      }
     }
   }
+  Logger.log(form);
   for (var i = 0; i < form["type"].length; i++){
     var type = form["type"][i];
     Logger.log("(" + arguments.callee.name + ") " +type);
@@ -364,6 +362,14 @@ function process_grad(form) {
     var last = member_object["Last Name"][0];
     var loc = form["new_location"][i]
     var date_start = form["date_start"][i];
+    date_start = format_date(date_start);
+    var status_range = sheet.getRange(member_object["object_row"],
+                                      member_object["Chapter Status"][1]);
+    var status_start_range = sheet.getRange(member_object["object_row"],
+                                            member_object["Status Start"][1]);
+    var status_end_range = sheet.getRange(member_object["object_row"],
+                                          member_object["Status End"][1]);
+    status_start_range.setValue(date_start);
     if (type == "Degree received"){
       var email = form["email"][degree_count];
       var phone = form["phone"][degree_count];
@@ -374,18 +380,20 @@ function process_grad(form) {
           degree = form["degree"];
         }
       var arr = [loc, date_start, email, phone, degree];
+      status_range.setValue("Alumn");
+      status_start_range.setValue(date_start);
       degree_count++
     } else if (type != "PreAlumn"){
       if (type != "Withdrawn" && type != "Transfer"){
         var date_end = form["date_end"][nonalum_count];
         var dist = form["dist"][nonalum_count];
-        if (typeof date_end === 'string'){
-          date_end =form["date_end"];
-          dist = form["dist"];
-        }
         var arr = [loc, date_start, date_end, dist];
         date_end = format_date(date_end);
+        status_range.setValue("Away");
+        status_end_range.setValue(date_end);
         nonalum_count++
+      } else {
+        status_range.setValue("Alumn");
       }
     } else {
       var prealumn = form["prealumn"][alum_count];
@@ -396,9 +404,10 @@ function process_grad(form) {
       } else if (prealumn == "Grad Premature"){
         prealumn = "Grad Student Premature";
       }
+      status_range.setValue("Alumn");
       alum_count++
     }
-    date_start = format_date(date_start);
+    status_start_range.setValue(date_start);
     if (arr.indexOf("") > -1){
       var ss = get_active_spreadsheet();
       ss.toast('You must set all of the fields!\nMissing information for:\n'
