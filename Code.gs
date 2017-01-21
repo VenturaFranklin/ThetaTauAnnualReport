@@ -138,6 +138,9 @@ function get_member_list(status){
   for(var i = 0; i< MemberObject.object_count; i++) {
     var member_name = MemberObject.object_header[i];
     var member_status = MemberObject[member_name]["Chapter Status"][0];
+    if (member_status == "Away"){
+      member_status = "Student";
+    }
     if (member_status == status){
       member_name = shorten(member_name, 15);
       member_list.push(member_name);
