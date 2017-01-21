@@ -506,7 +506,7 @@ function att_event_exists(sheet_name, myObject) {
 }
 
 function update_attendance(attendance){
-  var attendance = range_object("Attendance", 2);
+//  var attendance = range_object("Attendance", 2);
   var MemberObject = main_range_object("Membership");
 //  Logger.log("(" + arguments.callee.name + ") " +attendance);
   var event_name_att = attendance["Event Name"][0];
