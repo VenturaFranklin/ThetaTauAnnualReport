@@ -5,6 +5,7 @@
  *     determine which authorization mode (ScriptApp.AuthMode) the trigger is
  *     running in, inspect e.authMode.
  */
+var WORKING = true;
 var SCRIPT_PROP = PropertiesService.getDocumentProperties();
 var betterLogStarted = false;
 logging_check();

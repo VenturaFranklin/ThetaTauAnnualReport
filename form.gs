@@ -630,5 +630,7 @@ function sendemail_submission(submission_type, submission) {
 
   var optAdvancedArgs = {name: chapter +" Chapter", htmlBody: htmlBody,
                          replyTo: email_chapter, attachments: [file_obj]};
+  if (!WORKING){
   MailApp.sendEmail(email_director, subject, emailBody, optAdvancedArgs);
+  }
 }
