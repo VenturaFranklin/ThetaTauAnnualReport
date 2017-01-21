@@ -266,25 +266,63 @@ function get_scores_org_gpa_serv(){
   var org_counts = {};
   var service_count_fa = 0;
   var service_count_sp = 0;
+  var active_total_fa = 0;
+  var active_total_sp = 0;
+  var active_total = 0;
   var officer_count = 0;
   var org_count = 0;
   var officers = ["Officer (Pro/Tech)", "Officer (Honor)", "Officer (Other)"];
   var orgs = ["Professional/ Technical Orgs", "Honor Orgs", "Other Orgs"];
-  var gpas = ["Fall GPA", "Service Hours Fall", "Spring GPA"];
+  var gpas = ["Fall GPA", "", "Spring GPA"];
   var MemberObject = main_range_object("Membership");
   var gpa = 0;
   for (var i = 0; i < MemberObject.object_count; i++){
     var member_name = MemberObject.object_header[i];
     var org_true = false;
     var officer_true = false;
+    var spring_mult = 1;
+    var fall_mult = 1;
+    var status = MemberObject[member_name]["Chapter Status"][0];
+    var start = MemberObject[member_name]["Status Start"][0];
+    switch (status){
+      case "Pledge":
+        continue;
+        break;
+      case "Shiny":
+        var month = start.getMonth() + 1;
+        if (month<=6){fall_mult = 0;
+        } else {spring_mult = 0;
+        }
+        break;
+      case "Away":
+      case "Alumn":
+        var month = start.getMonth() + 1;
+        if (month<=6){spring_mult = 0;
+        } else {fall_mult = 0;
+        }
+        break;
+    }
+    active_total_fa += fall_mult;
+    active_total_sp += spring_mult;
+    active_total += 1;
     for (var j = 0; j <= 2; j++){
-      var gpa_raw = MemberObject[member_name][gpas[j]][0]
+      var gpa_type = gpas[j];
+      if (gpa_type == ""){continue;}
+      var gpa_raw = MemberObject[member_name][gpa_type][0];
       gpa_raw = gpa_raw == "" ? 0:gpa_raw;
       var gpa = parseFloat(gpa_raw);
-      gpa_counts[gpas[j]] = gpa_counts[gpas[j]] ? gpa_counts[gpas[j]]+gpa:gpa;
-      var this_org = MemberObject[member_name][orgs[j]][0];
-      org_counts[orgs[j]] = org_counts[orgs[j]] ? org_counts[orgs[j]]:0;
-      org_counts[orgs[j]] = this_org!="None" ? org_counts[orgs[j]]+1:org_counts[orgs[j]];
+      if (gpa_type.indexOf("Fall") > -1){
+        if(!fall_mult){continue;
+        }
+      } else {
+        if(!spring_mult){continue;
+        }
+      }
+      gpa_counts[gpa_type] = gpa_counts[gpa_type] ? gpa_counts[gpa_type]+gpa:gpa;
+      var org_type = orgs[j];
+      var this_org = MemberObject[member_name][org_type][0];
+      org_counts[org_type] = org_counts[org_type] ? org_counts[org_type]:0;
+      org_counts[org_type] = this_org!="None" ? org_counts[org_type]+1:org_counts[org_type];
       org_true = this_org.length > 2 ? true:org_true;
       var officer = MemberObject[member_name][officers[j]][0];
       officer_counts[officers[j]] = officer_counts[officers[j]] ? officer_counts[officers[j]]:0;
@@ -296,18 +334,18 @@ function get_scores_org_gpa_serv(){
     var service_hours_sp = MemberObject[member_name]["Service Hours Spring"][0];
     var service_hours_self_fa = MemberObject[member_name]["Self Service Hrs FA"][0];
     var service_hours_self_sp = MemberObject[member_name]["Self Service Hrs SP"][0];
-    service_hours_fa = +service_hours_fa + service_hours_self_fa
-    service_hours_sp = +service_hours_sp + service_hours_self_sp
+    service_hours_fa = (+service_hours_fa + service_hours_self_fa) * fall_mult;
+    service_hours_sp = (+service_hours_sp + service_hours_self_sp) * spring_mult;
     var service_count_fa = service_hours_fa >= 8 ? service_count_fa + 1:service_count_fa;
     var service_count_sp = service_hours_sp >= 8 ? service_count_sp + 1:service_count_sp;
     officer_count = officer_true ? officer_count + 1:officer_count;
     org_count = org_true ? org_count + 1:org_count;
   }
-  var percent_service_fa = service_count_fa / MemberObject.object_count;
-  var percent_service_sp = service_count_sp / MemberObject.object_count;
-  var percent_org = org_count / MemberObject.object_count;
-  var gpa_avg_fall = gpa_counts["Fall GPA"] / MemberObject.object_count;
-  var gpa_avg_spring = gpa_counts["Spring GPA"] / MemberObject.object_count;
+  var percent_service_fa = service_count_fa / active_total_fa;
+  var percent_service_sp = service_count_sp / active_total_sp;
+  var percent_org = org_count / active_total;
+  var gpa_avg_fall = gpa_counts["Fall GPA"] / active_total_fa;
+  var gpa_avg_spring = gpa_counts["Spring GPA"] / active_total_sp;
   return {percent_service_fa: percent_service_fa,
           percent_service_sp: percent_service_sp,
           percent_org: percent_org,
