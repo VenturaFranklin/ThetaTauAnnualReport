@@ -503,6 +503,7 @@ function att_event_exists(sheet_name, myObject) {
 }
 
 function update_attendance(attendance){
+  var attendance = range_object("Attendance", 2);
   var MemberObject = main_range_object("Membership");
 //  Logger.log("(" + arguments.callee.name + ") " +attendance);
   var event_name_att = attendance["Event Name"][0];
@@ -514,6 +515,8 @@ function update_attendance(attendance){
   var counts = {};
   counts["Student"] = {};
   counts["Pledge"] = {};
+  counts["Away"] = {};
+  counts["Alumn"] = {};
   var test_len = attendance.object_count;
   for(var i = 2; i< attendance.object_count; i++) {
     var member_name_att = attendance.object_header[i];
@@ -525,7 +528,22 @@ function update_attendance(attendance){
     }
     var event_status = attendance[member_name_att][0];
     event_status = event_status.toUpperCase();
-    var member_status = member_object["Chapter Status"][0]
+    var member_status = member_object["Chapter Status"][0];
+    switch (member_status) {
+      case "Away":
+        var start = member_object["Status Start"][0];
+        var end = member_object["Status End"][0];
+        if ((event_date_att > end) || (event_date_att < start)){
+          member_status = "Student";
+        }
+        break;
+      case "Alumn":
+        var start = member_object["Status Start"][0];
+        if (event_date_att < start){
+          member_status = "Student";
+        }
+        break;
+    }
 //    Logger.log("(" + arguments.callee.name + ") " +[member_name_short, member_object, event_status, member_status]);
     counts[member_status][event_status] = counts[member_status][event_status] ? counts[member_status][event_status] + 1 : 1;
   }
