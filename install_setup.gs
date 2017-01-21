@@ -529,7 +529,7 @@ function get_chapter_members(){
     for (var col_name in indx){
       var col_val = ChapterMemberObject[badge][col_name][0];
       var member_val = CentralMemberObject[badge][col_name];
-      if (col_val == "Away" || col_val == "Alumn"){continue;}
+      if (col_val == "Away" || col_val == "Alumn" || col_val == "Shiny"){continue;}
       if (col_val != member_val){
         var col = ChapterMemberObject[badge][col_name][1];
         sheet.getRange(this_row, col).setValue(member_val);

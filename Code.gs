@@ -518,6 +518,7 @@ function update_attendance(attendance){
   var counts = {};
   counts["Student"] = {};
   counts["Pledge"] = {};
+  counts["Shiny"] = {}
   counts["Away"] = {};
   counts["Alumn"] = {};
   var test_len = attendance.object_count;
@@ -543,6 +544,14 @@ function update_attendance(attendance){
       case "Alumn":
         var start = member_object["Status Start"][0];
         if (event_date_att < start){
+          member_status = "Student";
+        }
+        break;
+      case "Shiny":
+        var start = member_object["Status Start"][0];
+        if (event_date_att < start){
+          member_status = "Pledge";
+        } else {
           member_status = "Student";
         }
         break;

@@ -258,6 +258,12 @@ function process_init(form) {
                  +name, 'ERROR', 5);
         return [false, name];
       }
+      var status_range = sheet.getRange(member_object["object_row"],
+                                        member_object["Chapter Status"][1]);
+      var status_start_range = sheet.getRange(member_object["object_row"],
+                                              member_object["Status Start"][1]);
+      status_range.setValue("Shiny");
+      status_start_range.setValue(date_init);
       var first = member_object["First Name"][0];
       var last = member_object["Last Name"][0];
       var date_grad = form["date_grad"][i];
