@@ -319,13 +319,13 @@ function process_init(form) {
 }
 
 function process_grad(form) {
-  var form = {"date_start":["2017-01-01", "2017-01-02", "2017-01-03", "2017-01-04", "2017-01-05", "2017-01-06"],
-              "new_location":["Test", "Test1", "Test2", "TEst3", "Arizona State University"],
-              "phone":"(714) 656-5839",
-              "name":["Allison Katz", "Adam Schilperoort", "Alec Sonderman", "AlexanderNEW Gerwe", "Amelia Sylvester", "AmmarNEW Mustafa"],
-              "degree":"Mechanical Engineeering",
-              "dist":["100", "1000", "1000"], "date_end":["2017-02-02", "2017-02-03", "2017-02-04"],
-              "type":["Degree received", "CoOp", "Military", "Abroad", "Transfer", "Withdrawn"], "email":"allisonbeth@cox.net"}
+//  var form = {"date_start":["2017-01-01", "2017-01-02", "2017-01-03", "2017-01-04", "2017-01-05", "2017-01-06"],
+//              "new_location":["Test", "Test1", "Test2", "TEst3", "Arizona State University"],
+//              "phone":"(714) 656-5839",
+//              "name":["Allison Katz", "Adam Schilperoort", "Alec Sonderman", "AlexanderNEW Gerwe", "Amelia Sylvester", "AmmarNEW Mustafa"],
+//              "degree":"Mechanical Engineeering",
+//              "dist":["100", "1000", "1000"], "date_end":["2017-02-02", "2017-02-03", "2017-02-04"],
+//              "type":["Degree received", "CoOp", "Military", "Abroad", "Transfer", "Withdrawn"], "email":"allisonbeth@cox.net"}
 //  form = {"date_start": "2017-01-01", "new_location": "Test", "name": "Adam Schilperoort",
 //          "dist": "100", "date_end": "2017-01-30", "type": "Abroad"};
   Logger.log("(" + arguments.callee.name + ") ");
