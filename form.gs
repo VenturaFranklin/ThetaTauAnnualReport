@@ -216,6 +216,7 @@ function process_init(form) {
   Logger.log(form);
 //  return;
   var MemberObject = main_range_object("Membership");
+  var sheet = MemberObject["sheet"];
   var INIT = [header_INIT()];
   var DEPL = [header_DEPL()];
   var date = new Date();
