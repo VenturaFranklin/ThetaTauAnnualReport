@@ -381,7 +381,6 @@ function process_grad(form) {
         }
       var arr = [loc, date_start, email, phone, degree];
       status_range.setValue("Alumn");
-      status_start_range.setValue(date_start);
       degree_count++
     } else if (type != "PreAlumn"){
       if (type != "Withdrawn" && type != "Transfer"){
