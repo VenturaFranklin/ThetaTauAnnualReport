@@ -273,7 +273,7 @@ function get_scores_org_gpa_serv(){
   var org_count = 0;
   var officers = ["Officer (Pro/Tech)", "Officer (Honor)", "Officer (Other)"];
   var orgs = ["Professional/ Technical Orgs", "Honor Orgs", "Other Orgs"];
-  var gpas = ["Fall GPA", "", "Spring GPA"];
+  var gpas = ["Fall GPA", "Service Hours Fall", "Spring GPA"];
   var MemberObject = main_range_object("Membership");
   var gpa = 0;
   for (var i = 0; i < MemberObject.object_count; i++){
@@ -307,7 +307,6 @@ function get_scores_org_gpa_serv(){
     active_total += 1;
     for (var j = 0; j <= 2; j++){
       var gpa_type = gpas[j];
-      if (gpa_type == ""){continue;}
       var gpa_raw = MemberObject[member_name][gpa_type][0];
       gpa_raw = gpa_raw == "" ? 0:gpa_raw;
       var gpa = parseFloat(gpa_raw);
@@ -322,8 +321,8 @@ function get_scores_org_gpa_serv(){
       var org_type = orgs[j];
       var this_org = MemberObject[member_name][org_type][0];
       org_counts[org_type] = org_counts[org_type] ? org_counts[org_type]:0;
-      org_counts[org_type] = this_org!="None" ? org_counts[org_type]+1:org_counts[org_type];
-      org_true = this_org.length > 2 ? true:org_true;
+      org_counts[org_type] = this_org.toUpperCase()!="NONE" ? org_counts[org_type]+1:org_counts[org_type];
+      org_true = (this_org.toUpperCase()!="NONE" && this_org!="") ? true:org_true;
       var officer = MemberObject[member_name][officers[j]][0];
       officer_counts[officers[j]] = officer_counts[officers[j]] ? officer_counts[officers[j]]:0;
       officer_counts[officers[j]] = officer.toUpperCase()=="YES" ? officer_counts[officers[j]]+1:officer_counts[officers[j]];
