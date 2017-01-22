@@ -11,12 +11,26 @@ function run_install(e){
 
 function onInstall(e) {
   onOpen(e);
-  setup();
+  try {
+    setup();
+  } catch (e) {
+    var message = Utilities.formatString('%s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
+  } 
 }
 
 var message = ""
 
 function progress_update(this_message){
+  Logger.log(this_message);
   message += "<br>" + this_message;
   var htmlOutput = HtmlService
      .createHtmlOutput(message)
@@ -26,15 +40,19 @@ function progress_update(this_message){
     .showModalDialog(htmlOutput, 'Progress');
 }
 
+function run_createTriggers() {
+  unlock();
+  var this_password = SCRIPT_PROP.getProperty("password");
+  if (this_password != password){
+    var ui = SpreadsheetApp.getUi();
+    ui.alert('Incorrect Password!');
+    return;
+  }
+  createTriggers();
+}
+
 function createTriggers() {
   try {
-    unlock();
-    var this_password = SCRIPT_PROP.getProperty("password");
-    if (this_password != password){
-      var ui = SpreadsheetApp.getUi();
-      ui.alert('Incorrect Password!');
-      return;
-    }
     var triggers = ScriptApp.getProjectTriggers();
     for (var i = 0; i < triggers.length; i++) {
       ScriptApp.deleteTrigger(triggers[i]);
@@ -46,7 +64,8 @@ function createTriggers() {
     .onEdit()
     .create();
   } catch (error) {
-    Logger.log("(" + arguments.callee.name + ") " +error);
+    Logger.log("(" + arguments.callee.name + ") ");
+    Logger.log(error);
   } 
   try {
     progress_update("Creating Sync Trigger");
@@ -55,7 +74,8 @@ function createTriggers() {
     .onWeekDay(ScriptApp.WeekDay.TUESDAY)
     .create();
   } catch (error) {
-    Logger.log("(" + arguments.callee.name + ") " +error);
+    Logger.log("(" + arguments.callee.name + ") ");
+    Logger.log(error);
   }
 }
 
@@ -68,7 +88,9 @@ function get_chapter_fee(){
 }
 
 function chapter_name_process(form) {
-  Logger.log("(" + arguments.callee.name + ") " +form);
+  try{
+  Logger.log("(" + arguments.callee.name + ") ");
+  Logger.log(form);
 //  var form = {'chapterslist': 'Chi Gamma'}
   var chapter_name = form.chapterslist;
   SCRIPT_PROP.setProperty("chapter", chapter_name);
@@ -91,7 +113,8 @@ function chapter_name_process(form) {
   var chapter_object = main_range_object("MAIN", "Organization Name", ss_prop);
   var chapter_info = chapter_object[chapter_name];
   progress_update("Chapter Information: " + chapter_info.toString());
-  Logger.log("(" + arguments.callee.name + ") " +chapter_info);
+  Logger.log("(" + arguments.callee.name + ") ");
+  Logger.log(chapter_info);
   var region = chapter_info["Region Description"][0];
   range = sheet.getRange(2, 3);
   range.setValue(region);
@@ -119,6 +142,7 @@ function chapter_name_process(form) {
   get_chapter_members();
   setup_dataval();
   createTriggers();
+  create_survey();
   progress_update("Started Sync Main Info");
   sync_main()
   var ui = SpreadsheetApp.getUi();
@@ -129,6 +153,18 @@ function chapter_name_process(form) {
            '- Add Events & Attendance\n\n'+
            'Do not edit gray or black cells\n'+
            'Submit forms in menu "Add-ons-->ThetaTauReports"');
+  } catch (e) {
+    var message = Utilities.formatString('%s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
+  }
 }
 
 function protect_ranges(){
@@ -257,8 +293,21 @@ function setup() {
 function sheet_id_process(form) {
   SCRIPT_PROP.setProperty("key", form.sheetid);
   progress_update("Spread Sheet ID set:" + form.sheetid);
+  try {
   setup_sheets();
   chapter_name();
+  } catch (e) {
+    var message = Utilities.formatString('%s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
+  } 
 }
 
 function setup_sheets() {
@@ -488,7 +537,8 @@ function get_chapter_members(){
   var header_values = header_range.getValues()[0];
   var badge_index_chapter = header_values.indexOf("Badge Number");
   var ChapterMemberObject = main_range_object("Membership", "Badge Number");
-  Logger.log("(" + arguments.callee.name + ") " +ChapterMemberObject["object_header"]);
+  Logger.log("(" + arguments.callee.name + ") ");
+  Logger.log(ChapterMemberObject["object_header"]);
   var new_members = [];
   var verify_members = [];
   for (var k in CentralMemberObject['badge_numbers']){

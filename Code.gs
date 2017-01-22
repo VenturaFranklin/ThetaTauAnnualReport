@@ -5,7 +5,7 @@
  *     determine which authorization mode (ScriptApp.AuthMode) the trigger is
  *     running in, inspect e.authMode.
  */
-var WORKING = true;
+var WORKING = false;
 var SCRIPT_PROP = PropertiesService.getDocumentProperties();
 var betterLogStarted = false;
 logging_check();
@@ -66,7 +66,7 @@ function get_active_spreadsheet() {
 function onOpen(e) {
   SCRIPT_PROP.setProperty("password", "FALSE");
   var menu = SpreadsheetApp.getUi().createAddonMenu();
-  menu.addItem('Create Triggers', 'createTriggers');
+  menu.addItem('Create Triggers', 'run_createTriggers');
   menu.addItem('Pledge Forms', 'side_pledge');
   menu.addItem("RESET", 'RESET');
   menu.addItem('Refresh Attendance', 'refresh_attendance');
