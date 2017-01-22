@@ -73,6 +73,7 @@ function onOpen(e) {
   menu.addItem('Refresh Events', 'refresh_events');
   menu.addItem('Refresh Members', 'refresh_members');
   menu.addItem('SETUP', 'run_install');
+  menu.addItem('Send Survey', send_survey)
   menu.addItem('SYNC', 'sync');
   menu.addItem('Status Change', 'side_member');
   menu.addItem('Start Logging', 'start_logging');
