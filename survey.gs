@@ -1,4 +1,6 @@
 function create_survey(){
+  progress_update("Started Survey Creation");
+  Logger.log("(" + arguments.callee.name + ") ");
   var ss = get_active_spreadsheet();
   var member_list = get_member_list("Student");
   var form = survey_create(member_list);
@@ -16,7 +18,7 @@ function create_survey(){
     Logger.log("(" + arguments.callee.name + ") ");
     Logger.log(error);
   }
-  update_survey_sheet();
+//  update_survey_sheet();
 }
 
 //function update_survey_sheet(){
@@ -41,6 +43,7 @@ function get_survey(){
 }
 
 function survey_create(member_list){
+  Logger.log("(" + arguments.callee.name + ") ");
   var chapter_name = get_chapter_name();
   var form = FormApp.create(chapter_name + ' Survey');
   var gpaValidation = FormApp.createTextValidation()
@@ -143,6 +146,7 @@ function submit_survey(e) {
 }
 
 function send_survey() {
+  Logger.log("(" + arguments.callee.name + ") ");
   var form = get_survey();
   var MemberObject = main_range_object("Membership");
   for (var i in MemberObject["object_header"]){
@@ -153,11 +157,14 @@ function send_survey() {
 }
 
 function survey_email(form, email) {
-  var form = get_survey();
-  var email = "venturafranklin@gmail.com";
+//  var form = get_survey();
+//  var email = "venturafranklin@gmail.com";
+  Logger.log("(" + arguments.callee.name + ") ");
+  Logger.log("(" + arguments.callee.name + ") " + email);
   var url = form.getPublishedUrl();
+  Logger.log("(" + arguments.callee.name + ") " + url);
   // Fetch form's HTML
-  var response = UrlFetchApp.fetch(url);
+//  var response = UrlFetchApp.fetch(url);
 //  var htmlBody = HtmlService.createHtmlOutput(response).getContent();
   var chapter_name = get_chapter_name();
   var subject = chapter_name + " Chapter Survey";
