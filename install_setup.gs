@@ -460,6 +460,7 @@ function CSVToArray( strData, strDelimiter ){
 }
 
 function get_chapter_members(){
+  try{
   progress_update("Started Get Chapter Members<br>"+
                   "This will take some time, please be patient...");
   var chapter_name = get_chapter_name();
@@ -616,7 +617,7 @@ function get_chapter_members(){
       }
     }
     sheet.insertRowAfter(this_row);
-    var range = sheet.getRange(this_row+1, 1, 1, 10);
+    var range = sheet.getRange(this_row+1, 1, 1, 12);
     var range_note = sheet.getRange(this_row+1, 1);
     range_note.setNote("Member Info Updated: "+new_date);
     var member_object = CentralMemberObject[new_badge];
@@ -626,6 +627,10 @@ function get_chapter_members(){
       if (header == "Member Name"){
         var full_name = member_object["First Name"]+" "+member_object["Last Name"];
         new_values.push(full_name);
+        continue;
+      }
+      if (header == "Status Start" || header ==	"Status End"){
+        new_values.push("");
         continue;
       }
       var new_value = member_object[header];
@@ -638,6 +643,18 @@ function get_chapter_members(){
   }
   setup_attendance();
   progress_update("Finished Get Chapter Members");
+  } catch (e) {
+    var message = Utilities.formatString('%s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
+  } 
 }
 
 function shorten_membership_list(object_header) {
