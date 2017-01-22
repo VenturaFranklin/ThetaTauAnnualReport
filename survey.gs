@@ -16,7 +16,21 @@ function create_survey(){
     Logger.log("(" + arguments.callee.name + ") ");
     Logger.log(error);
   }
+  update_survey_sheet();
 }
+
+//function update_survey_sheet(){
+//  Does not work, list of sheets does not contain new Form sheet
+//  var ss = get_active_spreadsheet();
+//  var sheets = ss.getSheets();
+//  for (var i in sheets){
+//    var sheet = sheets[i];
+//    var name = sheet.getName();
+//    if (name.indexOf("Form") > -1){
+//        sheet.setName("FORM");
+//    }
+//  }
+//}
 
 function delete_survey() {
   SCRIPT_PROP.deleteProperty("survey");
@@ -29,6 +43,14 @@ function get_survey(){
 function survey_create(member_list){
   var chapter_name = get_chapter_name();
   var form = FormApp.create(chapter_name + ' Survey');
+  var gpaValidation = FormApp.createTextValidation()
+   .setHelpText("GPA is on a 4.0 scale; should be number between 0.0 and 5.0")
+   .requireNumberBetween(0, 5)
+   .build();
+  var servValidation = FormApp.createTextValidation()
+   .setHelpText("Service should be a number greater than 0.")
+   .requireNumberGreaterThan(0)
+   .build();
   form.addListItem()
   .setTitle("Name")
   .setChoiceValues(member_list)
@@ -36,22 +58,26 @@ function survey_create(member_list){
   form.addTextItem()
   .setTitle('Fall Service')
   .setHelpText('How many community service hours have you spent outside of Theta Tau events in the fall? (July-December)')
+  .setValidation(servValidation)
   .setRequired(true);
   form.addTextItem()
   .setTitle('Spring Service')
   .setHelpText('How many community service hours have you spent outside of Theta Tau events in the spring? (January-June)')
+  .setValidation(servValidation)
   .setRequired(true);
   form.addTextItem()
   .setTitle('Fall GPA')
-  .setHelpText('What is your fall semester GPA?')
+  .setHelpText('What is your fall semester GPA? Set as 0 if not yet calculated')
+  .setValidation(gpaValidation)
   .setRequired(true);
   form.addTextItem()
   .setTitle('Spring GPA')
-  .setHelpText('What is your spring semester GPA?')
+  .setHelpText('What is your spring semester GPA? Set as 0 if not yet calculated')
+  .setValidation(gpaValidation)
   .setRequired(true);
   form.addTextItem()
   .setTitle('Professional Orgs')
-  .setHelpText('What Professional/ Technical Organizations are you a member?')
+  .setHelpText('What Professional/ Technical Organizations are you a member? None, if none.')
   .setRequired(true);
   form.addMultipleChoiceItem()
   .setTitle('Professional Officer')
@@ -60,7 +86,7 @@ function survey_create(member_list){
   .setRequired(true);
   form.addTextItem()
   .setTitle('Honor Orgs')
-  .setHelpText('What Honor Organizations are you a member?')
+  .setHelpText('What Honor Organizations are you a member? None, if none.')
   .setRequired(true);
   form.addMultipleChoiceItem()
   .setTitle('Honor Officer')
@@ -69,7 +95,7 @@ function survey_create(member_list){
   .setRequired(true);
   form.addTextItem()
   .setTitle('Other Orgs')
-  .setHelpText('What Other Organizations are you a member?')
+  .setHelpText('What Other Organizations are you a member? None, if none.')
   .setRequired(true);
   form.addMultipleChoiceItem()
   .setTitle('Other Officer')
@@ -143,9 +169,9 @@ function survey_email(form, email) {
     '<br/><a href="'+url+'"> Survey</a> ('+url+')';
   var optAdvancedArgs = {name: chapter_name +" Chapter Scribe", htmlBody: htmlBody,
                          replyTo: email_chapter};
-//  if (!WORKING){
+  if (!WORKING){
     MailApp.sendEmail(email, subject,
                       emailBody,
                       optAdvancedArgs);
-//  }
+  }
 }
