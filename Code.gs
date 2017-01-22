@@ -66,21 +66,23 @@ function get_active_spreadsheet() {
 function onOpen(e) {
   SCRIPT_PROP.setProperty("password", "FALSE");
   var menu = SpreadsheetApp.getUi().createAddonMenu();
-  menu.addItem('Create Triggers', 'run_createTriggers');
   menu.addItem('Pledge Forms', 'side_pledge');
-  menu.addItem("RESET", 'RESET');
   menu.addItem('Refresh Attendance', 'refresh_attendance');
   menu.addItem('Refresh Events', 'refresh_events');
   menu.addItem('Refresh Members', 'refresh_members');
-  menu.addItem('SETUP', 'run_install');
   menu.addItem('Send Survey', send_survey)
   menu.addItem('SYNC', 'sync');
   menu.addItem('Status Change', 'side_member');
-  menu.addItem('Start Logging', 'start_logging');
   menu.addItem('Submit Item', 'side_submit');
-//  menu.addItem("TEST", 'TEST');//test_onEdit
-  menu.addItem('Unlock', 'unlock');
   menu.addItem('Update Officers', 'side_officers');
+  menu.addSeparator();
+  menu.addSubMenu(SpreadsheetApp.getUi().createMenu("Debugging")
+                  .addItem('Create Triggers', 'run_createTriggers')
+                  .addItem("RESET", 'RESET')
+                  .addItem('SETUP', 'run_install')
+                  .addItem('Start Logging', 'start_logging')
+                  .addItem('Unlock', 'unlock')
+  );
   menu.addToUi();
 }
 
