@@ -380,7 +380,7 @@ function setup_dataval(){
   for (var i in remove) {
     ss.getRange(remove[i]).clearDataValidations();
   }
-  ss.getRange("Membership!O2:V100").setBackground("white");
+  ss.getRange("Membership!O2:X100").setBackground("white");
   progress_update("Finished Data Val Setup");
 //requireNumberGreaterThan(number)
 //requireTextIsEmail()
