@@ -80,6 +80,15 @@ function survey_create(member_list){
 }
 
 function submit_survey(e) {
+//  var e = {authMode:"FULL",
+//           values:["1/21/2017 22:37:23", "AlexanderNEW G...",
+//                   5, 1, 3, 3.5, "TEST", "Yes", "None", "No", "None", "No"],
+//           namedValues:{"Spring GPA":[3.5], "Other Orgs":["None"], "Honor Officer":["No"],
+//                        "Professional Officer":["Yes"], "Fall Service":[5], "Fall GPA":[3],
+//                        "Professional Orgs":["TEST"], "Honor Orgs":["None"],
+//                        "Timestamp":["1/21/2017 22:37:23"], "Other Officer":["No"],
+//                        "Name":["AlexanderNEW G..."], "Spring Service":[1]},
+//           triggerUid:"8395862820412211388"}
   Logger.log("(" + arguments.callee.name + ") ");
   Logger.log(e);
   var fields = {"Fall Service": "Self Service Hrs FA",
@@ -95,7 +104,7 @@ function submit_survey(e) {
   var MemberObject = main_range_object("Membership");
   var sheet = MemberObject["sheet"];
   var survey_name = e.namedValues["Name"][0];
-  var member_object = MemberObject[survey_name];
+  var member_object = find_member_shortname(MemberObject, survey_name);
   var member_row = member_object["object_row"];
   var response = {};
   for (var field in fields) {
@@ -118,20 +127,25 @@ function send_survey() {
 }
 
 function survey_email(form, email) {
-//  var form = get_survey();
-//  var email = "venturafranklin@gmail.com";
+  var form = get_survey();
+  var email = "venturafranklin@gmail.com";
   var url = form.getPublishedUrl();
   // Fetch form's HTML
   var response = UrlFetchApp.fetch(url);
-  var htmlBody = HtmlService.createHtmlOutput(response).getContent();
+//  var htmlBody = HtmlService.createHtmlOutput(response).getContent();
   var chapter_name = get_chapter_name();
   var subject = chapter_name + " Chapter Survey";
   var email_chapter = SCRIPT_PROP.getProperty("email");
+  var emailBody = "Please fill out the following survey for the chapter's annual report:"+
+    "\nSurvey("+url+")";
+
+  var htmlBody = "Please fill out the following survey for the chapter's annual report:"+
+    '<br/><a href="'+url+'"> Survey</a> ('+url+')';
   var optAdvancedArgs = {name: chapter_name +" Chapter Scribe", htmlBody: htmlBody,
                          replyTo: email_chapter};
-  if (!WORKING){
+//  if (!WORKING){
     MailApp.sendEmail(email, subject,
-                      htmlBody,
+                      emailBody,
                       optAdvancedArgs);
-  }
+//  }
 }
