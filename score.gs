@@ -333,7 +333,7 @@ function get_scores_org_gpa_serv(){
       officer_counts[officers[j]] = officer_counts[officers[j]] ? officer_counts[officers[j]]:0;
       officer_counts[officers[j]] = officer.toUpperCase()=="YES" ? officer_counts[officers[j]]+1:officer_counts[officers[j]];
       officer_true = officer.toUpperCase()=="YES" ? true:officer_true;
-      Logger.log("(" + arguments.callee.name + ") " +"GPA: " + gpa + " ORG: " + org_true + " OFFICER: " + officer);
+//      Logger.log("(" + arguments.callee.name + ") " +"GPA: " + gpa + " ORG: " + org_true + " OFFICER: " + officer);
     }
     var service_hours_fa = MemberObject[member_name]["Service Hours Fall"][0];
     var service_hours_sp = MemberObject[member_name]["Service Hours Spring"][0];
