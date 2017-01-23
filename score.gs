@@ -71,6 +71,12 @@ function update_service_hours(){
         var member_name_raw = AttendanceObject.header_values[j];
         var member_name_short = att_name(member_name_raw);
         var member_object = find_member_shortname(MemberObject, member_name_short);
+        if (typeof member_object == 'undefined') {
+          Logger.log("(" + arguments.callee.name + ") " + "Missing Member: " + member_name_short);
+          ss.toast('Missing Member!' + member_name_short + 'Is missing from the membership sheet',
+                   'ERROR', 5);
+          continue;
+        }
         var member_name = member_object["Member Name"][0];
         var att = att_obj[member_name_raw][0];
         if (att == "P"){
@@ -564,11 +570,12 @@ function edit_score_method_event(myEvent, score_method){
 }
 
 function get_score_method(event_type, mod){
+//  var event_type = "Alumni-Active";
   var ScoringObject = main_range_object("Scoring");
   var score_object = ScoringObject[event_type];
   var score_type = score_object["Score Type"][0];
   var score_method_note = score_object["How points are calculated"][0];
-  var att =  score_object["Attendence Multiplier"][0];
+  var att =  score_object["Attendance Multiplier"][0];
   var att = (att != "") ? att:0;
   var add = score_object["Member Add"][0];
   var add = (add != "") ? add:0;
