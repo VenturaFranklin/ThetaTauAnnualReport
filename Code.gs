@@ -141,7 +141,7 @@ function get_member_list(status){
   for(var i = 0; i< MemberObject.object_count; i++) {
     var member_name = MemberObject.object_header[i];
     var member_status = MemberObject[member_name]["Chapter Status"][0];
-    if (member_status == "Away"){
+    if (member_status == "Away" || member_status == "Shiny"){
       member_status = "Student";
     }
     if (member_status == status){
