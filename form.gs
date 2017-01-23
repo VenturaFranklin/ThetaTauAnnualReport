@@ -329,12 +329,16 @@ function process_grad(form) {
 //  var form = {"date_start":["2017-01-01", "2017-01-02", "2017-01-03", "2017-01-04", "2017-01-05", "2017-01-06"],
 //              "new_location":["Test", "Test1", "Test2", "TEst3", "Arizona State University"],
 //              "phone":"(714) 656-5839",
-//              "name":["Allison Katz", "Adam Schilperoort", "Alec Sonderman", "AlexanderNEW Gerwe", "Amelia Sylvester", "AmmarNEW Mustafa"],
+//              "name":["Aimee Largier", "Albert Hu", "Alec Sonderman", "AlexanderNEW Gerwe", "Amelia Sylvester", "AmmarNEW Mustafa"],
 //              "degree":"Mechanical Engineeering",
 //              "dist":["100", "1000", "1000"], "date_end":["2017-02-02", "2017-02-03", "2017-02-04"],
 //              "type":["Degree received", "CoOp", "Military", "Abroad", "Transfer", "Withdrawn"], "email":"allisonbeth@cox.net"}
 //  form = {"date_start": "2017-01-01", "new_location": "Test", "name": "Adam Schilperoort",
 //          "dist": "100", "date_end": "2017-01-30", "type": "Abroad"};
+//  var form = {date_start:["2017-01-01", "2017-01-01"], new_location:["Test", "Test"],
+//              phone:"(707) 779-9411", name:["Aimee Largier", "Albert Hu"],
+//              degree:"Industrial Engineering", dist:"100", date_end:"2017-01-30",
+//              type:["Degree received", "CoOp"], email:"miminoxolo@comcast.net"};
   Logger.log("(" + arguments.callee.name + ") ");
   Logger.log(form);
 //  return;
@@ -351,11 +355,9 @@ function process_grad(form) {
   var degree_count = 0;
   var alum_count = 0;
   var nonalum_count = 0;
-  if (typeof form["type"] === 'string'){
-    for (var obj in form){
-      if (typeof obj === 'string'){
-        form[obj] = [form[obj]];
-      }
+  for (var obj in form){
+    if (typeof form[obj] === 'string'){
+      form[obj] = [form[obj]];
     }
   }
   Logger.log(form);
@@ -638,6 +640,6 @@ function sendemail_submission(submission_type, submission) {
   var optAdvancedArgs = {name: chapter +" Chapter", htmlBody: htmlBody,
                          replyTo: email_chapter, attachments: [file_obj]};
   if (!WORKING){
-  MailApp.sendEmail(email_director, subject, emailBody, optAdvancedArgs);
+    MailApp.sendEmail(email_director, subject, emailBody, optAdvancedArgs);
   }
 }
