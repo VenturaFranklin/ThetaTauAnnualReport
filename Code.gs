@@ -883,6 +883,20 @@ function sleep(milliseconds) {
   }
 }
 
+function check_duplicates(event_name, event_date){
+  // Just added event need to make sure no duplicate
+//  var event_date = "Sun Jan 01 2017 00:00:00 GMT-0700 (MST)";
+//  var event_name = "First Event";
+  var AttendanceObject = get_sheet_data("Attendance");
+  var last = AttendanceObject.name_date.lastIndexOf(event_name+event_date);
+  var first = AttendanceObject.name_date.indexOf(event_name+event_date);
+  if (first != last){
+    Logger.log("(" + arguments.callee.name + ") " + "There's a duplicate!");
+    var sheet = AttendanceObject.sheet;
+    sheet.deleteRow(last+1+1); // Extra 1 is for the header row which is not included in name_date
+  }
+}
+
 function attendance_add_event(event_name, event_date){
   //align_attendance_events(myObject["Event Name"][0], myObject.Date[0])
 //  var event_name = "Test";
@@ -913,4 +927,5 @@ function attendance_add_event(event_name, event_date){
   var attendance = range_object(sheet, attendance_rows+1);
   update_attendance(attendance);
   main_range_object("Attendance");
+  check_duplicates(event_name, event_date);
 }
