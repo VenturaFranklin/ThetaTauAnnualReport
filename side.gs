@@ -37,7 +37,7 @@ function side_submit() {
    var list_info = get_type_list('Submit', true);
   template.submissions = list_info.type_list;
   template.descriptions = list_info.type_desc;
-  template.folder_id = get_folder_id();
+  template.folder_id = get_submit_id();
   var htmlOutput = template.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setTitle('Submit Item')

@@ -84,7 +84,7 @@ function member_update(form) {
 
 function save_form(csvFile, form_type){
   try {
-    var folder_id = get_folder_id();
+    var folder_id = get_form_id();
     var folder = DriveApp.getFolderById(folder_id);
     var ss = get_active_spreadsheet();
     var chapterName = get_chapter_name();
@@ -543,44 +543,44 @@ function create_csv(data){
   }
 }
 
-
-function uploadFiles(form) {
-  Logger.log("(" + arguments.callee.name + ") " +form);
-  try {
-//    var folder_name = "Student Files";
-    var folder = DriveApp.getFolderById('0BwvK5gYQ6D4nWVhUVlo4dUhYV0E');
-//    var folder, folders = DriveApp.getFoldersByName(folder_name);
-    
-//    if (folders.hasNext()) {
-//      folder = folders.next();
-//    } else {
-//      folder = DriveApp.createFolder(folder_name);
-//    }
-    var blob = form.myFile;
-    Logger.log("(" + arguments.callee.name + ") " +"fileBlob Name: " + blob.getName())
-    Logger.log("(" + arguments.callee.name + ") " +"fileBlob type: " + blob.getContentType())
-    Logger.log("(" + arguments.callee.name + ") " +'fileBlob: ' + blob);
-    var file = folder.createFile(blob);    
-//    file.setDescription("Uploaded by " + form.myName);
-    var template = HtmlService.createTemplateFromFile('response');
-    var file_url = template.fileUrl = file.getUrl();
-    var submission_date = template.date = new Date();
-    var submission_type = template.type = form.submissions;
-    var ss = get_active_spreadsheet();
-    var sheet = ss.getSheetByName("Submissions");
-    var max_column = sheet.getLastColumn();
-    var max_row = sheet.getLastRow();
-    var submit_range = sheet.getRange(max_row + 1, 1, 1, max_column);
-    var file_name = template.name = file.getName();
-    submit_range.setValues([[submission_date, file_name, submission_type, 0, file_url]])
-    update_scores_submit(max_row + 1);
-    return template.evaluate().getContent();
-  } catch (error) {
-    var this_error = error.toString();
-    Logger.log("(" + arguments.callee.name + ") " +this_error);
-    return this_error;
-  }
-}
+//function uploadFiles(form) {
+//  Logger.log("(" + arguments.callee.name + ") " +form);
+//  try {
+////    var folder_name = "Student Files";
+//    var folder_id = get_folder_id();
+//    var folder = DriveApp.getFolderById(folder_id);
+////    var folder, folders = DriveApp.getFoldersByName(folder_name);
+//    
+////    if (folders.hasNext()) {
+////      folder = folders.next();
+////    } else {
+////      folder = DriveApp.createFolder(folder_name);
+////    }
+//    var blob = form.myFile;
+//    Logger.log("(" + arguments.callee.name + ") " +"fileBlob Name: " + blob.getName())
+//    Logger.log("(" + arguments.callee.name + ") " +"fileBlob type: " + blob.getContentType())
+//    Logger.log("(" + arguments.callee.name + ") " +'fileBlob: ' + blob);
+//    var file = folder.createFile(blob);    
+////    file.setDescription("Uploaded by " + form.myName);
+//    var template = HtmlService.createTemplateFromFile('response');
+//    var file_url = template.fileUrl = file.getUrl();
+//    var submission_date = template.date = new Date();
+//    var submission_type = template.type = form.submissions;
+//    var ss = get_active_spreadsheet();
+//    var sheet = ss.getSheetByName("Submissions");
+//    var max_column = sheet.getLastColumn();
+//    var max_row = sheet.getLastRow();
+//    var submit_range = sheet.getRange(max_row + 1, 1, 1, max_column);
+//    var file_name = template.name = file.getName();
+//    submit_range.setValues([[submission_date, file_name, submission_type, 0, file_url]])
+//    update_scores_submit(max_row + 1);
+//    return template.evaluate().getContent();
+//  } catch (error) {
+//    var this_error = error.toString();
+//    Logger.log("(" + arguments.callee.name + ") " +this_error);
+//    return this_error;
+//  }
+//}
 
 function post_submit(file_object, submission_type, program) {
   var template = HtmlService.createTemplateFromFile('response');

@@ -8,7 +8,13 @@ function create_survey(){
   .setAllowResponseEdits(false)
   .setAcceptingResponses(true)
   .setRequireLogin(false);
-  SCRIPT_PROP.setProperty("survey", form.getId());
+  var survey_id = form.getId();
+  SCRIPT_PROP.setProperty("survey", survey_id);
+  var file = DriveApp.getFileById(survey_id);
+  var folder = DriveApp.getFolderById(get_folder_id());
+  folder.addFile(file);
+  var root_folder = DriveApp.getRootFolder();
+  root_folder.removeFile(file);
   try {
     ScriptApp.newTrigger('submit_survey')
     .forSpreadsheet(ss)

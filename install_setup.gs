@@ -236,23 +236,38 @@ function create_submit_folder(chapter_name, region) {
   }
   var folder_chapter = folder_region.getFoldersByName(chapter_name);
   if (folder_chapter.hasNext()) {
-    folder_chapter = folder_chapter.next()
+    folder_chapter = folder_chapter.next();
     progress_update("Found Chapter Folder: " + chapter_name);
+    var submit_folder = folder_chapter.getFoldersByName("Submissions");
+    submit_folder = submit_folder.next();
+    var form_folder = folder_chapter.getFoldersByName("Forms");
+    form_folder = form_folder.next();
   } else {
     folder_chapter = folder_region.createFolder(chapter_name);
+    var submit_folder = folder_chapter.createFolder("Submissions");
+    var form_folder = folder_chapter.createFolder("Forms");
     progress_update("Created Chapter Folder: " + chapter_name);
   }
   var folder_id = folder_chapter.getId();
   SCRIPT_PROP.setProperty("folder", folder_id);
+  SCRIPT_PROP.setProperty("submit", submit_folder.getId());
+  SCRIPT_PROP.setProperty("form", form_folder.getId());
   var file = DriveApp.getFileById(SCRIPT_PROP.getProperty("key"));
   DriveApp.addFolder(folder_chapter); // Adds the chapter folder to user drive
   folder_chapter.addFile(file); // Adds the ss to chapter folder
   DriveApp.removeFile(file); // Removes ss from user drive
 }
 
+function get_form_id() {
+  return SCRIPT_PROP.getProperty("form");
+}
+
+function get_submit_id() {
+  return SCRIPT_PROP.getProperty("submit");
+}
+
 function get_folder_id() {
   return SCRIPT_PROP.getProperty("folder");
-  progress_update("Finished Submit Folder Creation");
 }
 
 function chapter_name() {
@@ -754,7 +769,13 @@ function RESET() {
     var folder_chapter = DriveApp.getFolderById(folder_id);
     var file = DriveApp.getFileById(SCRIPT_PROP.getProperty("key"));
     folder_chapter.removeFile(file);
+    var form_folder = DriveApp.getFolderById(get_form_id());
+    var submit_folder = DriveApp.getFolderById(get_submit_id());
+    folder_chapter.removeFolder(form_folder);
+    folder_chapter.removeFolder(submit_folder);
+    folder_chapter.setTrashed(true);
   }
+    
   var sheets = target_doc.getSheets();
   var new_sheet = target_doc.insertSheet();
   
@@ -769,6 +790,9 @@ function RESET() {
     named_range.remove();
   }
   target_doc.rename("BLANK");
+  var survey_id = SCRIPT_PROP.getProperty("survey");
+  var file = DriveApp.getFileById(survey_id);
+  file.setTrashed(true);
   SCRIPT_PROP.deleteAllProperties();
   var triggers = ScriptApp.getProjectTriggers();
   for (var i = 0; i < triggers.length; i++) {
