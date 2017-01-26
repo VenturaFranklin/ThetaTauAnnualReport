@@ -165,6 +165,10 @@ function update_score_member_pledge(){
   var grad_fa_value = member_value_obj.grad_fa_range.getValue();
   var act_sp_value = member_value_obj.act_sp_range.getValue();
   var act_fa_value = member_value_obj.act_fa_range.getValue();
+  var all_vals = [init_sp_value, init_fa_value, pledge_sp_value, pledge_fa_value,
+                  grad_sp_value, grad_fa_value, act_sp_value, act_fa_value];
+  Logger.log("(" + arguments.callee.name + ") " + all_vals)
+  if (all_vals.indexOf("") > -1){return;};
   var ScoringObject = main_range_object("Scoring");
   var score_method_pledge_raw = ScoringObject["Pledge Ratio"]["Special"][0];
   var score_pledge_max = ScoringObject["Pledge Ratio"]["Max/ Semester"][0];
