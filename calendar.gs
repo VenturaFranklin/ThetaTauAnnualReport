@@ -36,3 +36,38 @@ function find_event(calendar, event_name, event_date){
 function calendar_add_event(){
   // Gets a list of events from the calendar and adds it to the Events sheet
 }
+
+function share_calendar( user, role ) {
+  // From: http://stackoverflow.com/a/27110258/3166424
+  role = role || "reader";
+//  var user = "test_020@thetatau.org";
+  var calId  = CalendarApp.getDefaultCalendar().getId();
+  var acl = null;
+
+  // Check whether there is already a rule for this user
+  try {
+    var acl = Calendar.Acl.get(calId, "user:"+user);
+  }
+  catch (e) {
+    // no existing acl record for this user - as expected. Carry on.
+  }
+
+  if (!acl) {
+    // No existing rule - insert one.
+    acl = {
+      "scope": {
+        "type": "user",
+        "value": user
+      },
+      "role": role
+    };
+    var newRule = Calendar.Acl.insert(acl, calId);
+  }
+  else {
+    // There was a rule for this user - update it.
+    acl.role = role;
+    newRule = Calendar.Acl.update(acl, calId, acl.id)
+  }
+
+  return newRule;
+}

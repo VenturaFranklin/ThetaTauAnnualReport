@@ -108,6 +108,31 @@ function sync_region() {
   }
 }
 
+function delete_rds(){
+  SCRIPT_PROP.deleteProperty("Director A");
+  SCRIPT_PROP.deleteProperty("Director B");
+  SCRIPT_PROP.deleteProperty("Director C");
+}
+
+function sync_rds(ss_prop){
+//  var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
+//  var ss_prop = SpreadsheetApp.openById(properties_id);
+  var region = SCRIPT_PROP.getProperty("region");
+  var main_object = main_range_object("REGIONS", "Region Description", ss_prop);
+  var region_prop = main_object[region];
+  for (var j in region_prop.object_header){
+    var header = region_prop.object_header[j];
+    if (header.indexOf("Director") > -1){
+      var val = region_prop[header][0];
+      var old_val = SCRIPT_PROP.getProperty(header);
+      if (val != old_val){
+        SCRIPT_PROP.setProperty(header, val);
+        share_calendar(val);
+      }
+    }
+  }
+}
+
 function sync_main(){
   var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
   var ss_prop = SpreadsheetApp.openById(properties_id);
@@ -135,6 +160,7 @@ function sync_main(){
     var score_col = main_object.header_values.indexOf(score_type_raw)+1;
     main_sheet.getRange(chapter_row, score_col).setValue(score);
   }
+  sync_rds(ss_prop);
 }
 
 function calc_top_average(main_object){
