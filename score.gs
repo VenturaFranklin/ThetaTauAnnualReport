@@ -483,7 +483,20 @@ function get_current_scores(sheetName){
   date_types["FALL"] = {};
   for(var i = 1; i< date_values.length; i++) {
 		var date = date_values[i];
+    try{
         var month = date.getMonth();
+    } catch (e) {
+      var message = Utilities.formatString('DATE ERROR; Date Obj: %s; i: %s; Date Values: %s; Date Ind: %s; Stack: "%s"; While processing: %s.',
+                                           date||'', i||'', date_values||'', date_ind||'',
+                                           e.stack||'', arguments.callee.name||'');
+      Logger.severe(message);
+      var ui = SpreadsheetApp.getUi();
+      var result = ui.alert(
+        'ERROR',
+        message,
+        ui.ButtonSet.OK);
+      return date_types;
+    }
 		var type_name = type_values[i];
 		var score = score_values[i];
 		var semester = "FALL";
