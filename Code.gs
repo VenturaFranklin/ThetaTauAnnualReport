@@ -70,7 +70,7 @@ function onOpen(e) {
   menu.addItem('Refresh Attendance', 'refresh_attendance');
   menu.addItem('Refresh Events', 'refresh_events');
   menu.addItem('Refresh Members', 'refresh_members');
-  menu.addItem('Send Survey', send_survey)
+  menu.addItem('Send Survey', 'send_survey');
   menu.addItem('SYNC', 'sync');
   menu.addItem('Status Change', 'side_member');
   menu.addItem('Submit Item', 'side_submit');
@@ -699,6 +699,7 @@ function main_range_object(sheetName, short_header, ss){
   var sheet = ss.getSheetByName(sheetName);
   switch (sheetName){
     case "Membership":
+    case "REGIONS":
     case "MAIN":
       if (short_header == undefined){
       var short_header = "Member Name";
