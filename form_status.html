@@ -49,9 +49,11 @@
          var prealumn = "DISABLED"
          var withdrawn = null
          var disabled = null
-         if (status == "Transfer" || status == "PreAlumn" || status == "Withdrawn"){disabled = "DISABLED"}
+         var returning = ""
+         var check = ["Transfer", "PreAlumn", "Withdrawn"]
+         if (check.indexOf(status) > -1){disabled = "DISABLED"}
          if (status == "PreAlumn"){prealumn = null}
-         if (status == "Withdrawn"){withdrawn = "DISABLED"}
+         if (status == "Withdrawn" || status == "Returning"){withdrawn = "DISABLED"}
       ?>
         <tr>
         <td><input size="11" name="name" value="<?= name ?>" id="<?= name ?>" readonly></td>

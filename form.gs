@@ -369,7 +369,11 @@ function process_grad(form) {
     var badge = member_object["Badge Number"][0];
     var first = member_object["First Name"][0];
     var last = member_object["Last Name"][0];
-    var loc = form["new_location"][i]
+    if (type != "Returning"){
+      var loc = form["new_location"][i];
+    } else {
+      var loc = "None";
+    }
     var date_start = form["date_start"][i];
     date_start = format_date(date_start);
     var status_range = sheet.getRange(member_object["object_row"],
@@ -459,6 +463,8 @@ function process_grad(form) {
                    "Co-Op/Internship",
                    date_start, date_end, dist]);
         break;
+      default:
+        return ["Student Resuming Student Member Status", null];
     }
   }
   Logger.log("(" + arguments.callee.name + ") " +"COOP");
