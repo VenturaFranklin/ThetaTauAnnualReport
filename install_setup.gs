@@ -183,8 +183,8 @@ function protect_ranges(){
 }
 
 function create_submit_folder(chapter_name, region) {
-  var chapter_name = "Epsilon Delta";
-  var region = "Western";
+//  var chapter_name = "Epsilon Delta";
+//  var region = "Western";
   progress_update("Started Submit Folder Creation");
   var folder_id = "0BwvK5gYQ6D4nTDRtY1prZG12UU0";
   var folder_submit = DriveApp.getFolderById(folder_id);
