@@ -144,7 +144,7 @@ function chapter_name_process(form) {
   createTriggers();
   create_survey();
   progress_update("Started Sync Main Info");
-  sync_main()
+  sync_main();
   var ui = SpreadsheetApp.getUi();
   ui.alert('SETUP COMPLETE!\n'+
            'Next steps:\n'+
