@@ -540,6 +540,9 @@ function get_chapter_members(){
         }
         member_object[col_name] = row[indx[col_name]];
       }
+      if (CentralMemberObject['badge_numbers'].indexOf(badge_number) > -1){
+        continue;
+      }
       CentralMemberObject['badge_numbers'].push(badge_number);
       CentralMemberObject[badge_number] = member_object;
     }
