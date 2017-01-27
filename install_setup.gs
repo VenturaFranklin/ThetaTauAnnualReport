@@ -183,8 +183,8 @@ function protect_ranges(){
 }
 
 function create_submit_folder(chapter_name, region) {
-//  var chapter_name = "Epsilon Delta";
-//  var region = "Western";
+  var chapter_name = "Epsilon Delta";
+  var region = "Western";
   progress_update("Started Submit Folder Creation");
   var folder_id = "0BwvK5gYQ6D4nTDRtY1prZG12UU0";
   var folder_submit = DriveApp.getFolderById(folder_id);
@@ -223,9 +223,11 @@ function create_submit_folder(chapter_name, region) {
   var main_sheet = dash.getSheetByName("MAIN");
   var main_values = main_sheet.getDataRange().getValues();
   var found_chapter = false;
-  for (var row in main_values){
+  for (var i in main_values){
+    var row = main_values[i];
     if (row.indexOf(chapter_name) > -1){
       found_chapter = true;
+      break;
     }
   }
   if (!found_chapter){
