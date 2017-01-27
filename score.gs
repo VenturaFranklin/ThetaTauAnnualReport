@@ -1,5 +1,5 @@
 function update_scores_event(object){
-//  var object = 3;
+//  var object = 6;
 //  var object = range_object("Attendance", 3);
   Logger.log("(" + arguments.callee.name + ")");
   var att_obj = true;
@@ -582,6 +582,9 @@ function edit_score_method_event(myEvent, score_method){
     update_service_hours();
     return null;
           }
+  if (~score_method.indexOf("MISC")){
+    return null;
+  }
   Logger.log("(" + arguments.callee.name + ") " +"Score Method Raw: " + score_method)
   return score_method
 }
