@@ -605,7 +605,7 @@ function event_fields_set(myObject){
              .setNote("Do not edit");
   var needed_field_values = [];
   Logger.log("(" + arguments.callee.name + ") " +needed_fields);
-  var yes_no_fields = ['STEM?', 'PLEDGE Focus', 'HOST'];
+  var yes_no_fields = ['STEM?', 'HOST'];
   var optional_fields = yes_no_fields.slice(0);
   optional_fields.push('# Non- Members', 'MILES');
   for (var i in needed_fields){

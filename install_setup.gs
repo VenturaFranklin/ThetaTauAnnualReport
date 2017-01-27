@@ -365,7 +365,7 @@ function setup_dataval(){
     .setAllowInvalid(false).build();
   range.setDataValidation(rule);
 
-  var yes_no = ["EventsSTEM", "EventsPledge", "EventsHost",
+  var yes_no = ["EventsSTEM", "EventsHost",
                 "MemberPro", "MemberHonor", "MemberOther"];
   var rule = SpreadsheetApp.newDataValidation()
     .requireValueInList(['Yes', 'No'])

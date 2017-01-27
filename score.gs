@@ -569,11 +569,6 @@ function edit_score_method_event(myEvent, score_method){
       var stem = (stem.toUpperCase() == "YES") ? 1:0;
       score_method = score_method.replace("STEM", stem);
           }
-  if (~score_method.indexOf("P_FOCUS")){
-      var focus = myEvent["PLEDGE Focus"][0];
-      var focus = (focus.toUpperCase() == "YES") ? 1:0;
-      score_method = score_method.replace("P_FOCUS", focus);
-          }
   if (~score_method.indexOf("MEETINGS")){
     update_score_att();
     return null;
