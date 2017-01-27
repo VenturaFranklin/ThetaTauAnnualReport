@@ -897,6 +897,11 @@ function check_duplicates(event_name, event_date){
     Logger.log("(" + arguments.callee.name + ") " + "There's a duplicate!");
     var sheet = AttendanceObject.sheet;
     sheet.deleteRow(last+1+1); // Extra 1 is for the header row which is not included in name_date
+    if ((last-first) > 1){
+      // When there are > 1 extra events
+      Logger.log("(" + arguments.callee.name + ") " + "More than one duplicate!");
+      check_duplicates(event_name, event_date);
+    }
   }
 }
 
