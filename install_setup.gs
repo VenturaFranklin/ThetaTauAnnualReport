@@ -680,7 +680,7 @@ function get_chapter_members(){
 function shorten_membership_list(object_header) {
   var short_list = [];
   for (var i in object_header){
-    var short = shorten(object_header[i], 12, false);
+    var short = shorten(object_header[i], 20, false);
     short_list.push(short);
   }
   return short_list;
@@ -708,7 +708,7 @@ function setup_attendance(){
       continue;
     }
     var header_values = header_range.getValues()[0];
-    var member_name_short = shorten(member_name, 12, false);
+    var member_name_short = shorten(member_name, 20, false);
     var col = header_values.indexOf(member_name_short)+1;
     if (col > 2){
       sheet.deleteColumn(col);
