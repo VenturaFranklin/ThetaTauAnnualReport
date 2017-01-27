@@ -179,7 +179,7 @@ function process_oer(form) {
       end = TCS_end;
     }
     var member_object = find_member_shortname(MemberObject, form[key]);
-    var row = ["N/A", formatted, chapterName, key, start, end, member_object["Badge Number"][0],
+    var row = ["", formatted, chapterName, key, start, end, member_object["Badge Number"][0],
               member_object["First Name"][0], member_object["Last Name"][0],
               member_object["Phone Number"][0], member_object["Email Address"][0], ""];
     Logger.log("(" + arguments.callee.name + ") " +row);
@@ -281,7 +281,7 @@ function process_init(form) {
         return [false, name];
       }
       date_grad = format_date(date_grad);
-      INIT.push(["N/A", formatted, date_init, chapterName,
+      INIT.push(["", formatted, date_init, chapterName,
                  date_grad, roll, first, "",
                  last, GPA, testA,
                  testB, "Initiation Fee", "Late Fee",
@@ -303,7 +303,7 @@ function process_init(form) {
       }
       date_depl = format_date(date_depl);
       var reason = form["reason"][i];
-      DEPL.push(["N/A", formatted, chapterName, first, last, reason, date_depl]);
+      DEPL.push(["", formatted, chapterName, first, last, reason, date_depl]);
     }
   }
   Logger.log("(" + arguments.callee.name + ") " +"INIT");
@@ -428,38 +428,38 @@ function process_grad(form) {
     }
     switch (type) {
       case "Degree received":
-        MSCR.push(["N/A", formatted, badge, first, last, phone, email,
+        MSCR.push(["", formatted, badge, first, last, phone, email,
                    "Graduated from school", degree, date_start, loc, "",
                    "", "", "", "", "", ""]);
         break;
       case "Transfer":
-        MSCR.push(["N/A", formatted, badge, first, last, "", "",
+        MSCR.push(["", formatted, badge, first, last, "", "",
                    "Transferring to another school", "",
                    "", "", "", "", "", "",
                    loc, date_start, ""]);
         break;
       case "Withdrawn":
-        MSCR.push(["N/A", formatted, badge, first, last, "", "",
+        MSCR.push(["", formatted, badge, first, last, "", "",
                    "Withdrawing from school", "", "", "", "", "",
                    "Yes", date_start, "", "", ""]);
         break;
       case "PreAlumn":
-        MSCR.push(["N/A", formatted, badge, first, last, "", "",
+        MSCR.push(["", formatted, badge, first, last, "", "",
                    "Wishes to REQUEST Premature Alum Status", "",
                    "", "", "", "", "", "", "", "", prealumn]);
         break;
       case "Abroad":
-        COOP.push(["N/A", formatted, badge, first, last,
+        COOP.push(["", formatted, badge, first, last,
                    "Study Abroad", date_start,
                    date_end, dist]);
         break;
       case "Military":
-        COOP.push(["N/A", formatted, badge, first, last,
+        COOP.push(["", formatted, badge, first, last,
                    "Called to Active/Reserve Military Duty",
                    date_start, date_end, dist]);
         break;
       case "CoOp":
-        COOP.push(["N/A", formatted, badge, first, last,
+        COOP.push(["", formatted, badge, first, last,
                    "Co-Op/Internship",
                    date_start, date_end, dist]);
         break;
