@@ -90,6 +90,8 @@ function sync_region() {
   }
   var score_col = main_chapter.first_row.indexOf("Total")+1;
   main_sheet.getRange(chapter_row, score_col).setValue(score_total);
+  var update_col = main_chapter.first_row.indexOf("Last Updated")+1;
+  main_sheet.getRange(chapter_row, update_col).setValue(new Date());
   var event_row_max = event_sheet.getLastRow();
   var event_col_max = event_sheet.getLastColumn();
   for (var row_ind in event_extend){
@@ -160,6 +162,8 @@ function sync_main(){
     var score_col = main_object.header_values.indexOf(score_type_raw)+1;
     main_sheet.getRange(chapter_row, score_col).setValue(score);
   }
+  var update_col = main_object.header_values.indexOf("Last Updated")+1;
+  main_sheet.getRange(chapter_row, update_col).setValue(new Date());
   sync_rds(ss_prop);
 }
 
