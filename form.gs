@@ -19,6 +19,9 @@ function pledge_update(form) {
   }
   html.init = INIT
   html.depl = DEPL
+  var jewelry = get_guard_badge();
+  html.badges = jewelry.badges;
+  html.guards = jewelry.guards;
   var htmlOutput = html.evaluate()
     .setSandboxMode(HtmlService.SandboxMode.IFRAME)
     .setWidth(700)
@@ -196,22 +199,17 @@ function process_oer(form) {
 }
 
 function process_init(form) {
-//  var form = {"badge": ["109 ($20)", "109 ($20)", "106 ($67)", "102 ($165)", "109 ($20)", "102 ($165)", "102 ($165)"],
-//              "reason": "Lost interest",
-//              "name_init": ["Nicholas Larson", "David Montgome...", "Ryan Richard", "Justine Saugen",
-//                            "Mark Silvern", "Monica Sproul", "Daniel Tranfag..."],
-//              "testB": ["1", "2", "3", "4", "5", "6", "7"],
-//              "date_init": "2016-08-01",
-//              "name_depl": "Esgar Moreno",
-//              "guard": ["None", "Goldgloss & Plain", "Goldgloss & Chased/Engraved",
-//                        "10k Gold & Chased/Engraved", "10k Gold & Crown Set Pearl",
-//                        "10k Gold & Close Set Pearl", "Goldgloss & Plain"],
-//              "roll": ["1", "2", "3", "4", "5", "6", "7"],
-//              "GPA": ["1", "2", "3", "4", "5", "6", "7"],
-//              "date_grad": ["2016-08-01", "2016-08-01", "2015-08-01", "2016-08-01",
-//                            "2016-08-01", "2016-08-01", "2016-08-01"],
-//              "testA": ["1", "2", "3", "4", "5", "6", "7"],
-//              "date_depl": "2015-08-01"}
+//  var form = {badge:["Crown pearls Gold-Filled/Layered", "Basic"],
+//              reason:"Too much time required",
+//              name_init:["Austin Mutschl...", "Avery Davidson"],
+//              testB:["1", "10"],
+//              date_init:"2017-01-01",
+//              name_depl:"Benjamin Ambri",
+//              guard:["Engraved 10kt gold", "None"],
+//              roll:["1", "10"], "GPA":["1", "10"],
+//              date_grad:["2017-05-01", "2018-05-10"],
+//              testA:["1", "10"],
+//              date_depl:"2017-01-20"};
   Logger.log("(" + arguments.callee.name + ") ");
   Logger.log(form);
 //  return;
@@ -219,7 +217,7 @@ function process_init(form) {
   var sheet = MemberObject["sheet"];
   var INIT = [header_INIT()];
   var DEPL = [header_DEPL()];
-  var date = new Date();
+  var this_date = new Date();
   var date_init = form["date_init"];
   var ss = get_active_spreadsheet();
   if (date_init == ""){
@@ -228,9 +226,9 @@ function process_init(form) {
     }
   date_init = format_date(date_init);
   var chapterName = get_chapter_name();
-  var formatted = (date.getMonth() + 1) + '-' + date.getDate() + '-' +
-                  date.getFullYear() + ' ' + date.getHours() + ':' +
-                  date.getMinutes() + ':' + date.getSeconds();
+  var formatted = (this_date.getMonth() + 1) + '-' + this_date.getDate() + '-' +
+                  this_date.getFullYear() + ' ' + this_date.getHours() + ':' +
+                  this_date.getMinutes() + ':' + this_date.getSeconds();
   var init_count = 0;
   var depl_count = 0;
   var depl_objs = ["reason", "date_depl", "name_depl"];
@@ -274,18 +272,27 @@ function process_init(form) {
       var testB = form["testB"][i];
       var badge = form["badge"][i];
       var guard = form["guard"][i];
+      var init_date = new Date(date_init);
+      var timeDiff = Math.abs(this_date.getTime() - init_date.getTime());
+      var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+      var late = (diffDays > 14) ? 25:0;
+      var init_fee = (chapterName.indexOf("Colony") > -1) ? 30:75;
       var arr = [date_grad, roll, GPA, testA, testB];
       if (arr.indexOf("") > -1){
         ss.toast('You must set all of the fields!\nMissing information for:\n'
                  +name, 'ERROR', 5);
         return [false, name];
       }
+      var jewelry = get_guard_badge();
+      var badge_cost = jewelry.badges[badge];
+      var guard_cost = jewelry.guards[guard];
+      var sum = +init_fee + late + badge_cost + guard_cost;
       date_grad = format_date(date_grad);
       INIT.push(["", formatted, date_init, chapterName,
                  date_grad, roll, first, "",
                  last, GPA, testA,
-                 testB, "Initiation Fee", "Late Fee",
-                 "Badge Style", "Guard Type", "Badge Cost", "Guard Cost", "Sum for member"]);
+                 testB, init_fee, late,
+                 badge, guard, badge_cost, guard_cost, sum]);
     }
   }
   if (form["name_depl"] !== undefined){

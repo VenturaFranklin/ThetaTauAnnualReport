@@ -702,6 +702,7 @@ function main_range_object(sheetName, short_header, ss){
   switch (sheetName){
     case "Membership":
     case "REGIONS":
+    case "Jewelry":
     case "MAIN":
       if (short_header == undefined){
       var short_header = "Member Name";
