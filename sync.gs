@@ -4,8 +4,8 @@ function sync(){
 }
 
 function sync_region() {
-  var dash_id = SCRIPT_PROP.getProperty("dash");
 //  var dash_id = "10ebwK7tTKgveVCEOpRle2S17d4UjwmsoXXCPFvC9A-A";
+  var dash_id = SCRIPT_PROP.getProperty("dash");
   var dash_file = SpreadsheetApp.openById(dash_id);
   var chapter = SCRIPT_PROP.getProperty("chapter");
   var main_sheet = dash_file.getSheetByName("MAIN");
@@ -116,6 +116,44 @@ function delete_rds(){
   SCRIPT_PROP.deleteProperty("Director C");
 }
 
+function sync_jewelry(ss_prop){
+//  var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
+//  var ss_prop = SpreadsheetApp.openById(properties_id);
+  Logger.log("(" + arguments.callee.name + ") ");
+  var chapter = SCRIPT_PROP.getProperty("chapter");
+  chapter = "Delta Gamma";
+  var num = chapter.split(" ");
+  var letter = (num.length > 1) ? 2:1;
+  var main_object = main_range_object("Jewelry", "Item", ss_prop);
+  var badges = {};
+  var guards = {};
+  for (var row in main_object.object_header){
+    var item = main_object[main_object.object_header[row]];
+    if (item.hasOwnProperty("Badge Style")){
+      badges[item["Badge Style"][0]] = item["Badge Cost"][0];
+      guards[item["Guard Type"][0]] = item[letter][0];
+    }
+  }
+  Logger.log(badges);
+  Logger.log(guards);
+  delete badges[""];
+  guards["None"] = 0;
+  SCRIPT_PROP.setProperty("badges", JSON.stringify(badges));
+  SCRIPT_PROP.setProperty("guards", JSON.stringify(guards));
+}
+
+function get_guard_badge(){
+  var badges = SCRIPT_PROP.getProperty("badges");
+  var guards = SCRIPT_PROP.getProperty("guards");
+  var badges = JSON.parse(badges);
+  var guards = JSON.parse(guards);
+  Logger.log(badges);
+  Logger.log(guards);
+  return {badges: badges,
+          guards: guards}
+}
+  
+
 function sync_rds(ss_prop){
 //  var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
 //  var ss_prop = SpreadsheetApp.openById(properties_id);
@@ -165,6 +203,7 @@ function sync_main(){
   var update_col = main_object.header_values.indexOf("Last Updated")+1;
   main_sheet.getRange(chapter_row, update_col).setValue(new Date());
   sync_rds(ss_prop);
+  sync_jewelry(ss_prop);
 }
 
 function calc_top_average(main_object){
