@@ -165,7 +165,7 @@ function sync_rds(ss_prop){
     if (header.indexOf("Director") > -1){
       var val = region_prop[header][0];
       var old_val = SCRIPT_PROP.getProperty(header);
-      if (val != old_val){
+      if (val != old_val && val!=""){
         SCRIPT_PROP.setProperty(header, val);
         share_calendar(val);
       }
