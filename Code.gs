@@ -600,7 +600,7 @@ function event_fields_set(myObject){
   var sheet = myObject["sheet"];
   var new_range = sheet.getRange(event_row, 3);
   new_range.setNote(score_description);
-  var field_range = sheet.getRange(event_row, 10, 1, 5);
+  var field_range = sheet.getRange(event_row, 10, 1, 4);
   field_range.setBackground("black")
              .setNote("Do not edit");
   var needed_field_values = [];
