@@ -593,8 +593,6 @@ function get_needed_fields(event_type){
 function event_fields_set(myObject){
   var score_info = get_needed_fields(myObject["Type"][0]);
   var needed_fields = score_info.needed_fields;
-  // No needed fields
-  if (needed_fields[0] == ""){return true;};
   var score_description = score_info.score_description;
   var event_row = myObject["object_row"];
   var sheet = myObject["sheet"];
@@ -603,6 +601,8 @@ function event_fields_set(myObject){
   var field_range = sheet.getRange(event_row, 10, 1, 4);
   field_range.setBackground("black")
              .setNote("Do not edit");
+  // No needed fields
+  if (needed_fields[0] == ""){return true;};
   var needed_field_values = [];
   Logger.log("(" + arguments.callee.name + ") " +needed_fields);
   var yes_no_fields = ['STEM?', 'HOST'];
