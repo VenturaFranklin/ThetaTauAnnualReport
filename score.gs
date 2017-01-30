@@ -484,7 +484,11 @@ function get_current_scores(sheetName){
   for(var i = 1; i< date_values.length; i++) {
 		var date = date_values[i];
     try{
+      if (typeof date == 'undefined' || date == ''){
+        continue;
+      } else {
         var month = date.getMonth();
+      }
     } catch (e) {
       var message = Utilities.formatString('DATE ERROR; Date Obj: %s; i: %s; Date Values: %s; Date Ind: %s; Stack: "%s"; While processing: %s.',
                                            date||'', i||'', date_values||'', date_ind||'',
