@@ -1,5 +1,33 @@
 <!DOCTYPE html>
 <html>
+<style>
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+</style>
   <head>
     <base target="_top">
   </head>
@@ -23,11 +51,21 @@ HELP</a>
 <td><input id="officer_end" name="officer_end" type="date" size="15"/></td>
 </tr>
 <tr>
-<td><label for="TCS_start">T/CS Start Date: </label></td>
+<td>
+<label for="TCS_start">
+  <div class="tooltip">
+    T/CS Start Date: 
+    <span class="tooltiptext">Treasurer/CorSec</span>
+  </div></label></td>
 <td><input id="TCS_start" name="TCS_start" type="date" size="15"/></td>
 </tr>
 <tr>
-<td><label for="TCS_end">T/CS End Date: </label></td>
+<td><label for="TCS_end">
+  <div class="tooltip">
+    T/CS End Date: 
+    <span class="tooltiptext">Treasurer/CorSec</span>
+  </div>
+  </label></td>
 <td><input id="TCS_end" name="TCS_end" type="date" size="15"/></td>
 </tr>
 <tr>
