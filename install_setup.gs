@@ -446,12 +446,15 @@ function get_chapter_members(){
     "Last Name": header.indexOf("Last Name"),
     "Badge Number": header.indexOf("Constituent ID"),
     "Chapter Status": header.indexOf("Constituency Code"),
-    "Chapter Role": header.indexOf("Last Name"), //Organization Relation Relationship
-    "Current Major": header.indexOf("Primary Education Major"),
+    "Chapter Role": header.indexOf("Organization Relation Relationship"),
+    "Current Major": header.indexOf("Constituent Specific Attributes y_Major Description"),
     "School Status": header.indexOf("Primary Education Class of"),
     "Phone Number": header.indexOf("Mobile Phone Number"),
     "Email Address": header.indexOf("Email Address Number")
   };
+  var role_start_col = header.indexOf("Organization Relation From Date");
+  var role_end_col = header.indexOf("Organization Relation To Date");
+  var date_today = new Date();
   for (var j in csvData){
     var row = csvData[j];
     var chapter_row = row[chapter_index];
@@ -462,13 +465,34 @@ function get_chapter_members(){
         if (col_name == "Chapter Status"){
           var member_status = row[indx["Chapter Status"]];
           member_status = member_status=="Prospective Pledge" ? "Pledge":member_status;
-          member_status = member_status=="Colony" ? "Student":member_status;
+          member_status = member_status=="Student of Colony" ? "Student":member_status;
           member_object[col_name] = member_status;
           continue;
+        } else if(col_name == "Chapter Role"){
+          var role = row[indx[col_name]];
+          if(role != ""){
+            var role_start = new Date(row[role_start_col]);
+            var role_end = new Date(row[role_end_col]);
+            if (date_today >= role_start && date_today < role_end){
+              member_object[col_name] = role;
+              continue;
+            } else {
+              member_object[col_name] = "";
+              continue;
+            }
+          } else {
+            member_object[col_name] = "";
+            continue;
+          }
         }
         member_object[col_name] = row[indx[col_name]];
       }
       if (CentralMemberObject['badge_numbers'].indexOf(badge_number) > -1){
+        var new_role = member_object["Chapter Role"];
+        if (new_role == ""){continue;}
+        var prev_role = CentralMemberObject[badge_number]["Chapter Role"];
+        prev_role = (prev_role == "") ? new_role: prev_role+= ", " + new_role;
+        CentralMemberObject[badge_number]["Chapter Role"] = prev_role;
         continue;
       }
       CentralMemberObject['badge_numbers'].push(badge_number);
