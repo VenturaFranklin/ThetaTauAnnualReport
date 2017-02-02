@@ -490,9 +490,10 @@ function get_current_scores(sheetName){
         var month = date.getMonth();
       }
     } catch (e) {
-      var message = Utilities.formatString('DATE ERROR; Date Obj: %s; i: %s; Date Values: %s; Date Ind: %s; Stack: "%s"; While processing: %s.',
+      var message = Utilities.formatString('This error has automatically been sent to the developers. DATE ERROR; Date Obj: %s; i: %s; Date Values: %s; Date Ind: %s; Stack: "%s"; While processing: %s.',
                                            date||'', i||'', date_values||'', date_ind||'',
                                            e.stack||'', arguments.callee.name||'');
+      Logger = startBetterLog();
       Logger.severe(message);
       var ui = SpreadsheetApp.getUi();
       var result = ui.alert(

@@ -14,9 +14,10 @@ function onInstall(e) {
   try {
     setup();
   } catch (e) {
-    var message = Utilities.formatString('%s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
                                          e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
                                          e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
     Logger.severe(message);
     var ui = SpreadsheetApp.getUi();
     var result = ui.alert(
@@ -154,9 +155,10 @@ function chapter_name_process(form) {
            'Do not edit gray or black cells\n'+
            'Submit forms in menu "Add-ons-->ThetaTauReports"');
   } catch (e) {
-    var message = Utilities.formatString('%s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
                                          e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
                                          e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
     Logger.severe(message);
     var ui = SpreadsheetApp.getUi();
     var result = ui.alert(
@@ -314,9 +316,10 @@ function sheet_id_process(form) {
   setup_sheets();
   chapter_name();
   } catch (e) {
-    var message = Utilities.formatString('%s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
                                          e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
                                          e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
     Logger.severe(message);
     var ui = SpreadsheetApp.getUi();
     var result = ui.alert(
@@ -616,9 +619,10 @@ function get_chapter_members(){
   setup_attendance();
   progress_update("Finished Get Chapter Members");
   } catch (e) {
-    var message = Utilities.formatString('%s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
                                          e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
                                          e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
     Logger.severe(message);
     var ui = SpreadsheetApp.getUi();
     var result = ui.alert(

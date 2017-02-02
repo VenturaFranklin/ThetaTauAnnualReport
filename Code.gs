@@ -428,8 +428,9 @@ function _onEdit(e){
     update_score_member_pledge()
   }
   } catch (e) {
-    var message = Utilities.formatString('%s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
                                          e.name||'', e.message||'', e.lineNumber||'', e.fileName||'', e.stack||'', sheet_name||'');
+    Logger = startBetterLog();
     Logger.severe(message);
     var ui = SpreadsheetApp.getUi();
     var result = ui.alert(
