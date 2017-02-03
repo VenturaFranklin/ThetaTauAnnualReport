@@ -262,6 +262,17 @@ function calc_top_average(main_object){
 }
 
 function sync_officers(oer){
+//  var oer = {"Scribe":["Chi", "Scribe", "AlexanderNEW Gerwe", "(520) 405-3145",
+//                       "agerwe75@gmail.com", "01/01/2017", "01/30/2017",
+//                       "Fri Feb 03 12:25:30 GMT-07:00 2017"],
+//             "Vice Regent":["Chi", "Vice Regent", "Alec Sonderman", "(520) 977-2560",
+//                            "salmanderalec@gmail.com", "01/01/2017", "01/30/2017",
+//                            "Fri Feb 03 12:25:30 GMT-07:00 2017"],
+//             "Regent":["Chi", "Regent", "Adam Schilperoort", "(928) 420-4052",
+//                       "adamschilperoort@gmail.com", "01/01/2017", "01/30/2017",
+//                       "Fri Feb 03 12:25:30 GMT-07:00 2017"]};
+  Logger.log("(" + arguments.callee.name + ") ");
+  Logger.log(oer);
   var dash_id = SCRIPT_PROP.getProperty("dash");
 //  var dash_id = "10ebwK7tTKgveVCEOpRle2S17d4UjwmsoXXCPFvC9A-A";
   var dash_file = SpreadsheetApp.openById(dash_id);
@@ -273,13 +284,21 @@ function sync_officers(oer){
   var officer_chapter = filter_chapter(officer_values, chapter, "OFFICERS");
   var officer_update = {};
   for (var officer in oer){
+    var prev_name = '';
+    var prev_phone = '';
+    var prev_email = '';
     if (officer+officer in officer_chapter){
       var officer_row = officer_chapter[officer+officer][1];
+      prev_name = officer_chapter[officer+officer][0][2];
+      prev_phone = officer_chapter[officer+officer][0][3];
+      prev_email = officer_chapter[officer+officer][0][4];
     } else {
       var officer_row = officer_rows++;
     }
     var officer_range = officer_sheet.getRange(officer_row, 1, 1, officer_cols);
-    officer_range.setValues([oer[officer]]);
+    var new_values = oer[officer];
+    new_values.push(prev_name, prev_phone, prev_email);
+    officer_range.setValues([new_values]);
   }
 }
 
