@@ -50,6 +50,7 @@ function get_survey(){
 
 function survey_create(member_list){
   Logger.log("(" + arguments.callee.name + ") ");
+  Logger.log("(" + arguments.callee.name + ") ");
   var chapter_name = get_chapter_name();
   var form = FormApp.create(chapter_name + ' Survey');
   var gpaValidation = FormApp.createTextValidation()
@@ -124,6 +125,7 @@ function submit_survey(e) {
 //                        "Timestamp":["1/21/2017 22:37:23"], "Other Officer":["No"],
 //                        "Name":["AlexanderNEW G..."], "Spring Service":[1]},
 //           triggerUid:"8395862820412211388"}
+  try{
   Logger.log("(" + arguments.callee.name + ") ");
   Logger.log(e);
   var fields = {"Fall Service": "Self Service Hrs FA",
@@ -149,9 +151,31 @@ function submit_survey(e) {
                                      field_col);
     field_range.setValue(survey_val);
   }
+    } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
+  }
 }
 
 function send_survey() {
+  var ui = SpreadsheetApp.getUi();
+  var response = ui.alert('Do you want to send a survey to all members?',
+                           ui.ButtonSet.YES_NO);
+
+  // Process the user's response.
+  if (response == ui.Button.NO) {
+    return;
+  }
+  try{
   Logger.log("(" + arguments.callee.name + ") ");
   var form = get_survey();
   var MemberObject = main_range_object("Membership");
@@ -159,6 +183,19 @@ function send_survey() {
     var member = MemberObject["object_header"][i];
     var email = MemberObject[member]["Email Address"][0];
     survey_email(form, email);
+  }
+    } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
   }
 }
 
