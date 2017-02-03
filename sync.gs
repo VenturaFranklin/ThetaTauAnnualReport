@@ -1,6 +1,20 @@
 function sync(){
+  try{
   sync_region();
   sync_main();
+    } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
+  }
 }
 
 function sync_region() {
