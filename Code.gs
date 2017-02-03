@@ -446,6 +446,7 @@ function refresh_members(){
 }
 
 function refresh_attendance() {
+  try{
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Attendance");
   var max_rows = sheet.getLastRow();
@@ -453,14 +454,41 @@ function refresh_attendance() {
     var attendance = range_object(sheet, user_row);
     update_attendance(attendance);
   }
+    } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
+  }
 }
 
 function refresh_events() {
+  try{
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName("Events");
   var max_rows = sheet.getLastRow();
   for (var user_row = 2; user_row < max_rows; user_row++){
     update_scores_event(user_row);
+  }
+    } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
   }
 }
 
