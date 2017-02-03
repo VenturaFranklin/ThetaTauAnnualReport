@@ -1,5 +1,7 @@
 function pledge_update(form) {
-  Logger.log("(" + arguments.callee.name + ") " +form);
+  Logger.log("(" + arguments.callee.name + ") ");
+  try{
+    Logger.log(form);
   var html = HtmlService.createTemplateFromFile('form_init');
   var INIT = []
   var DEPL = []
@@ -29,6 +31,18 @@ function pledge_update(form) {
   Logger.log("(" + arguments.callee.name + ") " +htmlOutput.getContent());
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
   .showModalDialog(htmlOutput, 'PLEDGE FORM');
+    } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+  }
 }
 
 function member_update(form) {
@@ -37,7 +51,9 @@ function member_update(form) {
 //              "Abroad": "Adam Schilpero...", "Transfer": "Adam Schilpero...",
 //              "PreAlumn": ["Derek Hogue", "Esgar Moreno"], "Military": "Adam Schilpero...",
 //              "CoOp": ["Adam Schilpero...", "Austin Mutschl...", "Cole Mobberley"]};
-  Logger.log("(" + arguments.callee.name + ") " +form);
+  Logger.log("(" + arguments.callee.name + ") ");
+  try{
+    Logger.log(form);
   var MemberObject = main_range_object("Membership");
   var html = HtmlService.createTemplateFromFile('form_status');
   Logger.log(html);
@@ -83,6 +99,18 @@ function member_update(form) {
     Logger.log("(" + arguments.callee.name + ") " +htmlOutput.getContent());
     SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showModalDialog(htmlOutput, 'STATUS FORM');
+    } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+  }
 }
 
 function save_form(csvFile, form_type){
@@ -123,9 +151,18 @@ function save_form(csvFile, form_type){
     submit_range.setValues([[submission_date, file_name, submission_type, 0, file_url]])
     sendemail_submission(submission_type, submission);
     return template.evaluate().getContent();
-  } catch (error) {
-    Logger.log("(" + arguments.callee.name + ") " +error);
-    return error.toString();
+  } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return e.toString();
   }
 }
 
@@ -139,7 +176,9 @@ function process_oer(form) {
 //              "Social/Brotherhood Chair": "N/A", "officer_start": "2016-08-01", 
 //              "Scholarship Chair": "N/A", "Vice Regent": "David Montgome...", "PD Chair": "N/A", 
 //              "Regent": "Adam Schilpero...", "Project Chair": "N/A"};
-  Logger.log("(" + arguments.callee.name + ") " +form);
+  Logger.log("(" + arguments.callee.name + ") ");
+  try{
+  Logger.log(form);
   var MemberObject = main_range_object("Membership");
   var arr = [form.officer_start, form.officer_end, form.TCS_start, form.TCS_end];
   if (arr.indexOf("") > -1){
@@ -196,6 +235,19 @@ function process_oer(form) {
   Logger.log("(" + arguments.callee.name + ") " +csvFile);
   sync_officers(dash);
   return save_form(csvFile, "OER");
+    } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
+  }
 }
 
 function process_init(form) {
@@ -211,6 +263,7 @@ function process_init(form) {
 //              testA:["1", "10"],
 //              date_depl:"2017-01-20"};
   Logger.log("(" + arguments.callee.name + ") ");
+  try{
   Logger.log(form);
 //  return;
   var MemberObject = main_range_object("Membership");
@@ -330,6 +383,19 @@ function process_init(form) {
     depl_out = save_form(csvFile, "DEPL");
   }
     return [init_out+depl_out, null];
+    } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return ["ERROR", null];
+  }
 }
 
 function process_grad(form) {
@@ -347,6 +413,7 @@ function process_grad(form) {
 //              degree:"Industrial Engineering", dist:"100", date_end:"2017-01-30",
 //              type:["Degree received", "CoOp"], email:"miminoxolo@comcast.net"};
   Logger.log("(" + arguments.callee.name + ") ");
+  try{
   Logger.log(form);
 //  return;
   var MemberObject = main_range_object("Membership");
@@ -491,6 +558,19 @@ function process_grad(form) {
     mscr_out = save_form(csvFile, "MSCR");
   }
     return [coop_out+mscr_out, null];
+    } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return ["ERROR", null];
+  }
        }
 
 function header_MSCR(){
@@ -549,53 +629,23 @@ function create_csv(data){
       csvFile = csv;
     }
     return csvFile;
-  }
-  catch(err) {
-    Logger.log("(" + arguments.callee.name + ") " +err);
-    Browser.msgBox(err);
+  } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
   }
 }
 
-//function uploadFiles(form) {
-//  Logger.log("(" + arguments.callee.name + ") " +form);
-//  try {
-////    var folder_name = "Student Files";
-//    var folder_id = get_folder_id();
-//    var folder = DriveApp.getFolderById(folder_id);
-////    var folder, folders = DriveApp.getFoldersByName(folder_name);
-//    
-////    if (folders.hasNext()) {
-////      folder = folders.next();
-////    } else {
-////      folder = DriveApp.createFolder(folder_name);
-////    }
-//    var blob = form.myFile;
-//    Logger.log("(" + arguments.callee.name + ") " +"fileBlob Name: " + blob.getName())
-//    Logger.log("(" + arguments.callee.name + ") " +"fileBlob type: " + blob.getContentType())
-//    Logger.log("(" + arguments.callee.name + ") " +'fileBlob: ' + blob);
-//    var file = folder.createFile(blob);    
-////    file.setDescription("Uploaded by " + form.myName);
-//    var template = HtmlService.createTemplateFromFile('response');
-//    var file_url = template.fileUrl = file.getUrl();
-//    var submission_date = template.date = new Date();
-//    var submission_type = template.type = form.submissions;
-//    var ss = get_active_spreadsheet();
-//    var sheet = ss.getSheetByName("Submissions");
-//    var max_column = sheet.getLastColumn();
-//    var max_row = sheet.getLastRow();
-//    var submit_range = sheet.getRange(max_row + 1, 1, 1, max_column);
-//    var file_name = template.name = file.getName();
-//    submit_range.setValues([[submission_date, file_name, submission_type, 0, file_url]])
-//    update_scores_submit(max_row + 1);
-//    return template.evaluate().getContent();
-//  } catch (error) {
-//    var this_error = error.toString();
-//    Logger.log("(" + arguments.callee.name + ") " +this_error);
-//    return this_error;
-//  }
-//}
-
 function post_submit(file_object, submission_type, program) {
+  try{
   var template = HtmlService.createTemplateFromFile('response');
   var file_url = template.fileUrl = file_object.alternateLink;
   var submission_date = template.date = new Date();
@@ -615,9 +665,23 @@ function post_submit(file_object, submission_type, program) {
   Logger.log("(" + arguments.callee.name + ") " +output);
   sendemail_submission(submission_type, file_object)
   return output;
+    } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
+  }
 }
 
 function sendemail_submission(submission_type, submission) {
+  try{
   var email_director = SCRIPT_PROP.getProperty("director");
   var email_chapter = SCRIPT_PROP.getProperty("email");
   var chapter = SCRIPT_PROP.getProperty("chapter");
@@ -654,5 +718,18 @@ function sendemail_submission(submission_type, submission) {
                          replyTo: email_chapter, attachments: [file_obj]};
   if (!WORKING){
     MailApp.sendEmail(email_director, subject, emailBody, optAdvancedArgs);
+  }
+    } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
   }
 }
