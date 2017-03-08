@@ -6,7 +6,14 @@
   </head>
   <body>
 <div id="start">
-<p>What is your Spreadsheet ID?<br>
+What is your Spreadsheet ID? 
+Please copy this from the URL at the top of the screen.<br>
+It is important that you get all of the characters between 
+the first “/” and the second “/” as shown in the image below. 
+FOR EXAMPLE:<br>
+https://docs.google.com/spreadsheets/d/<b>SPREAD_SHEET_ID</b>/edit#gid=0<br>
+Where your spreadsheet id is noted as <b>SPREAD_SHEET_ID</b>.<br>
+Paste this ID into the box below and click the “Submit” button.<br>
 (Click image to enlarge.
 <a href="https://thetatauhq.publishpath.com/Websites/thetatauhq/images/Forms/SpreadsheetID_help.png">Open in new window</a>)</p>
 </div>
@@ -29,7 +36,8 @@
     <form>
     Sheet ID: <input type="text" name="sheetid">
     <input type="submit" value="Submit" 
-               onclick="google.script.run
+               onclick="this.value='Submitting...';
+                        google.script.run
                         .sheet_id_process(this.parentNode);
                         return false;">
    </form>
