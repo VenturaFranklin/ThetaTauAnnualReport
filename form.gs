@@ -464,11 +464,6 @@ function process_grad(form) {
       var email = form["email"][degree_count];
       var phone = form["phone"][degree_count];
       var degree = form["degree"][degree_count];
-      if (typeof email === 'string'){
-          email = form["email"];
-          phone = form["phone"];
-          degree = form["degree"];
-        }
       var arr = [loc, date_start, email, phone, degree];
       status_range.setValue("Alumn");
       degree_count++
