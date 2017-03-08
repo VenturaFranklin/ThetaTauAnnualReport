@@ -529,7 +529,7 @@ function get_chapter_members(){
     var badge_number = CentralMemberObject['badge_numbers'][k];
     if (ChapterMemberObject["object_header"].indexOf(badge_number) < 0){
       // Member is on Central list, not on chapter list
-      Logger.log("(" + arguments.callee.name + ") " +"NEW MEMBER!");
+      Logger.log("(" + arguments.callee.name + ") " +"NEW MEMBER TO SHEET!");
       Logger.log("(" + arguments.callee.name + ") " +CentralMemberObject[badge_number]['Last Name']);
       new_members.push(badge_number);
     } else {
@@ -539,8 +539,8 @@ function get_chapter_members(){
       // Member is already on chapter list, need to check for update
     }
   }
-  progress_update("Found "+ new_members.length +" NEW Chapter Members");
-  progress_update("Found "+ verify_members.length +" Previous Chapter Members");
+  progress_update("Found "+ new_members.length +" NEW Chapter Members TO SHEET");
+  progress_update("Found "+ verify_members.length +" Previous Chapter Members ON SHEET");
 //  
   var old_members = [];
   for (var k in ChapterMemberObject["object_header"]){
