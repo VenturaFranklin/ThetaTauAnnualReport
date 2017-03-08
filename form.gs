@@ -149,7 +149,7 @@ function save_form(csvFile, form_type){
     var submit_range = sheet.getRange(max_row + 1, 1, 1, max_column);
     var file_name = submission.title = template.name = file.getName();
     submit_range.setValues([[submission_date, file_name, submission_type, 0, file_url]])
-    sendemail_submission(submission_type, submission);
+//    sendemail_submission(submission_type, submission);
     return template.evaluate().getContent();
   } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
