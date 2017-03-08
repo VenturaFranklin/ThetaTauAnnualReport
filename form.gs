@@ -412,9 +412,9 @@ function process_grad(form) {
 //              phone:"(707) 779-9411", name:["Aimee Largier", "Albert Hu"],
 //              degree:"Industrial Engineering", dist:"100", date_end:"2017-01-30",
 //              type:["Degree received", "CoOp"], email:"miminoxolo@comcast.net"};
-//  var form = {"date_start": ["2017-01-01", "2017-01-01", "2017-01-01"],
-//              "name": ["Adam Schilperoort", "Austin Conry", "Austin Conry"],
-//              "type": ["Withdrawn", "Withdrawn", "Withdrawn"]}
+//  var form = {"date_start": ["2017-01-01", ""],
+//              "name": ["Adam Schilperoort", "Austin Conry"],
+//              "type": ["Withdrawn", "Withdrawn"]}
   Logger.log("(" + arguments.callee.name + ") ");
   try{
   Logger.log(form);
@@ -452,6 +452,12 @@ function process_grad(form) {
       var loc = "None";
     }
     var date_start = form["date_start"][i];
+    if (date_start == undefined || date_start == ""){
+      var ss = get_active_spreadsheet();
+      ss.toast('You must set the date!\nMissing information for:\n'
+             +name, 'ERROR', 5);
+      return [false, name];
+    }
     date_start = format_date(date_start);
     var status_range = sheet.getRange(member_object["object_row"],
                                       member_object["Chapter Status"][1]);
@@ -460,6 +466,7 @@ function process_grad(form) {
     var status_end_range = sheet.getRange(member_object["object_row"],
                                           member_object["Status End"][1]);
     status_start_range.setValue(date_start);
+    var arr = []
     if (type == "Degree received"){
       var email = form["email"][degree_count];
       var phone = form["phone"][degree_count];
