@@ -242,15 +242,23 @@ function create_submit_folder(chapter_name, region) {
   if (folder_chapter.hasNext()) {
     folder_chapter = folder_chapter.next();
     progress_update("Found Chapter Folder: " + chapter_name);
-    var submit_folder = folder_chapter.getFoldersByName("Submissions");
-    submit_folder = submit_folder.next();
-    var form_folder = folder_chapter.getFoldersByName("Forms");
-    form_folder = form_folder.next();
   } else {
     folder_chapter = folder_region.createFolder(chapter_name);
     var submit_folder = folder_chapter.createFolder("Submissions");
     var form_folder = folder_chapter.createFolder("Forms");
     progress_update("Created Chapter Folder: " + chapter_name);
+  }
+  var submit_folder = folder_chapter.getFoldersByName("Submissions");
+  if (submit_folder.hasNext()) {
+    submit_folder = submit_folder.next();
+  } else {
+    submit_folder = folder_chapter.createFolder("Submissions");
+  }
+  var form_folder = folder_chapter.getFoldersByName("Forms");
+  if (form_folder.hasNext()) {
+    form_folder = form_folder.next();
+  } else {
+    form_folder = folder_chapter.createFolder("Forms");
   }
   var folder_id = folder_chapter.getId();
   SCRIPT_PROP.setProperty("folder", folder_id);
