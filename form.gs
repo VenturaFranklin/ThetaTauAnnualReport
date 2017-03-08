@@ -412,6 +412,9 @@ function process_grad(form) {
 //              phone:"(707) 779-9411", name:["Aimee Largier", "Albert Hu"],
 //              degree:"Industrial Engineering", dist:"100", date_end:"2017-01-30",
 //              type:["Degree received", "CoOp"], email:"miminoxolo@comcast.net"};
+//  var form = {"date_start": ["2017-01-01", "2017-01-01", "2017-01-01"],
+//              "name": ["Adam Schilperoort", "Austin Conry", "Austin Conry"],
+//              "type": ["Withdrawn", "Withdrawn", "Withdrawn"]}
   Logger.log("(" + arguments.callee.name + ") ");
   try{
   Logger.log(form);
@@ -443,7 +446,7 @@ function process_grad(form) {
     var badge = member_object["Badge Number"][0];
     var first = member_object["First Name"][0];
     var last = member_object["Last Name"][0];
-    if (type != "Returning"){
+    if (type != "Returning" && type != "Withdrawn"){
       var loc = form["new_location"][i];
     } else {
       var loc = "None";
