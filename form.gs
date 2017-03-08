@@ -483,6 +483,9 @@ function process_grad(form) {
         status_range.setValue("Away");
         status_end_range.setValue(date_end);
         nonalum_count++
+          if (type == "Returning"){
+            status_range.setValue("Student");
+          }
       } else {
         status_range.setValue("Alumn");
       }
