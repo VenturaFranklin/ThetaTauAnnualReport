@@ -447,13 +447,16 @@ function refresh_members(){
 
 function refresh_attendance() {
   try{
-  var ss = get_active_spreadsheet();
-  var sheet = ss.getSheetByName("Attendance");
-  var max_rows = sheet.getLastRow();
-  for (var user_row = 2; user_row < max_rows; user_row++){
-    var attendance = range_object(sheet, user_row);
-    update_attendance(attendance);
-  }
+    progress_update("REFRESH ATTENDANCE"); 
+    var ss = get_active_spreadsheet();
+    var sheet = ss.getSheetByName("Attendance");
+    var max_rows = sheet.getLastRow();
+    for (var user_row = 2; user_row < max_rows; user_row++){
+      progress_update("Refreshing attendance row: " + user_row)
+      var attendance = range_object(sheet, user_row);
+      update_attendance(attendance);
+    }
+    progress_update("REFRESH ATTENDANCE FINISHED"); 
     } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
                                          e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
@@ -471,13 +474,16 @@ function refresh_attendance() {
 
 function refresh_events() {
   try{
-  var ss = get_active_spreadsheet();
-  var sheet = ss.getSheetByName("Events");
-  var max_rows = sheet.getLastRow();
-  for (var user_row = 2; user_row < max_rows; user_row++){
-    update_scores_event(user_row);
-  }
-    } catch (e) {
+    progress_update("REFRESH EVENTS");
+    var ss = get_active_spreadsheet();
+    var sheet = ss.getSheetByName("Events");
+    var max_rows = sheet.getLastRow();
+    for (var user_row = 2; user_row < max_rows; user_row++){
+      progress_update("Refreshing event row: " + user_row)
+      update_scores_event(user_row);
+    }
+    progress_update("REFRESH EVENTS FINISHED");
+  } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
                                          e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
                                          e.stack||'', arguments.callee.name||'');
