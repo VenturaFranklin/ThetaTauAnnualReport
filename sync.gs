@@ -1,7 +1,9 @@
 function sync(){
   try{
-  sync_region();
-  sync_main();
+    progress_update("STARTING TO SYNC");
+    sync_region();
+    sync_main();
+    progress_update("FINISHED SYNC");
     } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
                                          e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
@@ -19,6 +21,7 @@ function sync(){
 
 function sync_region() {
 //  var dash_id = "10ebwK7tTKgveVCEOpRle2S17d4UjwmsoXXCPFvC9A-A";
+  progress_update("STARTED TO SYNC REGION INFO");
   var dash_id = SCRIPT_PROP.getProperty("dash");
   var dash_file = SpreadsheetApp.openById(dash_id);
   var chapter = SCRIPT_PROP.getProperty("chapter");
@@ -34,6 +37,7 @@ function sync_region() {
   var event_object = main_range_object("Events");
   var submit_object = main_range_object("Submissions");
   var event_extend = [];
+  progress_update("Syncing Events");
   for (var event_name in event_object){
     var event = event_object[event_name];
     if (typeof event != typeof {}){continue;};
@@ -53,6 +57,7 @@ function sync_region() {
       }
     }
   }
+  progress_update("Syncing Submissions");
   var submit_extend = [];
   for (var submit in submit_object){
     submit = submit_object[submit];
@@ -65,6 +70,7 @@ function sync_region() {
       }
     }
   }
+  progress_update("Syncing Chapter info");
   var member_value_obj = get_membership_ranges();
   var score_dict= {
     init_sp_range: 'Spring Init',
@@ -93,6 +99,7 @@ function sync_region() {
   }
   var ss = get_active_spreadsheet();
   var scores = ['Brotherhood', 'Service', 'Operate', 'ProDev'];
+  progress_update("Syncing Scores");
   var score_total = 0;
   for (var score_num in scores){
     var score_type_raw  = scores[score_num];
@@ -122,6 +129,7 @@ function sync_region() {
     submit_sheet.getRange(submit_row_max, 1, 1, submit_col_max)
     .setValues([row]);
   }
+  progress_update("FINISHED SYNCING REGION");
 }
 
 function delete_rds(){
@@ -133,6 +141,7 @@ function delete_rds(){
 function sync_jewelry(ss_prop){
 //  var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
 //  var ss_prop = SpreadsheetApp.openById(properties_id);
+  progress_update("Syncing Jewelry Costs");
   Logger.log("(" + arguments.callee.name + ") ");
   var chapter = SCRIPT_PROP.getProperty("chapter");
   chapter = "Delta Gamma";
@@ -171,6 +180,7 @@ function get_guard_badge(){
 function sync_rds(ss_prop){
 //  var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
 //  var ss_prop = SpreadsheetApp.openById(properties_id);
+  progress_update("Syncing RDs");
   var region = SCRIPT_PROP.getProperty("region");
   var main_object = main_range_object("REGIONS", "Region Description", ss_prop);
   var region_prop = main_object[region];
@@ -188,11 +198,13 @@ function sync_rds(ss_prop){
 }
 
 function sync_main(){
+  progress_update("STARTED TO SYNC NATIONAL INFO");
   var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
   var ss_prop = SpreadsheetApp.openById(properties_id);
   var ss = get_active_spreadsheet();
   var main_object = main_range_object("MAIN", "Organization Name", ss_prop);
   var top_avg = calc_top_average(main_object);
+  progress_update("Updating Top/Avg Scores");
   for (var attr in top_avg.nat_avgs){
     var top_name = "TOP_"+attr.toUpperCase();
     var nat_name = "NAT_"+attr.toUpperCase();
@@ -218,6 +230,7 @@ function sync_main(){
   main_sheet.getRange(chapter_row, update_col).setValue(new Date());
   sync_rds(ss_prop);
   sync_jewelry(ss_prop);
+  progress_update("FINISHED SYNCING NATIONALS");
 }
 
 function calc_top_average(main_object){
