@@ -19,7 +19,10 @@ DATE = datetime.date.isoformat(datetime.date.today()).replace('-', '')
 
 
 def find_all_new_csvs():
-    _, _, old_filenames = list(os.walk(MAIN_FOLDER))[0]
+    all_files = list(os.walk(MAIN_FOLDER))
+    _, _, files_to_process = all_files[0]
+    _, _, files_processed = all_files[1]
+    old_filenames = files_to_process + files_processed
     for dirpath, _, filenames in os.walk(INCOMING_FOLDER):
         for filename in [f for f in filenames if f.endswith(".csv") and
                          f not in old_filenames]:
@@ -70,4 +73,4 @@ def run():
                 move(file_name, new_file_loc)
 
 if __name__ == '__main__':
-    run()
+    find_all_new_csvs()
