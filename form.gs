@@ -382,6 +382,7 @@ function process_init(form) {
   if (DEPL.length > 1){
     depl_out = save_form(csvFile, "DEPL");
   }
+    get_total_members(true);
     return [init_out+depl_out, null];
     } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
@@ -565,6 +566,7 @@ function process_grad(form) {
   if (MSCR.length > 1){
     mscr_out = save_form(csvFile, "MSCR");
   }
+    get_total_members(true);
     return [coop_out+mscr_out, null];
     } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
