@@ -460,15 +460,45 @@ function get_column_values(col, range_values){
 	return newArray;
 }
 
-function get_total_members(){
-  var MemberObject = main_range_object("Membership");
-  var counts = {};
-  for(var i = 0; i< MemberObject.object_count; i++) {
-    var member_name = MemberObject.object_header[i];
-    var member_status = MemberObject[member_name]["Chapter Status"][0]
-    counts[member_status] = counts[member_status] ? counts[member_status] + 1 : 1;
+function refresh_members(){
+  get_chapter_members();
+}
+
+function check_refresh(refresh, property_name){
+  // if property_name does not exist will be caught by end_time return true
+  if (refresh == true){
+    return true;
   }
-  Logger.log("(" + arguments.callee.name + ") ");
+  var end_time = new Date(SCRIPT_PROP.getProperty(property_name+"_refresh"));
+  var current = new Date();
+  if (current > end_time){
+    return true; 
+  }
+  return SCRIPT_PROP.getProperty(property_name);
+}
+
+function set_refresh(property_name, property_value){
+  SCRIPT_PROP.setProperty(property_name, property_value);
+  var newDateObj = new Date();
+  newDateObj.setTime(newDateObj.getTime() + (30 * 60 * 1000)); //30 minute delay
+  SCRIPT_PROP.setProperty(property_name+"_refresh", newDateObj);
+}
+
+function get_total_members(refresh){
+  var refresh = check_refresh(refresh, "get_total_members");
+  if (refresh == true) {
+    var MemberObject = main_range_object("Membership");
+    var counts = {};
+    for(var i = 0; i< MemberObject.object_count; i++) {
+      var member_name = MemberObject.object_header[i];
+      var member_status = MemberObject[member_name]["Chapter Status"][0]
+      counts[member_status] = counts[member_status] ? counts[member_status] + 1 : 1;
+    }
+    Logger.log("(" + arguments.callee.name + ") ");
+    set_refresh("get_total_members", counts)
+  } else {
+    var counts = refresh;
+  }
   Logger.log(counts);
   return counts;
 }
@@ -647,18 +677,25 @@ function get_sheet_data(SheetName) {
   Logger.log("(" + arguments.callee.name + ") " +"name index: " + name_index);
   var range_values = range.getValues();
   var name_date = [];
+  var names = [];
+  var dates = [];
   for (var value in range_values){
     var name = range_values[value][name_index];
     var date = range_values[value][date_index];
+    names.push(name);
+    dates.push(date);
     name_date.push(name+date);
   }
   return {sheet: sheet,
           range: range,
+          range_values: range_values,
           max_row: max_row,
           header: header_values,
           date_index: date_index,
           name_index: name_index,
           max_column: max_column,
+          names: names,
+          dates: dates,
           name_date: name_date
          }
 }
