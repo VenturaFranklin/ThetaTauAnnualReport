@@ -146,3 +146,30 @@ function update_attendance(attendance){
   active_range.setValue(num_actives)
   pledge_range.setValue(num_pledges)
 }
+
+function refresh_attendance() {
+  try{
+    progress_update("REFRESH ATTENDANCE"); 
+    var ss = get_active_spreadsheet();
+    var sheet = ss.getSheetByName("Attendance");
+    var max_rows = sheet.getLastRow();
+    for (var user_row = 2; user_row < max_rows; user_row++){
+      progress_update("Refreshing attendance row: " + user_row)
+      var attendance = range_object(sheet, user_row);
+      update_attendance(attendance);
+    }
+    progress_update("REFRESH ATTENDANCE FINISHED"); 
+    } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
+  }
+}

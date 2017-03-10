@@ -99,3 +99,29 @@ function event_fields_set(myObject){
   }
   return true;
 }
+
+function refresh_events() {
+  try{
+    progress_update("REFRESH EVENTS");
+    var ss = get_active_spreadsheet();
+    var sheet = ss.getSheetByName("Events");
+    var max_rows = sheet.getLastRow();
+    for (var user_row = 2; user_row < max_rows; user_row++){
+      progress_update("Refreshing event row: " + user_row)
+      update_scores_event(user_row, true);
+    }
+    progress_update("REFRESH EVENTS FINISHED");
+  } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
+  }
+}
