@@ -58,8 +58,8 @@ function survey_create(member_list){
    .requireNumberBetween(0, 5)
    .build();
   var servValidation = FormApp.createTextValidation()
-   .setHelpText("Service should be a number greater than 0.")
-   .requireNumberGreaterThan(0)
+   .setHelpText("Service should be a number greater than or equal to 0.")
+   .requireNumberGreaterThanOrEqualTo(0)
    .build();
   form.addListItem()
   .setTitle("Name")
@@ -182,7 +182,7 @@ function send_survey() {
   for (var i in MemberObject["object_header"]){
     var member = MemberObject["object_header"][i];
     var email = MemberObject[member]["Email Address"][0];
-    survey_email(form, email);
+    survey_email(form, email, member);
   }
     } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
@@ -199,7 +199,7 @@ function send_survey() {
   }
 }
 
-function survey_email(form, email) {
+function survey_email(form, email, member) {
 //  var form = get_survey();
 //  var email = "venturafranklin@gmail.com";
   Logger.log("(" + arguments.callee.name + ") ");
@@ -220,8 +220,16 @@ function survey_email(form, email) {
   var optAdvancedArgs = {name: chapter_name +" Chapter Scribe", htmlBody: htmlBody,
                          replyTo: email_chapter};
   if (!WORKING){
-    MailApp.sendEmail(email, subject,
-                      emailBody,
-                      optAdvancedArgs);
+    try{
+      MailApp.sendEmail(email, subject,
+                        emailBody,
+                        optAdvancedArgs);
+    } catch (e){
+      var ui = SpreadsheetApp.getUi();
+      var result = ui.alert(
+        'EMAIL ERROR',
+        "There was an error with the email for: "+ member,
+        ui.ButtonSet.OK);
+    }
   }
 }
