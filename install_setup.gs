@@ -28,17 +28,25 @@ function onInstall(e) {
   } 
 }
 
-var message = ""
+message = ""
 
 function progress_update(this_message){
-  Logger.log(this_message);
-  message += "<br>" + this_message;
-  var htmlOutput = HtmlService
-     .createHtmlOutput(message)
-     .setWidth(400)
-     .setHeight(300)
-  SpreadsheetApp.getUi()
+  try {
+    Logger.log(this_message);
+    message += "<br>" + this_message;
+    var htmlOutput = HtmlService
+    .createHtmlOutput(message)
+    .setWidth(400)
+    .setHeight(300)
+    SpreadsheetApp.getUi()
     .showModalDialog(htmlOutput, 'Progress');
+  } catch (e) {
+    var error_message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                               e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                               e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(error_message);
+  }
 }
 
 function run_createTriggers() {
@@ -560,6 +568,12 @@ function get_chapter_members(){
     var badge = verify_members[q];
     var this_row = ChapterMemberObject[badge]['object_row'];
     var member = CentralMemberObject[badge];
+    var full_name = CentralMemberObject[badge]["First Name"]+" "+CentralMemberObject[badge]["Last Name"];
+    var chapter_member_name = ChapterMemberObject[badge]["Member Name"][0];
+    if (full_name != chapter_member_name){
+      var col = ChapterMemberObject[badge]["Member Name"][1];
+      sheet.getRange(this_row, col).setValue(full_name);
+    }
     for (var col_name in indx){
       var col_val = ChapterMemberObject[badge][col_name][0];
       var member_val = CentralMemberObject[badge][col_name];
