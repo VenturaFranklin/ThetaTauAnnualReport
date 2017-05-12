@@ -77,9 +77,13 @@ function update_attendance(attendance){
   // example:
   // var attendance = range_object("Attendance", 26);
   // needs the membership sheet, and event sheet 
-
   var MemberObject = main_range_object("Membership");
 //  Logger.log("(" + arguments.callee.name + ") " +attendance);
+  var counts = att_counts(attendance, MemberObject)
+  update_event_att(attendance, counts)
+ }
+
+function att_counts(attendance, MemberObject){
   var event_name_att = attendance["Event Name"][0];
   var event_date_att = attendance["Date"][0];
   Logger.log("(" + arguments.callee.name + ") " +event_name_att);
@@ -131,6 +135,10 @@ function update_attendance(attendance){
     counts[member_status][event_status] = counts[member_status][event_status] ? counts[member_status][event_status] + 1 : 1;
   }
   Logger.log("(" + arguments.callee.name + ") " +counts)
+  return counts;
+}
+
+function update_event_att(attendance, counts){
   var event_info = att_event_exists("Events", attendance)
   Logger.log("(" + arguments.callee.name + ") " +"ROW: " + event_info.event_row +
              " Active: " + event_info.active_col + " Pledge: " + event_info.pledge_col)
@@ -151,13 +159,35 @@ function refresh_attendance() {
   try{
     progress_update("REFRESH ATTENDANCE"); 
     var ss = get_active_spreadsheet();
-    var sheet = ss.getSheetByName("Attendance");
-    var max_rows = sheet.getLastRow();
-    for (var user_row = 2; user_row < max_rows; user_row++){
-      progress_update("Refreshing attendance row: " + user_row)
-      var attendance = range_object(sheet, user_row);
-      update_attendance(attendance);
+    var attendance_object = main_range_object("Attendance", undefined, ss);
+    var MemberObject = main_range_object("Membership", undefined, ss);
+    var EventObject = main_range_object("Events", undefined, ss);
+    Logger.log(attendance_object);
+    var all_counts = {};
+    for (var i in attendance_object.object_header){
+      var event_name = attendance_object.object_header[i];
+      var attendance = attendance_object[event_name];
+      var counts = att_counts(attendance, MemberObject);
+      all_counts[event_name] = counts;
+      Logger.log(event_name);
+      Logger.log(attendance);
     }
+    var ordered_counts = [];
+    for (var j in EventObject.object_header){
+      var event_name = EventObject.object_header[j];
+      if (event_name in all_counts){
+        var student_att = all_counts[event_name]["Student"]["P"] ? all_counts[event_name]["Student"]["P"]:0;
+        var pledge_att = all_counts[event_name]["Pledge"]["P"] ? all_counts[event_name]["Pledge"]["P"]:0;
+        ordered_counts.push([student_att, pledge_att]);
+      } else {
+        ordered_counts.push([0, 0]);
+      }
+    }
+    var event_sheet = EventObject.sheet;
+    var member_col = EventObject.header_values.indexOf("# Members")+1;
+    var num_rows = EventObject.object_count
+    var att_range = event_sheet.getRange(2, member_col, num_rows, 2);
+    att_range.setValues(ordered_counts);
     progress_update("REFRESH ATTENDANCE FINISHED"); 
     } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
