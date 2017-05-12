@@ -100,6 +100,49 @@ function event_fields_set(myObject){
   return true;
 }
 
+function events_to_att(){
+  try{
+    progress_update("EVENTS TO ATTENDANCE");
+    var ss = get_active_spreadsheet();
+    var attendance_object = main_range_object("Attendance", undefined, ss);
+    var EventObject = main_range_object("Events", undefined, ss);
+    var new_events = []
+    for (var j in EventObject.object_header){
+      var event_name = EventObject.object_header[j];
+      var event = EventObject[event_name];
+      if (!(event_name in attendance_object.object_header)){
+        new_events.push([event["Event Name"][0], event["Date"][0]]);
+      }
+    }
+    Logger.log(new_events);
+    var att_sheet = attendance_object.sheet;
+    var start_row = attendance_object.object_count ? attendance_object.object_count + 1:2;
+    var att_range = att_sheet.getRange(start_row, 1, new_events.length, 2);
+    var attendance_cols = attendance_object.header_values.length;
+    att_range.setValues(new_events);
+    var default_values =
+        Array.apply(null, Array(attendance_cols-2)).map(function() { return 'U' });
+    for (var row = start_row;row < start_row + new_events.length;row++){
+      var att_row_full = att_sheet.getRange(row, 3, 1, attendance_cols-2);
+      att_row_full.setValues([default_values]);
+  }
+    main_range_object("Attendance");
+    progress_update("EVENTS TO ATTENDANCE FINISHED");
+  } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
+  }
+}
+
 function refresh_events() {
   try{
     progress_update("REFRESH EVENTS");
