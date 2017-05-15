@@ -55,6 +55,8 @@ function attendance_add_event(event_name, event_date){
   var sheet = att_data.sheet;
 //  var att_values = att_data.range.getValues();
   var attendance_rows = att_data.max_row;
+  // Need to make sure there is always enough rows
+  sheet.insertRowAfter(attendance_rows);
   var attendance_cols = att_data.max_column;
   Logger.log("(" + arguments.callee.name + ") " +attendance_rows);
   sheet.insertRowBefore(attendance_rows+1);
@@ -155,13 +157,15 @@ function update_event_att(attendance, counts){
   pledge_range.setValue(num_pledges)
 }
 
-function refresh_attendance() {
+function refresh_attendance(ss, attendance_object, EventObject){
   try{
-    progress_update("REFRESH ATTENDANCE"); 
-    var ss = get_active_spreadsheet();
-    var attendance_object = main_range_object("Attendance", undefined, ss);
+    progress_update("REFRESH ATTENDANCE");
+    if (!ss){
+      var ss = get_active_spreadsheet();
+      var attendance_object = main_range_object("Attendance", undefined, ss);
+      var EventObject = main_range_object("Events", undefined, ss);
+    }
     var MemberObject = main_range_object("Membership", undefined, ss);
-    var EventObject = main_range_object("Events", undefined, ss);
     Logger.log(attendance_object);
     var all_counts = {};
     for (var i in attendance_object.object_header){
