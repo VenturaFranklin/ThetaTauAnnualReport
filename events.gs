@@ -41,8 +41,10 @@ function att_event_exists(sheet_name, myObject) {
          }
 }
 
-function get_needed_fields(event_type){
-  var ScoringObject = main_range_object("Scoring");
+function get_needed_fields(event_type, ScoringObject){
+  if (!ScoringObject){
+    var ScoringObject = main_range_object("Scoring");
+  }
   var score_object = ScoringObject[event_type];
   var needed_fields = score_object["Event Fields"][0];
   needed_fields = needed_fields.split(', ');
@@ -100,32 +102,49 @@ function event_fields_set(myObject){
   return true;
 }
 
-function events_to_att(){
+function events_to_att(ss, attendance_object, EventObject){
   try{
     progress_update("EVENTS TO ATTENDANCE");
-    var ss = get_active_spreadsheet();
-    var attendance_object = main_range_object("Attendance", undefined, ss);
-    var EventObject = main_range_object("Events", undefined, ss);
+    if (!ss){
+      var ss = get_active_spreadsheet();
+      var attendance_object = main_range_object("Attendance", undefined, ss);
+      var EventObject = main_range_object("Events", undefined, ss);
+    }
     var new_events = []
+    var att_sheet = attendance_object.sheet;
+    var max_rows = attendance_object.object_count + 1
     for (var j in EventObject.object_header){
       var event_name = EventObject.object_header[j];
       var event = EventObject[event_name];
-      if (!(event_name in attendance_object.object_header)){
+      if (attendance_object.object_header.indexOf(event_name) < 0){
         new_events.push([event["Event Name"][0], event["Date"][0]]);
+        att_sheet.insertRowAfter(max_rows);
       }
     }
     Logger.log(new_events);
     var att_sheet = attendance_object.sheet;
     var start_row = attendance_object.object_count ? attendance_object.object_count + 1:2;
+    if (new_events.length == 0){
+      progress_update("NO NEW EVENTS");
+      return};
     var att_range = att_sheet.getRange(start_row, 1, new_events.length, 2);
     var attendance_cols = attendance_object.header_values.length;
     att_range.setValues(new_events);
     var default_values =
         Array.apply(null, Array(attendance_cols-2)).map(function() { return 'U' });
+    var rule = SpreadsheetApp.newDataValidation()
+      .requireValueInList(['P', 'E', 'U', 'p', 'e', 'u'], false)
+      .setHelpText('P-Present; E-Excused; U-Unexcused')
+      .setAllowInvalid(false).build();
     for (var row = start_row;row < start_row + new_events.length;row++){
       var att_row_full = att_sheet.getRange(row, 3, 1, attendance_cols-2);
       att_row_full.setValues([default_values]);
+      att_row_full.setDataValidation(rule);
   }
+    var format_range = ss.getRangeByName("FORMAT");
+    var max_column = att_sheet.getLastColumn();
+    var max_row = att_sheet.getLastRow();
+    format_range.copyFormatToRange(att_sheet, 3, max_column, 2, 1000);
     main_range_object("Attendance");
     progress_update("EVENTS TO ATTENDANCE FINISHED");
   } catch (e) {
@@ -144,15 +163,43 @@ function events_to_att(){
 }
 
 function refresh_events() {
+  // This function should adjust the black bg add to calendar
   try{
     progress_update("REFRESH EVENTS");
     var ss = get_active_spreadsheet();
-    var sheet = ss.getSheetByName("Events");
-    var max_rows = sheet.getLastRow();
-    for (var user_row = 2; user_row < max_rows; user_row++){
-      progress_update("Refreshing event row: " + user_row)
-      update_scores_event(user_row, true);
+    var EventObject = main_range_object("Events", undefined, ss);
+    var ScoringObject = main_range_object("Scoring");
+    var all_infos = [];
+    var bg_colors = [];
+    var need_indx = {"# Non- Members": 0,
+                     "STEM?": 1,
+                     "HOST": 2,
+                     "MILES": 3
+                    }
+    for (var j in EventObject.object_header){
+      var event_name = EventObject.object_header[j];
+      var event = EventObject[event_name];
+      var score_info = get_needed_fields(event["Type"][0], ScoringObject);
+      var needed_fields = score_info.needed_fields;
+      var score_description = score_info.score_description;
+      all_infos.push([score_description]);
+      var color_array = ["black", "black", "black", "black"];
+      if (needed_fields > 0){
+        for (var i in needed_fields){
+          var needed_field = needed_fields[i];
+          color_array[need_indx[needed_field]] = "white";
+        }
+      }
+      bg_colors.push(color_array);
     }
+    var event_sheet = EventObject.sheet;
+    var event_col = EventObject.header_values.indexOf("Type") + 1;
+    var event_range = event_sheet.getRange(2, event_col, EventObject.object_count, 1);
+    event_range.setNotes(all_infos);
+    var field_col = EventObject.header_values.indexOf("# Non- Members") + 1;
+    var field_range = event_sheet.getRange(2, field_col, EventObject.object_count, 4);
+    field_range.setBackgrounds(bg_colors);
+    setup_dataval();
     progress_update("REFRESH EVENTS FINISHED");
   } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',

@@ -68,8 +68,9 @@ function onOpen(e) {
   var menu = SpreadsheetApp.getUi().createAddonMenu();
   menu.addItem('Pledge Forms', 'side_pledge');
   menu.addItem('Refresh Attendance', 'refresh_attendance');
-  menu.addItem('Refresh Event Scores', 'refresh_events');
-  menu.addItem('Push Events to Attendance', 'events_to_att');
+  menu.addItem('Refresh Event Scores', 'refresh_scores');
+  menu.addItem('Refresh Events', 'refresh_events');
+  menu.addItem('Refresh Events to Attendance', 'events_to_att');
   menu.addItem('Refresh Members', 'refresh_members');
   menu.addItem('Send Survey', 'send_survey');
   menu.addItem('SYNC', 'sync');
@@ -496,9 +497,9 @@ function get_total_members(refresh){
       counts[member_status] = counts[member_status] ? counts[member_status] + 1 : 1;
     }
     Logger.log("(" + arguments.callee.name + ") ");
-    set_refresh("get_total_members", counts)
+    set_refresh("get_total_members", JSON.stringify(counts));
   } else {
-    var counts = refresh;
+    var counts = JSON.parse(refresh);
   }
   Logger.log(counts);
   return counts;

@@ -32,13 +32,24 @@ function update_scores_event(object){
   var score_data = get_score_event(myObject);
   var other_type_rows = update_score(user_row, "Events", score_data, myObject);
   Logger.log("(" + arguments.callee.name + ") " +"OTHER ROWS" + other_type_rows);
-  for (i in other_type_rows){
-    if (parseInt(other_type_rows[i])!=parseInt(user_row)){
-      var myObject = range_object("Events", other_type_rows[i]);
-      var score_data = get_score_event(myObject);
-      update_score(other_type_rows[i], "Events", score_data, myObject);
+//  if (refresh != true){
+    for (i in other_type_rows){
+      if (parseInt(other_type_rows[i])!=parseInt(user_row)){
+        var myObject = range_object("Events", other_type_rows[i]);
+        var score_data = get_score_event(myObject);
+        update_score(other_type_rows[i], "Events", score_data, myObject);
+      }
     }
+//  }
+}
+
+function get_semester(event_date){
+  var month = event_date.getMonth();
+  var semester = "FALL";
+  if (month<5){
+    var semester = "SPRING";
   }
+  return semester
 }
 
 function update_service_hours(){
@@ -54,11 +65,7 @@ function update_service_hours(){
     if (event_type == "Service Hours"){
       var event_hours = EventObject[event_name]["Event Hours"][0];
       var event_date = EventObject[event_name]["Date"][0];
-      var month = event_date.getMonth();
-      var semester = "FALL";
-      if (month<5){
-	    var semester = "SPRING";
-      }
+      var semester = get_semester(event_date)
       var att_obj = AttendanceObject[event_name];
       if (typeof att_obj == 'undefined') {
       // Event may no longer exists on Attendance sheet
@@ -120,11 +127,7 @@ function update_score_att(){
       var object_date = EventObject[event_name]["Date"][0];
       var meeting_att = EventObject[event_name]["# Members"][0];
       meeting_att = parseFloat(meeting_att / total_members);
-      var month = object_date.getMonth();
-      var semester = "FALL";
-      if (month<5){
-	    var semester = "SPRING";
-      }
+      var semester = get_semester(object_date);
       date_types[semester] = date_types[semester] ? 
         date_types[semester] + meeting_att:meeting_att;
       counts[semester] = counts[semester] ? 
@@ -294,6 +297,9 @@ function get_scores_org_gpa_serv(){
     var fall_mult = 1;
     var status = MemberObject[member_name]["Chapter Status"][0];
     var start = MemberObject[member_name]["Status Start"][0];
+    if (start.indexOf("undefined")){
+      break;
+    }
     switch (status){
       case "Pledge":
         continue;
@@ -387,11 +393,7 @@ function update_score(row, sheetName, score_data, myObject){
   Logger.log("(" + arguments.callee.name + ") " +"Date: " + object_date + " Type:" + object_type)
   var total_scores = get_current_scores(sheetName);
   Logger.log("(" + arguments.callee.name + ") " +total_scores)
-  var month = object_date.getMonth();
-  var semester = "FALL";
-  if (month<5){
-	var semester = "SPRING";
-	}
+  var semester = get_semester(object_date);
   score_data.semester = semester;
   var type_score = total_scores[semester][object_type][0];
   var other_type_rows = total_scores[semester][object_type][1];
@@ -504,10 +506,7 @@ function get_current_scores(sheetName){
     }
 		var type_name = type_values[i];
 		var score = score_values[i];
-		var semester = "FALL";
-		if (month<5){
-			var semester = "SPRING";
-		}
+		var semester = get_semester(date);
         var old_score = date_types[semester][type_name] ? 
 				date_types[semester][type_name][0] : 0;
         var new_score = parseFloat(old_score) + parseFloat(score);
@@ -536,11 +535,13 @@ function get_score_event(myEvent){
 }
 
 
-function edit_score_method_event(myEvent, score_method){
+function edit_score_method_event(myEvent, score_method, totals){
   var attend = myEvent["# Members"][0];
   var attend = (attend != "") ? attend:0;
   if (~score_method.indexOf("memberATT")){
+    if (!totals){
       var totals = get_total_members();
+    }
       var percent_attend = attend / totals.Student;
       score_method = score_method.replace("memberATT", percent_attend);
           }
@@ -589,9 +590,11 @@ function edit_score_method_event(myEvent, score_method){
   return score_method
 }
 
-function get_score_method(event_type, mod){
+function get_score_method(event_type, mod, ScoringObject){
 //  var event_type = "Alumni-Active";
-  var ScoringObject = main_range_object("Scoring");
+  if (!ScoringObject){
+    var ScoringObject = main_range_object("Scoring");
+  }
   var score_object = ScoringObject[event_type];
   var score_type = score_object["Score Type"][0];
   var score_method_note = score_object["How points are calculated"][0];
@@ -628,4 +631,74 @@ function get_score_method(event_type, mod){
           score_ids: score_ids,
           score_type: score_object["Type"][0]
          }
+}
+
+function refresh_scores() {
+  try{
+    progress_update("REFRESH EVENTS");
+    var ss = get_active_spreadsheet();
+    var attendance_object = main_range_object("Attendance", undefined, ss);
+    var EventObject = main_range_object("Events", undefined, ss);
+//    events_to_att(ss, attendance_object, EventObject);
+//    refresh_attendance(ss, attendance_object, EventObject);
+    EventObject = main_range_object("Events", undefined, ss);
+    var ScoringObject = main_range_object("Scoring", undefined, ss);
+    var totals = get_total_members();
+    var all_scores = [];
+    var all_backgrounds = [];
+    var all_notes = [];
+    var type_semester = {};
+    type_semester["FALL"] = {};
+    type_semester["SPRING"] = {};
+    var exclude = ["Meetings", "Service Hours", "Misc"];
+    for (var j in EventObject.object_header){
+      var event_name = EventObject.object_header[j];
+      var event = EventObject[event_name];
+      var event_type = event["Type"][0];
+      var event_date = event["Date"][0];
+      var semester = get_semester(event_date);
+      var score_data = get_score_method(event_type, undefined, ScoringObject);
+      var score_method_edit = null;
+      if (exclude.indexOf(event_type) < 0){
+        score_method_edit = edit_score_method_event(event, score_data.score_method, totals);
+      }
+      var background = "black";
+      var score = 0
+      if (score_method_edit !== null){
+        score = eval(score_method_edit);
+        score = score.toFixed(1);
+        background = "dark gray 1";
+      }
+      // Need to find the score, date, type to determine semester scoring
+      var type_semester_score = type_semester[semester][event_type] ? type_semester[semester][event_type]:0;
+      var combined_score = parseFloat(type_semester_score) + parseFloat(score);
+      if (combined_score > parseFloat(score_data.score_max_semester)){
+        combined_score = score_data.score_max_semester - type_semester_score;
+        combined_score = combined_score > 0 ? combined_score:0;
+        }
+      type_semester[semester][event_type] = combined_score;
+      all_scores.push([combined_score]);
+      all_backgrounds.push([background]);
+      all_notes.push([score_data.score_method_note]);
+    }
+    var event_sheet = EventObject.sheet;
+    var score_col = EventObject.header_values.indexOf("Score") + 1;
+    var score_range = event_sheet.getRange(2, score_col, EventObject.object_count , 1);
+    score_range.setValues(all_scores);
+    score_range.setBackgrounds(all_backgrounds);
+    score_range.setNotes(all_notes);
+    progress_update("REFRESH EVENTS FINISHED");
+  } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return "";
+  }
 }
