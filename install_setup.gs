@@ -406,7 +406,7 @@ function setup_dataval(){
   
   var range = ss.getRange("Attendance!1:149");
   var rule = SpreadsheetApp.newDataValidation()
-    .requireValueInList(['P', 'E', 'U'], false)
+    .requireValueInList(['P', 'E', 'U', 'p', 'e', 'u'], false)
     .setHelpText('P-Present; E-Excused; U-Unexcused')
     .setAllowInvalid(false).build();
   range.setDataValidation(rule);
