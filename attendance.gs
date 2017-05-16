@@ -157,6 +157,32 @@ function update_event_att(attendance, counts){
   pledge_range.setValue(num_pledges)
 }
 
+function check_duplicate_names(ss){
+  if (!ss){
+    var ss = get_active_spreadsheet();
+  }
+  var sheet = ss.getSheetByName("Attendance");
+  var max_column = sheet.getLastColumn()
+  var header_range = sheet.getRange(1, 1, 1, max_column);
+  var header_values = header_range.getValues()[0];
+  var header_values_reversed = header_values.slice().reverse();
+  for (var first = 0; first < header_values_reversed.length; first++){
+    var header_value = header_values_reversed[first];
+    var last = header_values_reversed.lastIndexOf(header_value);
+    if (first != last){
+      Logger.log("(" + arguments.callee.name + ") " + "There's a duplicate!");
+      var col_del = header_values.lastIndexOf(header_value) + 1;
+      sheet.deleteColumn(col_del);
+      if ((last-first) > 1){
+        // When there are > 1 extra events
+        Logger.log("(" + arguments.callee.name + ") " + "More than one duplicate!");
+        check_duplicate_names(ss);
+      }
+    }
+  }
+}
+
+
 function refresh_attendance(ss, attendance_object, EventObject){
   try{
     progress_update("REFRESH ATTENDANCE");

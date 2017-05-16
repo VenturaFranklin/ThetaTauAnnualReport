@@ -639,6 +639,7 @@ function get_chapter_members(){
     range.setValues([new_values]);
   }
   setup_attendance();
+  check_duplicate_names();
   progress_update("Finished Get Chapter Members");
   } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
