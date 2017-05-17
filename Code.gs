@@ -9,6 +9,7 @@ var WORKING = false;
 var SCRIPT_PROP = PropertiesService.getDocumentProperties();
 var betterLogStarted = false;
 logging_check();
+check_sheets();
 
 function logging_check(){
   try {
@@ -67,9 +68,9 @@ function onOpen(e) {
   SCRIPT_PROP.setProperty("password", "FALSE");
   var menu = SpreadsheetApp.getUi().createAddonMenu();
   menu.addItem('Pledge Forms', 'side_pledge');
-  menu.addItem('Refresh Attendance', 'refresh_attendance');
-  menu.addItem('Refresh Event Scores', 'refresh_scores');
-  menu.addItem('Refresh Events', 'refresh_events');
+  menu.addItem('Refresh Attendance on Events', 'refresh_attendance');
+  menu.addItem('Refresh All Scores', 'refresh_scores');
+  menu.addItem('Refresh Events Background Stuff', 'refresh_events');
   menu.addItem('Refresh Events to Attendance', 'events_to_att');
   menu.addItem('Refresh Members', 'refresh_members');
   menu.addItem('Send Survey', 'send_survey');
@@ -80,6 +81,7 @@ function onOpen(e) {
   menu.addSeparator();
   menu.addSubMenu(SpreadsheetApp.getUi().createMenu("Debugging")
                   .addItem('Create Triggers', 'run_createTriggers')
+                  .addItem('Add Missing Member', 'missing_form')
                   .addItem("RESET", 'RESET')
                   .addItem('SETUP', 'run_install')
                   .addItem('Start Logging', 'start_logging')
@@ -178,24 +180,6 @@ function find_member_shortname(MemberObject, member_name_raw){
       return MemberObject[full_name]
     }
   }
-}
-
-function get_score_submit(myScore){
-  var event_type = myScore["Type"][0]
-  if (~event_type.indexOf("Pledge Program")){
-    var info = event_type.split(" - ");
-    event_type = info[0];
-    var mod = info[1]=="modified";
-    Logger.log("(" + arguments.callee.name + ") " + "mod: " + mod);
-  }
-  var score_data = get_score_method(event_type, mod);
-  Logger.log("(" + arguments.callee.name + ") ");
-  Logger.log(score_data);
-  var score = eval(score_data.score_method);
-  score = score.toFixed(1);
-  score_data.score = score;
-  Logger.log("(" + arguments.callee.name + ") " +arguments.callee.name + "SCORE RAW: " + score);
-  return score_data
 }
 
 function shorten(long_string, max_len, ellipse){
@@ -462,6 +446,31 @@ function get_column_values(col, range_values){
 	return newArray;
 }
 
+function check_sheets(){
+  try {
+  var sheet_names = ["Events", "Chapter", "Scoring", "Attendance",
+                     "Membership", "Submissions", "Dashboard"];
+  var ss = get_active_spreadsheet();
+  for (var i in sheet_names){
+    var sheetName = sheet_names[i];
+    var sheet = ss.getSheetByName(sheetName);
+    if (!sheet){
+      var message = Utilities.formatString('You are missing a sheet!\nWhere is sheet name: %s?\nPlease rename the sheet back to its original name:\n%s',
+                                           sheetName||'', sheetName||'');
+      Logger = startBetterLog();
+      Logger.severe(message);
+      var ui = SpreadsheetApp.getUi();
+      var result = ui.alert(
+        'ERROR',
+        message,
+        ui.ButtonSet.OK);
+    }
+  }
+  } catch (e) {
+    Logger.log("(" + arguments.callee.name + ") " +error);
+  }
+}
+
 function refresh_members(){
   get_chapter_members();
 }
@@ -585,7 +594,7 @@ function main_range_object(sheetName, short_header, ss){
     myObject["original_names"].push(short_name);
     var range_values = full_data_values[short_name_ind]
     var temp = range_object_fromValues(header_values[0], range_values, short_name_ind + 2);
-    if (sheetName == "Events" || sheetName == "Attendance"){
+    if (sheetName == "Events" || sheetName == "Attendance" || sheetName == "Submissions"){
       // This prevents event duplicates
       short_name = short_name+temp["Date"][0];
     }
