@@ -113,6 +113,63 @@ function member_update(form) {
   }
 }
 
+function missing_form() {
+  try{
+    var html = HtmlService.createTemplateFromFile('form_missing');
+    var htmlOutput = html.evaluate()
+      .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+      .setWidth(700)
+      .setHeight(400);
+    SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
+      .showModalDialog(htmlOutput, 'MISSING MEMBER FORM');
+    } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+  }
+}
+
+function process_missing(form) {
+//  var form = {badge: "X1242", last_name: "John", first_name: "Missing", email: "test@gmail.com", status: "Student"};
+  try{
+    Logger.log(form);
+    var MemberObject = main_range_object("Membership");
+    var sheet = MemberObject["sheet"];
+    var first_name = form["first_name"];
+    var last_name = form["last_name"];
+    var badge = form["badge"];
+    var status = form["status"];
+    var email = form["email"];
+    var max_rows = MemberObject.object_count + 1; // one for header
+    sheet.insertRowAfter(max_rows);
+    var new_row = [first_name + " " + last_name, first_name, last_name, badge,
+                  status, '', '', '', '', '', '', email];
+    var new_range = sheet.getRange(max_rows+1, 1, 1, 12);
+    new_range.setValues([new_row]);
+    setup_attendance();
+    return "Member added to membership sheet";
+    } catch (e) {
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+      message,
+      ui.ButtonSet.OK);
+    return ["ERROR", null];
+  }
+}
+
 function save_form(csvFile, form_type){
   try {
     var folder_id = get_form_id();
