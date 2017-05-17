@@ -144,7 +144,7 @@ function sync_jewelry(ss_prop){
   progress_update("Syncing Jewelry Costs");
   Logger.log("(" + arguments.callee.name + ") ");
   var chapter = SCRIPT_PROP.getProperty("chapter");
-  chapter = "Delta Gamma";
+//  chapter = "Delta Gamma";
   var num = chapter.split(" ");
   var letter = (num.length > 1) ? 2:1;
   var main_object = main_range_object("Jewelry", "Item", ss_prop);
