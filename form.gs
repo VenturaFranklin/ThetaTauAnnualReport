@@ -230,7 +230,8 @@ function process_oer(form) {
 //              "Website/Social Media Chair": "N/A", "Pledge/New Member Educator": "Adam Schilpero...", 
 //              "officer_end": "2016-12-31", "Corresponding Secretary": "Kyle Wilson",
 //              "TCS_start": "2016-08-01", "TCS_end": "2017-06-01",
-//              "Social/Brotherhood Chair": "N/A", "officer_start": "2016-08-01", 
+//              "Social/Brotherhood Chair": "N/A", 
+//              "officer_start": "2016-08-01", 
 //              "Scholarship Chair": "N/A", "Vice Regent": "David Montgome...", "PD Chair": "N/A", 
 //              "Regent": "Adam Schilpero...", "Project Chair": "N/A"};
   Logger.log("(" + arguments.callee.name + ") ");
@@ -460,7 +461,7 @@ function process_grad(form) {
 //  var form = {"date_start":["2017-01-01", "2017-01-02", "2017-01-03", "2017-01-04", "2017-01-05", "2017-01-06"],
 //              "new_location":["Test", "Test1", "Test2", "TEst3", "Arizona State University"],
 //              "phone":"(714) 656-5839",
-//              "name":["Aimee Largier", "Albert Hu", "Alec Sonderman", "AlexanderNEW Gerwe", "Amelia Sylvester", "AmmarNEW Mustafa"],
+//              "name":["Alan Boulard", "Alejandro Durazo", "Aadi Sharma", "AlexanderNEW Gerwe", "Allison Katz", "Amelia Sylvester"],
 //              "degree":"Mechanical Engineeering",
 //              "dist":["100", "1000", "1000"], "date_end":["2017-02-02", "2017-02-03", "2017-02-04"],
 //              "type":["Degree received", "CoOp", "Military", "Abroad", "Transfer", "Withdrawn"], "email":"allisonbeth@cox.net"}
