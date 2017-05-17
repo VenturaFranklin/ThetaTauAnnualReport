@@ -107,7 +107,7 @@ function update_service_hours(){
     member_fall_range.setValue(fall_score);
     var spring_score = score_obj[member_name]["SPRING"] ? score_obj[member_name]["SPRING"]:0;
     member_spring_range.setValue(spring_score);
-    Logger.log("(" + arguments.callee.name + ") " +"FALL: "+fall_col+" SPRING: "+spring_col+" ROW: "+member_row);
+    Logger.log("(" + arguments.callee.name + ") " +"FALL: "+fall_score+" SPRING: "+spring_score+" ROW: "+member_row);
   }
   update_scores_org_gpa_serv();
 }
@@ -297,8 +297,12 @@ function get_scores_org_gpa_serv(){
     var fall_mult = 1;
     var status = MemberObject[member_name]["Chapter Status"][0];
     var start = MemberObject[member_name]["Status Start"][0];
-    if (start.indexOf("undefined")){
-      break;
+    if (typeof(start) != typeof(new Date())){
+      if (start != ""){
+        if (start.indexOf("undefined") >= 0){
+          continue;
+        }
+      }
     }
     switch (status){
       case "Pledge":
@@ -356,11 +360,11 @@ function get_scores_org_gpa_serv(){
     officer_count = officer_true ? officer_count + 1:officer_count;
     org_count = org_true ? org_count + 1:org_count;
   }
-  var percent_service_fa = service_count_fa / active_total_fa;
-  var percent_service_sp = service_count_sp / active_total_sp;
-  var percent_org = org_count / active_total;
-  var gpa_avg_fall = gpa_counts["Fall GPA"] / active_total_fa;
-  var gpa_avg_spring = gpa_counts["Spring GPA"] / active_total_sp;
+  var percent_service_fa = active_total_fa==0 ? 0:service_count_fa / active_total_fa;
+  var percent_service_sp = active_total_sp==0 ? 0:service_count_sp / active_total_sp;
+  var percent_org = active_total==0 ? 0:org_count / active_total;
+  var gpa_avg_fall = active_total_fa==0 ? 0:gpa_counts["Fall GPA"] / active_total_fa;
+  var gpa_avg_spring = active_total_sp==0 ? 0:gpa_counts["Spring GPA"] / active_total_sp;
   return {percent_service_fa: percent_service_fa,
           percent_service_sp: percent_service_sp,
           percent_org: percent_org,
@@ -368,6 +372,24 @@ function get_scores_org_gpa_serv(){
           gpa_avg_fall: gpa_avg_fall,
           gpa_avg_spring: gpa_avg_spring
           }
+}
+
+function get_score_submit(myScore){
+  var event_type = myScore["Type"][0]
+  if (~event_type.indexOf("Pledge Program")){
+    var info = event_type.split(" - ");
+    event_type = info[0];
+    var mod = info[1]=="modified";
+    Logger.log("(" + arguments.callee.name + ") " + "mod: " + mod);
+  }
+  var score_data = get_score_method(event_type, mod);
+  Logger.log("(" + arguments.callee.name + ") ");
+  Logger.log(score_data);
+  var score = eval(score_data.score_method);
+  score = score.toFixed(1);
+  score_data.score = score;
+  Logger.log("(" + arguments.callee.name + ") " +arguments.callee.name + "SCORE RAW: " + score);
+  return score_data
 }
 
 function update_scores_submit(user_row){
@@ -633,14 +655,48 @@ function get_score_method(event_type, mod, ScoringObject){
          }
 }
 
+function refresh_main_scores(type_semester, ss, ScoringObject){
+  // type_semester = semester.event_type
+  if (!ss){
+    var ss = get_active_spreadsheet();
+    var ScoringObject = main_range_object("Scoring", undefined, ss);
+  }
+  var score_sheet = ScoringObject.sheet;
+  var all_scores = [];
+  for (var i in ScoringObject.object_header){
+    var this_type = ScoringObject.object_header[i];
+    all_scores.push([ScoringObject[this_type]["FALL SCORE"][0],
+                     ScoringObject[this_type]["SPRING SCORE"][0],
+                     ScoringObject[this_type]["CHAPTER TOTAL"][0]]);
+  }
+//  var all_scores =
+//        Array.apply(null, Array(ScoringObject.object_count)).map(function() { return [0, 0, 0] });
+  for (var semester in type_semester){
+    var semester_col = semester == "FALL" ? 0:1;
+    for (var event_type in type_semester[semester]){
+      var event_score = type_semester[semester][event_type];
+      var score_row = ScoringObject[event_type].object_row - 2 // 2 of header and row in sheet starts at 1 not 0;
+      all_scores[score_row][semester_col]=event_score;
+    }
+  }
+  for (var ind in all_scores){
+    all_scores[ind][2] = all_scores[ind][0] + all_scores[ind][1];
+  }
+  var fall_col = ScoringObject.header_values.indexOf("FALL SCORE");
+  var semester_range = score_sheet.getRange(2, fall_col, ScoringObject.object_count, 3);
+//  semester_range.setValues(all_scores);
+//  update_dash_score(score_data.score_type, score_data.score_ids.chapter);
+}
+
 function refresh_scores() {
   try{
     progress_update("REFRESH EVENTS");
     var ss = get_active_spreadsheet();
     var attendance_object = main_range_object("Attendance", undefined, ss);
     var EventObject = main_range_object("Events", undefined, ss);
-//    events_to_att(ss, attendance_object, EventObject);
-//    refresh_attendance(ss, attendance_object, EventObject);
+    var SubmitObject = main_range_object("Submissions", undefined, ss);
+    events_to_att(ss, attendance_object, EventObject);
+    refresh_attendance(ss, attendance_object, EventObject);
     EventObject = main_range_object("Events", undefined, ss);
     var ScoringObject = main_range_object("Scoring", undefined, ss);
     var totals = get_total_members();
@@ -687,6 +743,40 @@ function refresh_scores() {
     score_range.setValues(all_scores);
     score_range.setBackgrounds(all_backgrounds);
     score_range.setNotes(all_notes);
+    for (var j in SubmitObject.object_header){
+      var submit_name = SubmitObject.object_header[j];
+      var submit = SubmitObject[submit_name];
+      var submit_type = submit["Type"][0];
+      var ignore = ['OER', 'MSCR', 'INIT', 'DEPL', 'COOP'];
+      if (ignore.indexOf(submit_type) >= 0){
+        continue;
+      }
+      if (submit_type.indexOf("Pledge Program") >= 0){
+        var mod = submit_type.split(" - ")[1];
+        var mod = mod=="modified";
+        submit_type = "Pledge Program";
+      }
+      var submit_date = submit["Date"][0];
+      var submit_score = submit["Score"][0];
+      var semester = get_semester(submit_date);
+      var score_data = get_score_method(submit_type, undefined, ScoringObject);
+      var type_semester_score = type_semester[semester][submit_type] ? type_semester[semester][submit_type]:0;
+      var combined_score = parseFloat(type_semester_score) + parseFloat(submit_score);
+      if (combined_score > parseFloat(score_data.score_max_semester)){
+        combined_score = score_data.score_max_semester - type_semester_score;
+        combined_score = combined_score > 0 ? combined_score:0;
+        }
+      type_semester[semester][submit_type] = combined_score;
+    }
+    update_score_att();
+    update_service_hours();
+    update_score_member_pledge();
+    refresh_main_scores(type_semester, ss, ScoringObject);
+    var total_col = ScoringObject["Meetings"]["CHAPTER TOTAL"][1];
+    update_dash_score("ProDev", total_col);
+    update_dash_score("Service", total_col);
+    update_dash_score("Operate", total_col);
+    update_dash_score("Brotherhood", total_col);
     progress_update("REFRESH EVENTS FINISHED");
   } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
