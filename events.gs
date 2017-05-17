@@ -46,6 +46,22 @@ function get_needed_fields(event_type, ScoringObject){
     var ScoringObject = main_range_object("Scoring");
   }
   var score_object = ScoringObject[event_type];
+  if (!score_object){
+    var message = Utilities.formatString('This event does not exist!\nEvent name: %s?\n'+
+                                         'Please make sure the event is from the drop down list.\nUse '+
+                                         '"Refresh Events Background Stuff" if the drop downs are missing.',
+                                           event_type||'');
+      Logger = startBetterLog();
+      Logger.severe(message);
+      var ui = SpreadsheetApp.getUi();
+      var result = ui.alert(
+        'ERROR',
+        message,
+        ui.ButtonSet.OK);
+    return {needed_fields: [],
+            score_description: "Event does not exist"
+           }
+  }
   var needed_fields = score_object["Event Fields"][0];
   needed_fields = needed_fields.split(', ');
   var score_description = score_object["Long Description"][0];
@@ -184,7 +200,7 @@ function refresh_events() {
       var score_description = score_info.score_description;
       all_infos.push([score_description]);
       var color_array = ["black", "black", "black", "black"];
-      if (needed_fields > 0){
+      if (needed_fields.length > 0){
         for (var i in needed_fields){
           var needed_field = needed_fields[i];
           color_array[need_indx[needed_field]] = "white";
