@@ -67,17 +67,21 @@ function get_active_spreadsheet() {
 function onOpen(e) {
   SCRIPT_PROP.setProperty("password", "FALSE");
   var menu = SpreadsheetApp.getUi().createAddonMenu();
-  menu.addItem('Pledge Forms', 'side_pledge');
-  menu.addItem('Refresh Attendance on Events', 'refresh_attendance');
-  menu.addItem('Refresh All Scores', 'refresh_scores');
-  menu.addItem('Refresh Events Background Stuff', 'refresh_events');
-  menu.addItem('Refresh Events to Attendance', 'events_to_att');
-  menu.addItem('Refresh Members', 'refresh_members');
+  menu.addSubMenu(SpreadsheetApp.getUi().createMenu("Refresh")
+                  .addItem('Refresh Attendance on Events', 'refresh_attendance')
+                  .addItem('Refresh All Scores', 'refresh_scores')
+                  .addItem('Refresh Events Background Stuff', 'refresh_events')
+                  .addItem('Refresh Events to Attendance', 'events_to_att')
+                  .addItem('Refresh Members', 'refresh_members')
+  );
+  menu.addSubMenu(SpreadsheetApp.getUi().createMenu("Submit")
+                  .addItem('Pledge Forms', 'side_pledge')
+                  .addItem('Status Change', 'side_member')
+                  .addItem('Submit Item', 'side_submit')
+                  .addItem('Update Officers', 'side_officers')
+  );
   menu.addItem('Send Survey', 'send_survey');
   menu.addItem('SYNC', 'sync');
-  menu.addItem('Status Change', 'side_member');
-  menu.addItem('Submit Item', 'side_submit');
-  menu.addItem('Update Officers', 'side_officers');
   menu.addSeparator();
   menu.addSubMenu(SpreadsheetApp.getUi().createMenu("Debugging")
                   .addItem('Create Triggers', 'run_createTriggers')
