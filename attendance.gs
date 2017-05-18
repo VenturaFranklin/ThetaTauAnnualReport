@@ -19,6 +19,36 @@ function att_name(name){
 //  return new_string
 }
 
+function check_duplicate_att_events(ss){
+  if (!ss){
+    var ss = get_active_spreadsheet();
+  }
+  var sheet = ss.getSheetByName("Attendance");
+  var max_row = sheet.getLastRow();
+  var header_range = sheet.getRange(1, 1, max_row, 2);
+  var header_values = header_range.getValues();
+  var header_values_reversed = header_values.slice().reverse();
+  var combined_values = [];
+  for (var i = 0; i < header_values_reversed.length; i++){
+     combined_values.push(header_values_reversed[i][0] + header_values_reversed[i][1]);
+  }
+  var combined_values_orig_order = combined_values.slice().reverse();
+  for (var first = 0; first < combined_values.length; first++){
+    var header_value = combined_values[first];
+    var last = combined_values.lastIndexOf(header_value);
+    if (first != last){
+      Logger.log("(" + arguments.callee.name + ") " + "There's a duplicate!");
+      var row_del = combined_values_orig_order.lastIndexOf(header_value) + 1;
+      sheet.deleteRow(row_del);
+      if ((last-first) > 1){
+        // When there are > 1 extra events
+        Logger.log("(" + arguments.callee.name + ") " + "More than one duplicate!");
+        check_duplicate_names(ss);
+      }
+    }
+  }
+}
+
 function check_duplicates(event_name, event_date){
   // Just added event need to make sure no duplicate
 //  var event_date = "Sun Jan 01 2017 00:00:00 GMT-0700 (MST)";
