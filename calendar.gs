@@ -38,6 +38,7 @@ function calendar_add_event(){
 }
 
 function share_calendar( user, role ) {
+  try {
   // From: http://stackoverflow.com/a/27110258/3166424
   role = role || "reader";
 //  var user = "test_020@thetatau.org";
@@ -70,4 +71,6 @@ function share_calendar( user, role ) {
   }
 
   return newRule;
+    } catch (e) {
+    }
 }
