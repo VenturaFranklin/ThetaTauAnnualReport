@@ -19,9 +19,10 @@ function att_name(name){
 //  return new_string
 }
 
-function check_duplicate_att_events(ss){
+function check_duplicate_missing_att_events(ss, EventObject){
   if (!ss){
     var ss = get_active_spreadsheet();
+    var EventObject = main_range_object("Events", undefined, ss);
   }
   var sheet = ss.getSheetByName("Attendance");
   var max_row = sheet.getLastRow();
@@ -35,8 +36,9 @@ function check_duplicate_att_events(ss){
   var combined_values_orig_order = combined_values.slice().reverse();
   for (var first = 0; first < combined_values.length; first++){
     var header_value = combined_values[first];
+    if (header_value == "Event NameDate"){continue;}
     var last = combined_values.lastIndexOf(header_value);
-    if (first != last){
+    if ((first != last) || !(header_value in EventObject)){
       Logger.log("(" + arguments.callee.name + ") " + "There's a duplicate!");
       var row_del = combined_values_orig_order.lastIndexOf(header_value) + 1;
       sheet.deleteRow(row_del);
@@ -144,6 +146,7 @@ function member_status_semester(member_object, event_date){
 }
 
 function att_counts(attendance, MemberObject){
+  if (!attendance){return;}
   var event_name_att = attendance["Event Name"][0];
   var event_date_att = attendance["Date"][0];
   Logger.log("(" + arguments.callee.name + ") " +event_name_att);
