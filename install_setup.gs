@@ -417,6 +417,7 @@ function setup_dataval(){
     ss.getRange(remove[i]).clearDataValidations();
   }
   ss.getRange("Membership!O2:X100").setBackground("white");
+  ss.getRange("Events!I1").setNote("How long was the event? Number of hours?");
   progress_update("Finished Data Val Setup");
 //requireNumberGreaterThan(number)
 //requireTextIsEmail()
