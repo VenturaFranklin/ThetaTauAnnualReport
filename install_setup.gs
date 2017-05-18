@@ -44,7 +44,7 @@ function progress_update(this_message){
     var error_message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
                                                e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
                                                e.stack||'', arguments.callee.name||'');
-    Logger = startBetterLog();
+//    Logger = startBetterLog();
     Logger.severe(error_message);
   }
 }
