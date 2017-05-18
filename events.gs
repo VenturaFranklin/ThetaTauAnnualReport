@@ -162,7 +162,7 @@ function events_to_att(ss, attendance_object, EventObject){
     var max_row = att_sheet.getLastRow();
     format_range.copyFormatToRange(att_sheet, 3, max_column, 2, 1000);
     main_range_object("Attendance");
-    check_duplicate_att_events(ss);
+    check_duplicate_missing_att_events(ss, EventObject);
     progress_update("EVENTS TO ATTENDANCE FINISHED");
   } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
