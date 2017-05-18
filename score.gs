@@ -117,7 +117,7 @@ function update_score_att(){
   var sheet = ss.getSheetByName("Scoring");
   var EventObject = main_range_object("Events");
   var ScoringObject = main_range_object("Scoring");
-  var total_members = get_total_members()["Student"];
+  var total_members = get_total_members(true);
   var date_types = [];
   var counts = [];
   for (var i = 0; i < EventObject.object_count; i++){
@@ -126,8 +126,8 @@ function update_score_att(){
     if (event_type == "Meetings"){
       var object_date = EventObject[event_name]["Date"][0];
       var meeting_att = EventObject[event_name]["# Members"][0];
-      meeting_att = parseFloat(meeting_att / total_members);
       var semester = get_semester(object_date);
+      meeting_att = parseFloat(meeting_att / total_members[semester]["Student"]);
       date_types[semester] = date_types[semester] ? 
         date_types[semester] + meeting_att:meeting_att;
       counts[semester] = counts[semester] ? 
@@ -562,9 +562,11 @@ function edit_score_method_event(myEvent, score_method, totals){
   var attend = (attend != "") ? attend:0;
   if (~score_method.indexOf("memberATT")){
     if (!totals){
-      var totals = get_total_members();
+      var totals = get_total_members(true);
     }
-      var percent_attend = attend / totals.Student;
+      var event_date = myEvent["Date"][0];
+      var semester = get_semester(event_date);
+      var percent_attend = attend / totals[semester]["Student"];
       score_method = score_method.replace("memberATT", percent_attend);
           }
   if (~score_method.indexOf("memberADD")){
@@ -699,7 +701,7 @@ function refresh_scores() {
     refresh_attendance(ss, attendance_object, EventObject);
     EventObject = main_range_object("Events", undefined, ss);
     var ScoringObject = main_range_object("Scoring", undefined, ss);
-    var totals = get_total_members();
+    var totals = get_total_members(true);
     var all_scores = [];
     var all_backgrounds = [];
     var all_notes = [];

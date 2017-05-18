@@ -84,6 +84,34 @@ function update_attendance(attendance){
   var counts = att_counts(attendance, MemberObject)
   update_event_att(attendance, counts)
  }
+ 
+function member_status_semester(member_object, event_date){
+    var member_status = member_object["Chapter Status"][0];
+    switch (member_status) {
+      case "Away":
+        var start = member_object["Status Start"][0];
+        var end = member_object["Status End"][0];
+        if ((event_date > end) || (event_date < start)){
+          member_status = "Student";
+        }
+        break;
+      case "Alumn":
+        var start = member_object["Status Start"][0];
+        if (event_date < start){
+          member_status = "Student";
+        }
+        break;
+      case "Shiny":
+        var start = member_object["Status Start"][0];
+        if (event_date < start){
+          member_status = "Pledge";
+        } else {
+          member_status = "Student";
+        }
+        break;
+    }
+    return member_status
+}
 
 function att_counts(attendance, MemberObject){
   var event_name_att = attendance["Event Name"][0];
@@ -110,29 +138,7 @@ function att_counts(attendance, MemberObject){
     var event_status = attendance[member_name_att][0];
     event_status = event_status.toUpperCase();
     var member_status = member_object["Chapter Status"][0];
-    switch (member_status) {
-      case "Away":
-        var start = member_object["Status Start"][0];
-        var end = member_object["Status End"][0];
-        if ((event_date_att > end) || (event_date_att < start)){
-          member_status = "Student";
-        }
-        break;
-      case "Alumn":
-        var start = member_object["Status Start"][0];
-        if (event_date_att < start){
-          member_status = "Student";
-        }
-        break;
-      case "Shiny":
-        var start = member_object["Status Start"][0];
-        if (event_date_att < start){
-          member_status = "Pledge";
-        } else {
-          member_status = "Student";
-        }
-        break;
-    }
+    member_status = member_status_semester(member_object, event_date_att);
 //    Logger.log("(" + arguments.callee.name + ") " +[member_name_short, member_object, event_status, member_status]);
     counts[member_status][event_status] = counts[member_status][event_status] ? counts[member_status][event_status] + 1 : 1;
   }

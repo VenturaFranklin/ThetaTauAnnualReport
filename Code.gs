@@ -149,7 +149,7 @@ function get_member_list(status){
   for(var i = 0; i< MemberObject.object_count; i++) {
     var member_name = MemberObject.object_header[i];
     var member_status = MemberObject[member_name]["Chapter Status"][0];
-    if (member_status == "Away" || member_status == "Shiny"){
+    if (member_status == "Away" || member_status == "Shiny" || member_status == "Alumn"){
       member_status = "Student";
     }
     if (member_status == status){
@@ -499,15 +499,41 @@ function set_refresh(property_name, property_value){
   SCRIPT_PROP.setProperty(property_name+"_refresh", newDateObj);
 }
 
+function get_dues_years(){
+  var today = new Date();
+  var month = today.getMonth() + 1;
+  if (month > 8){
+    // if current date is after 8 month then 11/1 this year 3/15 next year
+    var fall_year = today.getFullYear();
+    var spring_year = fall_year + 1;
+  } else {
+    // else 11/1 last year and 3/15 this year
+    var spring_year = today.getFullYear();
+    var fall_year = spring_year - 1;
+  }
+  return {
+      fall_date: new Date(fall_year, 11-1, 1),
+      spring_date: new Date(spring_year, 3-1, 15)
+  };
+}
+
 function get_total_members(refresh){
+  
   var refresh = check_refresh(refresh, "get_total_members");
   if (refresh == true) {
     var MemberObject = main_range_object("Membership");
     var counts = {};
+    counts["FALL"] = {};
+    counts["SPRING"] = {};
     for(var i = 0; i< MemberObject.object_count; i++) {
       var member_name = MemberObject.object_header[i];
-      var member_status = MemberObject[member_name]["Chapter Status"][0]
-      counts[member_status] = counts[member_status] ? counts[member_status] + 1 : 1;
+      var member_object = MemberObject[member_name];
+      // Need to take into account semesters
+      var due_dates = get_dues_years();
+      var fall_status = member_status_semester(member_object, due_dates.fall_date);
+      var spring_status = member_status_semester(member_object, due_dates.spring_date);
+      counts["FALL"][fall_status] = counts["FALL"][fall_status] ? counts["FALL"][fall_status] + 1 : 1;
+      counts["SPRING"][spring_status] = counts["SPRING"][spring_status] ? counts["SPRING"][spring_status] + 1 : 1;
     }
     Logger.log("(" + arguments.callee.name + ") ");
     set_refresh("get_total_members", JSON.stringify(counts));
@@ -587,6 +613,7 @@ function main_range_object(sheetName, short_header, ss){
   myObject["original_names"] = new Array();
   myObject["header_values"] = header_values[0];
   myObject["sheet"] = sheet;
+  myObject["object_count"] = 0;
   for (var val in short_names){
 //    short_names.forEach(function (item) {
 //      var test = item;
