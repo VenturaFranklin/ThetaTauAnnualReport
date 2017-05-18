@@ -161,13 +161,24 @@ function update_score_member_pledge(){
   var sheet = ss.getSheetByName("Scoring");
   var member_value_obj = get_membership_ranges();
   var init_sp_value = member_value_obj.init_sp_range.getValue();
+  init_sp_value = typeof(init_sp_value) == typeof(0) ? init_sp_value:0;
   var init_fa_value = member_value_obj.init_fa_range.getValue();
+  init_fa_value = typeof(init_fa_value) == typeof(0) ? init_fa_value:0;
   var pledge_sp_value = member_value_obj.pledge_sp_range.getValue();
+  pledge_sp_value = typeof(pledge_sp_value) == typeof(0) ? pledge_sp_value:0;
   var pledge_fa_value = member_value_obj.pledge_fa_range.getValue();
+  pledge_fa_value = typeof(pledge_fa_value) == typeof(0) ? pledge_fa_value:0;
   var grad_sp_value = member_value_obj.grad_sp_range.getValue();
+  grad_sp_value = typeof(grad_sp_value) == typeof(0) ? grad_sp_value:0;
   var grad_fa_value = member_value_obj.grad_fa_range.getValue();
-  var act_sp_value = member_value_obj.act_sp_range.getValue();
-  var act_fa_value = member_value_obj.act_fa_range.getValue();
+  grad_fa_value = typeof(grad_fa_value) == typeof(0) ? grad_fa_value:0;
+  
+  var totals = get_total_members(true);
+  var act_sp_value = totals["SPRING"]["Student"];
+  act_sp_value = typeof(act_sp_value) == typeof(0) ? act_sp_value:0;
+  var act_fa_value = totals["FALL"]["Student"];
+  act_fa_value = typeof(act_fa_value) == typeof(0) ? act_fa_value:0;
+  
   var all_vals = [init_sp_value, init_fa_value, pledge_sp_value, pledge_fa_value,
                   grad_sp_value, grad_fa_value, act_sp_value, act_fa_value];
   Logger.log("(" + arguments.callee.name + ") " + all_vals)
@@ -206,15 +217,19 @@ function update_score_member_pledge(){
   var score_pledge_tot_range = sheet.getRange(score_pledge_row,total_col);
   score_sp = score_sp >= 0 ? score_sp:0;
   score_fa = score_fa >= 0 ? score_fa:0;
+  score_sp = !(isNaN(score_sp)) ? score_sp:0;
+  score_fa = !(isNaN(score_fa)) >= 0 ? score_fa:0;
   score_fa_range.setValue(score_fa);
   score_sp_range.setValue(score_sp);
   score_tot_range.setValue(score_fa + score_sp);
-  update_dash_score("Operate", total_col);
   score_pledge_sp = score_pledge_sp >= 0 ? score_pledge_sp:0;
   score_pledge_fa = score_pledge_fa >= 0 ? score_pledge_fa:0;
+  score_pledge_sp = !(isNaN(score_pledge_sp)) ? score_pledge_sp:0;
+  score_pledge_fa = !(isNaN(score_pledge_fa)) ? score_pledge_fa:0;
   score_pledge_fa_range.setValue(score_pledge_fa);
   score_pledge_sp_range.setValue(score_pledge_sp);
   score_pledge_tot_range.setValue(score_pledge_fa + score_pledge_sp);
+  update_dash_score("Operate", total_col);
   update_dash_score("Brotherhood", total_col);
 }
 
