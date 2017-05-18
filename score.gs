@@ -354,9 +354,9 @@ function get_scores_org_gpa_serv(){
       }
       gpa_counts[gpa_type] = gpa_counts[gpa_type] ? gpa_counts[gpa_type]+gpa:gpa;
       var org_type = orgs[j];
-      var this_org = MemberObject[member_name][org_type][0];
-      org_counts[org_type] = org_counts[org_type] ? org_counts[org_type]:0;
-      org_counts[org_type] = this_org.toUpperCase()!="NONE" ? org_counts[org_type]+1:org_counts[org_type];
+      var this_org = MemberObject[member_name][org_type][0].toString();
+      org_counts[org_type] = org_counts[org_type] ? org_counts[org_type]:1;
+      org_counts[org_type] = ((this_org.toUpperCase()!="NONE") && (this_org!="")) ? org_counts[org_type]+1:org_counts[org_type];
       org_true = (this_org.toUpperCase()!="NONE" && this_org!="") ? true:org_true;
       var officer = MemberObject[member_name][officers[j]][0];
       officer_counts[officers[j]] = officer_counts[officers[j]] ? officer_counts[officers[j]]:0;
