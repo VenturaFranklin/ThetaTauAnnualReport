@@ -37,11 +37,11 @@ function pledge_update(form) {
                                          e.stack||'', arguments.callee.name||'');
     Logger = startBetterLog();
     Logger.severe(message);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      message,
-      ui.ButtonSet.OK);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      message,
+//      ui.ButtonSet.OK);
   }
 }
 
@@ -105,11 +105,11 @@ function member_update(form) {
                                          e.stack||'', arguments.callee.name||'');
     Logger = startBetterLog();
     Logger.severe(message);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      message,
-      ui.ButtonSet.OK);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      message,
+//      ui.ButtonSet.OK);
   }
 }
 
@@ -128,11 +128,11 @@ function missing_form() {
                                          e.stack||'', arguments.callee.name||'');
     Logger = startBetterLog();
     Logger.severe(message);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      message,
-      ui.ButtonSet.OK);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      message,
+//      ui.ButtonSet.OK);
   }
 }
 
@@ -161,11 +161,11 @@ function process_missing(form) {
                                          e.stack||'', arguments.callee.name||'');
     Logger = startBetterLog();
     Logger.severe(message);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      message,
-      ui.ButtonSet.OK);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      message,
+//      ui.ButtonSet.OK);
     return ["ERROR", null];
   }
 }
@@ -214,11 +214,11 @@ function save_form(csvFile, form_type){
                                          e.stack||'', arguments.callee.name||'');
     Logger = startBetterLog();
     Logger.severe(message);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      message,
-      ui.ButtonSet.OK);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      message,
+//      ui.ButtonSet.OK);
     return e.toString();
   }
 }
@@ -299,11 +299,11 @@ function process_oer(form) {
                                          e.stack||'', arguments.callee.name||'');
     Logger = startBetterLog();
     Logger.severe(message);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      message,
-      ui.ButtonSet.OK);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      message,
+//      ui.ButtonSet.OK);
     return "";
   }
 }
@@ -448,11 +448,11 @@ function process_init(form) {
                                          e.stack||'', arguments.callee.name||'');
     Logger = startBetterLog();
     Logger.severe(message);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      message,
-      ui.ButtonSet.OK);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      message,
+//      ui.ButtonSet.OK);
     return ["ERROR", null];
   }
 }
@@ -632,11 +632,11 @@ function process_grad(form) {
                                          e.stack||'', arguments.callee.name||'');
     Logger = startBetterLog();
     Logger.severe(message);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      message,
-      ui.ButtonSet.OK);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      message,
+//      ui.ButtonSet.OK);
     return ["ERROR", null];
   }
        }
@@ -703,11 +703,11 @@ function create_csv(data){
                                          e.stack||'', arguments.callee.name||'');
     Logger = startBetterLog();
     Logger.severe(message);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      message,
-      ui.ButtonSet.OK);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      message,
+//      ui.ButtonSet.OK);
     return "";
   }
 }
@@ -739,11 +739,11 @@ function post_submit(file_object, submission_type, program) {
                                          e.stack||'', arguments.callee.name||'');
     Logger = startBetterLog();
     Logger.severe(message);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      message,
-      ui.ButtonSet.OK);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      message,
+//      ui.ButtonSet.OK);
     return "";
   }
 }
@@ -793,11 +793,11 @@ function sendemail_submission(submission_type, submission) {
                                          e.stack||'', arguments.callee.name||'');
     Logger = startBetterLog();
     Logger.severe(message);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      message,
-      ui.ButtonSet.OK);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      message,
+//      ui.ButtonSet.OK);
     return "";
   }
 }

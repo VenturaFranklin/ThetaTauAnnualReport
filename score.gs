@@ -534,11 +534,11 @@ function get_current_scores(sheetName){
                                            e.stack||'', arguments.callee.name||'');
       Logger = startBetterLog();
       Logger.severe(message);
-      var ui = SpreadsheetApp.getUi();
-      var result = ui.alert(
-        'ERROR',
-        message,
-        ui.ButtonSet.OK);
+//      var ui = SpreadsheetApp.getUi();
+//      var result = ui.alert(
+//        'ERROR',
+//        message,
+//        ui.ButtonSet.OK);
       return date_types;
     }
 		var type_name = type_values[i];
@@ -801,11 +801,11 @@ function refresh_scores() {
                                          e.stack||'', arguments.callee.name||'');
     Logger = startBetterLog();
     Logger.severe(message);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      message,
-      ui.ButtonSet.OK);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      message,
+//      ui.ButtonSet.OK);
     return "";
   }
 }

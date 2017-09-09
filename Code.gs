@@ -397,12 +397,12 @@ function _onEdit(e){
       if (this_password == password){
         return;
       }
-      var ui = SpreadsheetApp.getUi();
-      var result = ui.alert(
-        'ERROR',
-        'Please do not edit member information here\n'+
-        'Member information is changed by notifying the central office',
-        ui.ButtonSet.OK);
+//      var ui = SpreadsheetApp.getUi();
+//      var result = ui.alert(
+//        'ERROR',
+//        'Please do not edit member information here\n'+
+//        'Member information is changed by notifying the central office',
+//        ui.ButtonSet.OK);
     }
   } else if (sheet_name == "Chapter") {
     Logger.log("(" + arguments.callee.name + ") " +"CHAPTER CHANGED");
@@ -413,11 +413,11 @@ function _onEdit(e){
                                          e.name||'', e.message||'', e.lineNumber||'', e.fileName||'', e.stack||'', sheet_name||'');
     Logger = startBetterLog();
     Logger.severe(message);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      message,
-      ui.ButtonSet.OK);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      message,
+//      ui.ButtonSet.OK);
     return "";
   }
 }

@@ -10,11 +10,11 @@ function sync(){
                                          e.stack||'', arguments.callee.name||'');
     Logger = startBetterLog();
     Logger.severe(message);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      message,
-      ui.ButtonSet.OK);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      message,
+//      ui.ButtonSet.OK);
     return "";
   }
 }
