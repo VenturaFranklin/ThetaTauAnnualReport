@@ -6,11 +6,11 @@ function update_scores_event(object){
   if (typeof(object)==typeof(2)){
     var user_row = object;
     var myObject = range_object("Events", user_row);
-    var att_info = att_event_exists("Attendance", myObject)
+//    var att_info = att_event_exists("Attendance", myObject)
     // This might mean that the attendance event has been deleted
-    if (typeof att_info.event_row == 'undefined'){
-      att_obj = false};
-  } else {
+//    if (typeof att_info.event_row == 'undefined'){
+//      att_obj = false};
+//  } else {
     var event_info = att_event_exists("Events", object);
     if (typeof event_info.event_row == 'undefined'){
       return;};
@@ -21,7 +21,7 @@ function update_scores_event(object){
       myObject["Event Name"][0] == ""){
     return;
   } else if (typeof myObject["# Members"][0] != typeof 2 || !att_obj){
-    attendance_add_event(myObject["Event Name"][0], myObject.Date[0]);
+//    attendance_add_event(myObject["Event Name"][0], myObject.Date[0]);
     event_add_calendar(myObject["Event Name"][0], myObject.Date[0],
                        myObject["Type"][0], myObject["Description"][0]);
     myObject = range_object("Events", user_row);
@@ -52,65 +52,65 @@ function get_semester(event_date){
   return semester
 }
 
-function update_service_hours(){
-  var ss = get_active_spreadsheet();
-  var sheet = ss.getSheetByName("Membership");
-  var EventObject = main_range_object("Events");
-  var MemberObject = main_range_object("Membership");
-  var AttendanceObject = main_range_object("Attendance");
-  var score_obj = {};
-  for (var i = 0; i < EventObject.object_count; i++){
-    var event_name = EventObject.object_header[i];
-    var event_type = EventObject[event_name]["Type"][0];
-    if (event_type == "Service Hours"){
-      var event_hours = EventObject[event_name]["Event Hours"][0];
-      var event_date = EventObject[event_name]["Date"][0];
-      var semester = get_semester(event_date)
-      var att_obj = AttendanceObject[event_name];
-      if (typeof att_obj == 'undefined') {
-      // Event may no longer exists on Attendance sheet
-        Logger.log("(" + arguments.callee.name + ") " + "Missing Event: " + event_name);
-        ss.toast('Missing Event!' + event_name + 'Is missing from the attendance sheet',
-                 'ERROR', 5);
-        continue;
-      }
-      for (var j = 2; j < att_obj.object_count; j++){
-        var member_name_raw = AttendanceObject.header_values[j];
-        var member_name_short = att_name(member_name_raw);
-        var member_object = find_member_shortname(MemberObject, member_name_short);
-        if (typeof member_object == 'undefined') {
-          Logger.log("(" + arguments.callee.name + ") " + "Missing Member: " + member_name_short);
-          ss.toast('Missing Member!' + member_name_short + 'Is missing from the membership sheet',
-                   'ERROR', 5);
-          continue;
-        }
-        var member_name = member_object["Member Name"][0];
-        var att = att_obj[member_name_raw][0];
-        if (att == "P"){
-          score_obj[member_name] = score_obj[member_name] ? score_obj[member_name]:{};
-          score_obj[member_name][semester] = score_obj[member_name][semester] ?
-            score_obj[member_name][semester]+event_hours:event_hours;
-        }
-//        Logger.log("(" + arguments.callee.name + ") " +score_obj);
-      }
-    }
-  }
-  for (var member_name in score_obj){
-//    Logger.log("(" + arguments.callee.name + ") " +member_name);
-    var member_obj = MemberObject[member_name];
-    var member_row = member_obj.object_row;
-    var fall_col = member_obj["Service Hours Fall"][1];
-    var spring_col = member_obj["Service Hours Spring"][1];
-    var member_fall_range = sheet.getRange(member_row, fall_col);
-    var member_spring_range = sheet.getRange(member_row, spring_col);
-    var fall_score = score_obj[member_name]["FALL"] ? score_obj[member_name]["FALL"]:0;
-    member_fall_range.setValue(fall_score);
-    var spring_score = score_obj[member_name]["SPRING"] ? score_obj[member_name]["SPRING"]:0;
-    member_spring_range.setValue(spring_score);
-    Logger.log("(" + arguments.callee.name + ") " +"FALL: "+fall_score+" SPRING: "+spring_score+" ROW: "+member_row);
-  }
-  update_scores_org_gpa_serv();
-}
+//function update_service_hours(){
+//  var ss = get_active_spreadsheet();
+//  var sheet = ss.getSheetByName("Membership");
+//  var EventObject = main_range_object("Events");
+//  var MemberObject = main_range_object("Membership");
+//  var AttendanceObject = main_range_object("Attendance");
+//  var score_obj = {};
+//  for (var i = 0; i < EventObject.object_count; i++){
+//    var event_name = EventObject.object_header[i];
+//    var event_type = EventObject[event_name]["Type"][0];
+//    if (event_type == "Service Hours"){
+//      var event_hours = EventObject[event_name]["Event Hours"][0];
+//      var event_date = EventObject[event_name]["Date"][0];
+//      var semester = get_semester(event_date)
+//      var att_obj = AttendanceObject[event_name];
+//      if (typeof att_obj == 'undefined') {
+//      // Event may no longer exists on Attendance sheet
+//        Logger.log("(" + arguments.callee.name + ") " + "Missing Event: " + event_name);
+//        ss.toast('Missing Event!' + event_name + 'Is missing from the attendance sheet',
+//                 'ERROR', 5);
+//        continue;
+//      }
+//      for (var j = 2; j < att_obj.object_count; j++){
+//        var member_name_raw = AttendanceObject.header_values[j];
+//        var member_name_short = att_name(member_name_raw);
+//        var member_object = find_member_shortname(MemberObject, member_name_short);
+//        if (typeof member_object == 'undefined') {
+//          Logger.log("(" + arguments.callee.name + ") " + "Missing Member: " + member_name_short);
+//          ss.toast('Missing Member!' + member_name_short + 'Is missing from the membership sheet',
+//                   'ERROR', 5);
+//          continue;
+//        }
+//        var member_name = member_object["Member Name"][0];
+//        var att = att_obj[member_name_raw][0];
+//        if (att == "P"){
+//          score_obj[member_name] = score_obj[member_name] ? score_obj[member_name]:{};
+//          score_obj[member_name][semester] = score_obj[member_name][semester] ?
+//            score_obj[member_name][semester]+event_hours:event_hours;
+//        }
+////        Logger.log("(" + arguments.callee.name + ") " +score_obj);
+//      }
+//    }
+//  }
+//  for (var member_name in score_obj){
+////    Logger.log("(" + arguments.callee.name + ") " +member_name);
+//    var member_obj = MemberObject[member_name];
+//    var member_row = member_obj.object_row;
+//    var fall_col = member_obj["Service Hours Fall"][1];
+//    var spring_col = member_obj["Service Hours Spring"][1];
+//    var member_fall_range = sheet.getRange(member_row, fall_col);
+//    var member_spring_range = sheet.getRange(member_row, spring_col);
+//    var fall_score = score_obj[member_name]["FALL"] ? score_obj[member_name]["FALL"]:0;
+//    member_fall_range.setValue(fall_score);
+//    var spring_score = score_obj[member_name]["SPRING"] ? score_obj[member_name]["SPRING"]:0;
+//    member_spring_range.setValue(spring_score);
+//    Logger.log("(" + arguments.callee.name + ") " +"FALL: "+fall_score+" SPRING: "+spring_score+" ROW: "+member_row);
+//  }
+//  update_scores_org_gpa_serv();
+//}
 
 function update_score_att(){
   var ss = get_active_spreadsheet();
@@ -364,12 +364,12 @@ function get_scores_org_gpa_serv(){
       officer_true = officer.toUpperCase()=="YES" ? true:officer_true;
 //      Logger.log("(" + arguments.callee.name + ") " +"GPA: " + gpa + " ORG: " + org_true + " OFFICER: " + officer);
     }
-    var service_hours_fa = MemberObject[member_name]["Service Hours Fall"][0];
-    var service_hours_sp = MemberObject[member_name]["Service Hours Spring"][0];
-    var service_hours_self_fa = MemberObject[member_name]["Self Service Hrs FA"][0];
-    var service_hours_self_sp = MemberObject[member_name]["Self Service Hrs SP"][0];
-    service_hours_fa = (+service_hours_fa + service_hours_self_fa) * fall_mult;
-    service_hours_sp = (+service_hours_sp + service_hours_self_sp) * spring_mult;
+//    var service_hours_fa = MemberObject[member_name]["Service Hours Fall"][0];
+//    var service_hours_sp = MemberObject[member_name]["Service Hours Spring"][0];
+    var service_hours_self_fa = MemberObject[member_name]["Service Hrs FA"][0];
+    var service_hours_self_sp = MemberObject[member_name]["Service Hrs SP"][0];
+    var service_hours_fa = (+service_hours_self_fa) * fall_mult;
+    var service_hours_sp = (+service_hours_self_sp) * spring_mult;
     var service_count_fa = service_hours_fa >= 8 ? service_count_fa + 1:service_count_fa;
     var service_count_sp = service_hours_sp >= 8 ? service_count_sp + 1:service_count_sp;
     officer_count = officer_true ? officer_count + 1:officer_count;
@@ -709,11 +709,11 @@ function refresh_scores() {
   try{
     progress_update("REFRESH EVENTS");
     var ss = get_active_spreadsheet();
-    var attendance_object = main_range_object("Attendance", undefined, ss);
+//    var attendance_object = main_range_object("Attendance", undefined, ss);
     var EventObject = main_range_object("Events", undefined, ss);
     var SubmitObject = main_range_object("Submissions", undefined, ss);
-    events_to_att(ss, attendance_object, EventObject);
-    refresh_attendance(ss, attendance_object, EventObject);
+//    events_to_att(ss, attendance_object, EventObject);
+//    refresh_attendance(ss, attendance_object, EventObject);
     EventObject = main_range_object("Events", undefined, ss);
     var ScoringObject = main_range_object("Scoring", undefined, ss);
     var totals = get_total_members(true);

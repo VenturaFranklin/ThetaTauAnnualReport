@@ -1,10 +1,10 @@
-function show_att_sheet_alert(){
-  var ui = SpreadsheetApp.getUi();
-  var result = ui.alert(
-     'ERROR',
-     'Please edit the events or members on the Events or Membership Sheet',
-      ui.ButtonSet.OK);
-}
+//function show_att_sheet_alert(){
+//  var ui = SpreadsheetApp.getUi();
+//  var result = ui.alert(
+//     'ERROR',
+//     'Please edit the events or members on the Events or Membership Sheet',
+//      ui.ButtonSet.OK);
+//}
 
 function att_name(name){
   return name;
@@ -105,17 +105,17 @@ function attendance_add_event(event_name, event_date){
   check_duplicates(event_name, event_date);
 }
 
-function update_attendance(attendance){
-  // Function to update the events sheet with the attendance counts
-  // input: attendance object
-  // example:
-  // var attendance = range_object("Attendance", 26);
-  // needs the membership sheet, and event sheet 
-  var MemberObject = main_range_object("Membership");
-//  Logger.log("(" + arguments.callee.name + ") " +attendance);
-  var counts = att_counts(attendance, MemberObject)
-  update_event_att(attendance, counts)
- }
+//function update_attendance(attendance){
+//  // Function to update the events sheet with the attendance counts
+//  // input: attendance object
+//  // example:
+//  // var attendance = range_object("Attendance", 26);
+//  // needs the membership sheet, and event sheet 
+//  var MemberObject = main_range_object("Membership");
+////  Logger.log("(" + arguments.callee.name + ") " +attendance);
+//  var counts = att_counts(attendance, MemberObject)
+//  update_event_att(attendance, counts)
+// }
  
 function member_status_semester(member_object, event_date){
     var member_status = member_object["Chapter Status"][0];
@@ -145,39 +145,39 @@ function member_status_semester(member_object, event_date){
     return member_status
 }
 
-function att_counts(attendance, MemberObject){
-  if (!attendance){return;}
-  var event_name_att = attendance["Event Name"][0];
-  var event_date_att = attendance["Date"][0];
-  Logger.log("(" + arguments.callee.name + ") " +event_name_att);
-  if (event_name_att == ""){
-    return;
-  }
-  var counts = {};
-  counts["Student"] = {};
-  counts["Pledge"] = {};
-  counts["Shiny"] = {}
-  counts["Away"] = {};
-  counts["Alumn"] = {};
-  var test_len = attendance.object_count;
-  for(var i = 2; i< attendance.object_count; i++) {
-    var member_name_att = attendance.object_header[i];
-    var member_name_short = att_name(attendance.object_header[i]);
-    var member_object = find_member_shortname(MemberObject, member_name_short);
-    if (typeof member_object == 'undefined') {
-      // Member may no longer exists on Membership sheet
-      continue;
-    }
-    var event_status = attendance[member_name_att][0];
-    event_status = event_status.toUpperCase();
-    var member_status = member_object["Chapter Status"][0];
-    member_status = member_status_semester(member_object, event_date_att);
-//    Logger.log("(" + arguments.callee.name + ") " +[member_name_short, member_object, event_status, member_status]);
-    counts[member_status][event_status] = counts[member_status][event_status] ? counts[member_status][event_status] + 1 : 1;
-  }
-  Logger.log("(" + arguments.callee.name + ") " +counts)
-  return counts;
-}
+//function att_counts(attendance, MemberObject){
+//  if (!attendance){return;}
+//  var event_name_att = attendance["Event Name"][0];
+//  var event_date_att = attendance["Date"][0];
+//  Logger.log("(" + arguments.callee.name + ") " +event_name_att);
+//  if (event_name_att == ""){
+//    return;
+//  }
+//  var counts = {};
+//  counts["Student"] = {};
+//  counts["Pledge"] = {};
+//  counts["Shiny"] = {}
+//  counts["Away"] = {};
+//  counts["Alumn"] = {};
+//  var test_len = attendance.object_count;
+//  for(var i = 2; i< attendance.object_count; i++) {
+//    var member_name_att = attendance.object_header[i];
+//    var member_name_short = att_name(attendance.object_header[i]);
+//    var member_object = find_member_shortname(MemberObject, member_name_short);
+//    if (typeof member_object == 'undefined') {
+//      // Member may no longer exists on Membership sheet
+//      continue;
+//    }
+//    var event_status = attendance[member_name_att][0];
+//    event_status = event_status.toUpperCase();
+//    var member_status = member_object["Chapter Status"][0];
+//    member_status = member_status_semester(member_object, event_date_att);
+////    Logger.log("(" + arguments.callee.name + ") " +[member_name_short, member_object, event_status, member_status]);
+//    counts[member_status][event_status] = counts[member_status][event_status] ? counts[member_status][event_status] + 1 : 1;
+//  }
+//  Logger.log("(" + arguments.callee.name + ") " +counts)
+//  return counts;
+//}
 
 function update_event_att(attendance, counts){
   var event_info = att_event_exists("Events", attendance)

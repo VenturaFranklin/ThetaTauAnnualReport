@@ -9,7 +9,6 @@ var WORKING = false;
 var SCRIPT_PROP = PropertiesService.getDocumentProperties();
 var betterLogStarted = false;
 logging_check();
-check_sheets();
 
 function logging_check(){
   try {
@@ -25,7 +24,7 @@ function logging_check(){
       }
     }
   } catch (e) {
-    Logger.log("(" + arguments.callee.name + ") " +error);
+    Logger.log("(" + arguments.callee.name + ") " +e);
   }
 }
 
@@ -68,10 +67,10 @@ function onOpen(e) {
   SCRIPT_PROP.setProperty("password", "FALSE");
   var menu = SpreadsheetApp.getUi().createAddonMenu();
   menu.addSubMenu(SpreadsheetApp.getUi().createMenu("Refresh")
-                  .addItem('Refresh Attendance on Events', 'refresh_attendance')
+//                  .addItem('Refresh Attendance on Events', 'refresh_attendance')
                   .addItem('Refresh All Scores', 'refresh_scores')
                   .addItem('Refresh Events Background Stuff', 'refresh_events')
-                  .addItem('Refresh Events to Attendance', 'events_to_att')
+//                  .addItem('Refresh Events to Attendance', 'events_to_att')
                   .addItem('Refresh Members', 'refresh_members')
   );
   menu.addSubMenu(SpreadsheetApp.getUi().createMenu("Submit")
@@ -92,6 +91,7 @@ function onOpen(e) {
                   .addItem('Unlock', 'unlock')
   );
   menu.addToUi();
+//  check_sheets();
 }
 
 function TEST(){
@@ -321,8 +321,9 @@ function _onEdit(e){
   var this_password = SCRIPT_PROP.getProperty("password");
   if (sheet_name == "Events"){
     Logger.log("(" + arguments.callee.name + ") " +"EVENTS CHANGED");
-    if (user_row == 1 || user_col == 4 ||
-        user_col == 5 || user_col == 6){
+    if (user_row == 1 || user_col == 4 
+//        || user_col == 5 || user_col == 6
+       ){
       reset_range(user_range, user_old_value)
       if (this_password == password){
         return;
@@ -330,31 +331,31 @@ function _onEdit(e){
       var ui = SpreadsheetApp.getUi();
       var result = ui.alert(
         'ERROR',
-        'Score, #Members, & #Pledges are are updated automatically',
+        'The Score is updated automatically',
         ui.ButtonSet.OK);
     } else {
     update_scores_event(user_row);
     }
 //    show_event_sheet_alert();
 //    align_event_attendance();
-  } else if (sheet_name == "Attendance"){
-    if (user_row == 1 || user_col < 3){
-      reset_range(user_range, user_old_value);
-      if (this_password == password){
-        return;
-      }
-      show_att_sheet_alert();
-    } else {
-      var attendance = range_object(sheet, user_row);
-      var header = attendance.object_header;
-      var clean_header = cleanArray(header, 50);
-      if (clean_header.length == header.length){
-        update_attendance(attendance);
-        update_scores_event(attendance);
-      } else {
-        return;
-      }
-    }
+//  } else if (sheet_name == "Attendance"){
+//    if (user_row == 1 || user_col < 3){
+//      reset_range(user_range, user_old_value);
+//      if (this_password == password){
+//        return;
+//      }
+//      show_att_sheet_alert();
+//    } else {
+//      var attendance = range_object(sheet, user_row);
+//      var header = attendance.object_header;
+//      var clean_header = cleanArray(header, 50);
+//      if (clean_header.length == header.length){
+//        update_attendance(attendance);
+//        update_scores_event(attendance);
+//      } else {
+//        return;
+//      }
+//    }
   } else if (sheet_name == "Scoring") {
     reset_range(user_range, user_old_value)
     if (this_password == password){
@@ -452,7 +453,7 @@ function get_column_values(col, range_values){
 
 function check_sheets(){
   try {
-  var sheet_names = ["Events", "Chapter", "Scoring", "Attendance",
+  var sheet_names = ["Events", "Chapter", "Scoring",
                      "Membership", "Submissions", "Dashboard"];
   var ss = get_active_spreadsheet();
   for (var i in sheet_names){
@@ -471,7 +472,7 @@ function check_sheets(){
     }
   }
   } catch (e) {
-    Logger.log("(" + arguments.callee.name + ") " +error);
+    Logger.log("(" + arguments.callee.name + ") " +e);
   }
 }
 

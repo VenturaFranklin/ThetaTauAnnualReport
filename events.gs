@@ -118,66 +118,66 @@ function event_fields_set(myObject){
   return true;
 }
 
-function events_to_att(ss, attendance_object, EventObject){
-  try{
-    progress_update("EVENTS TO ATTENDANCE");
-    if (!ss){
-      var ss = get_active_spreadsheet();
-      var attendance_object = main_range_object("Attendance", undefined, ss);
-      var EventObject = main_range_object("Events", undefined, ss);
-    }
-    var new_events = []
-    var att_sheet = attendance_object.sheet;
-    var max_rows = attendance_object.object_count + 1
-    for (var j in EventObject.object_header){
-      var event_name = EventObject.object_header[j];
-      var event = EventObject[event_name];
-      if (attendance_object.object_header.indexOf(event_name) < 0){
-        new_events.push([event["Event Name"][0], event["Date"][0]]);
-        att_sheet.insertRowAfter(max_rows);
-      }
-    }
-    Logger.log(new_events);
-    var att_sheet = attendance_object.sheet;
-    var start_row = attendance_object.object_count ? attendance_object.object_count + 1:2;
-    if (new_events.length == 0){
-      progress_update("NO NEW EVENTS");
-      return};
-    var att_range = att_sheet.getRange(start_row, 1, new_events.length, 2);
-    var attendance_cols = attendance_object.header_values.length;
-    att_range.setValues(new_events);
-    var default_values =
-        Array.apply(null, Array(attendance_cols-2)).map(function() { return 'U' });
-    var rule = SpreadsheetApp.newDataValidation()
-      .requireValueInList(['P', 'E', 'U', 'p', 'e', 'u'], false)
-      .setHelpText('P-Present; E-Excused; U-Unexcused')
-      .setAllowInvalid(false).build();
-    for (var row = start_row;row < start_row + new_events.length;row++){
-      var att_row_full = att_sheet.getRange(row, 3, 1, attendance_cols-2);
-      att_row_full.setValues([default_values]);
-      att_row_full.setDataValidation(rule);
-  }
-    var format_range = ss.getRangeByName("FORMAT");
-    var max_column = att_sheet.getLastColumn();
-    var max_row = att_sheet.getLastRow();
-    format_range.copyFormatToRange(att_sheet, 3, max_column, 2, 1000);
-    main_range_object("Attendance");
-    check_duplicate_missing_att_events(ss, EventObject);
-    progress_update("EVENTS TO ATTENDANCE FINISHED");
-  } catch (e) {
-    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
-                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
-                                         e.stack||'', arguments.callee.name||'');
-    Logger = startBetterLog();
-    Logger.severe(message);
-    var ui = SpreadsheetApp.getUi();
-    var result = ui.alert(
-     'ERROR',
-      message,
-      ui.ButtonSet.OK);
-    return "";
-  }
-}
+//function events_to_att(ss, attendance_object, EventObject){
+//  try{
+//    progress_update("EVENTS TO ATTENDANCE");
+//    if (!ss){
+//      var ss = get_active_spreadsheet();
+//      var attendance_object = main_range_object("Attendance", undefined, ss);
+//      var EventObject = main_range_object("Events", undefined, ss);
+//    }
+//    var new_events = []
+//    var att_sheet = attendance_object.sheet;
+//    var max_rows = attendance_object.object_count + 2;
+//    for (var j in EventObject.object_header){
+//      var event_name = EventObject.object_header[j];
+//      var event = EventObject[event_name];
+//      if (attendance_object.object_header.indexOf(event_name) < 0){
+//        new_events.push([event["Event Name"][0], event["Date"][0]]);
+//      }
+//    }
+//    Logger.log(new_events);
+//    var att_sheet = attendance_object.sheet;
+//    var start_row = attendance_object.object_count ? attendance_object.object_count + 1:2;
+//    if (new_events.length == 0){
+//      progress_update("NO NEW EVENTS");
+//      return};
+//    att_sheet.insertRows(max_rows, new_events.length);
+//    var att_range = att_sheet.getRange(start_row, 1, new_events.length, 2);
+//    var attendance_cols = attendance_object.header_values.length;
+//    att_range.setValues(new_events);
+//    var default_values =
+//        Array.apply(null, Array(attendance_cols-2)).map(function() { return 'U' });
+//    var rule = SpreadsheetApp.newDataValidation()
+//      .requireValueInList(['P', 'E', 'U', 'p', 'e', 'u'], false)
+//      .setHelpText('P-Present; E-Excused; U-Unexcused')
+//      .setAllowInvalid(false).build();
+//    for (var row = start_row;row < start_row + new_events.length;row++){
+//      var att_row_full = att_sheet.getRange(row, 3, 1, attendance_cols-2);
+//      att_row_full.setValues([default_values]);
+//      att_row_full.setDataValidation(rule);
+//  }
+//    var format_range = ss.getRangeByName("FORMAT");
+//    var max_column = att_sheet.getLastColumn();
+//    var max_row = att_sheet.getLastRow();
+//    format_range.copyFormatToRange(att_sheet, 3, max_column, 2, 1000);
+//    main_range_object("Attendance");
+//    check_duplicate_missing_att_events(ss, EventObject);
+//    progress_update("EVENTS TO ATTENDANCE FINISHED");
+//  } catch (e) {
+//    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+//                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+//                                         e.stack||'', arguments.callee.name||'');
+//    Logger = startBetterLog();
+//    Logger.severe(message);
+//    var ui = SpreadsheetApp.getUi();
+//    var result = ui.alert(
+//     'ERROR',
+//      message,
+//      ui.ButtonSet.OK);
+//    return "";
+//  }
+//}
 
 function refresh_events() {
   // This function should adjust the black bg add to calendar
