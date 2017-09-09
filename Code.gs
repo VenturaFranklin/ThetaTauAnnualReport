@@ -78,6 +78,7 @@ function onOpen(e) {
                   .addItem('Status Change', 'side_member')
                   .addItem('Submit Item', 'side_submit')
                   .addItem('Update Officers', 'side_officers')
+                  .addItem('SUBMIT ANNUAL REPORT', 'submit_report')
   );
   menu.addItem('Send Survey', 'send_survey');
   menu.addItem('SYNC', 'sync');

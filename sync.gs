@@ -19,6 +19,50 @@ function sync(){
   }
 }
 
+function submit_report(){
+  sync();
+  progress_update("Emailing submission to RDs!");
+  RD_email();
+  progress_update("Submission complete!");
+}
+
+function RD_email() {
+//  var form = get_survey();
+//  var email = "venturafranklin@gmail.com";
+  var email = SCRIPT_PROP.getProperty("director");
+  var ss = get_active_spreadsheet();
+  Logger.log("(" + arguments.callee.name + ") ");
+  Logger.log("(" + arguments.callee.name + ") " + email);
+  var url = ss.getUrl();
+  Logger.log("(" + arguments.callee.name + ") " + url);
+  // Fetch form's HTML
+//  var response = UrlFetchApp.fetch(url);
+//  var htmlBody = HtmlService.createHtmlOutput(response).getContent();
+  var chapter_name = get_chapter_name();
+  var subject = chapter_name + " Chapter Annual Report Submission";
+  var email_chapter = SCRIPT_PROP.getProperty("email");
+  var emailBody = "You chapter has submitted their annual report. Please see the live report here:"+
+    "\nSurvey("+url+")";
+
+  var htmlBody = "You chapter has submitted their annual report. Please see the live report here:"+
+    '<br/><a href="'+url+'"> Survey</a> ('+url+')';
+  var optAdvancedArgs = {name: chapter_name +" Chapter Scribe", htmlBody: htmlBody,
+                         replyTo: email_chapter};
+  if (!WORKING){
+    try{
+      MailApp.sendEmail(email, subject,
+                        emailBody,
+                        optAdvancedArgs);
+    } catch (e){
+      var ui = SpreadsheetApp.getUi();
+      var result = ui.alert(
+        'EMAIL ERROR',
+        "There was an error with the email for: "+ email,
+        ui.ButtonSet.OK);
+    }
+  }
+}
+
 function sync_region() {
 //  var dash_id = "10ebwK7tTKgveVCEOpRle2S17d4UjwmsoXXCPFvC9A-A";
   progress_update("STARTED TO SYNC REGION INFO");
