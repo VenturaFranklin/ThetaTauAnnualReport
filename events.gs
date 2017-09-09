@@ -41,7 +41,7 @@ function att_event_exists(sheet_name, myObject) {
          }
 }
 
-function get_needed_fields(event_type, ScoringObject){
+function get_needed_fields(event_type, ScoringObject, notify){
   if (!ScoringObject){
     var ScoringObject = main_range_object("Scoring");
   }
@@ -53,31 +53,36 @@ function get_needed_fields(event_type, ScoringObject){
                                            event_type||'');
       Logger = startBetterLog();
       Logger.severe(message);
+    if(notify){
       var ui = SpreadsheetApp.getUi();
       var result = ui.alert(
         'ERROR',
         message,
         ui.ButtonSet.OK);
+    }
     return {needed_fields: [],
-            score_description: "Event does not exist"
+            score_description: "Event does not exist",
+            not_set: true
            }
   }
   var needed_fields = score_object["Event Fields"][0];
   needed_fields = needed_fields.split(', ');
   var score_description = score_object["Long Description"][0];
   return {needed_fields: needed_fields,
-          score_description: score_description
+          score_description: score_description,
+          not_set: false
          }
 }
 
 function event_fields_set(myObject){
-  var score_info = get_needed_fields(myObject["Type"][0]);
+  var score_info = get_needed_fields(myObject["Type"][0], undefined, true);
   var needed_fields = score_info.needed_fields;
   var score_description = score_info.score_description;
   var event_row = myObject["object_row"];
   var sheet = myObject["sheet"];
   var new_range = sheet.getRange(event_row, 3);
   new_range.setNote(score_description);
+  new_range.setBackground('white');
   var field_range = sheet.getRange(event_row, 10, 1, 4);
   field_range.setBackground("black")
              .setNote("Do not edit");
@@ -188,6 +193,7 @@ function refresh_events() {
     var ScoringObject = main_range_object("Scoring");
     var all_infos = [];
     var bg_colors = [];
+    var bg_events = [];
     var need_indx = {"# Non- Members": 0,
                      "STEM?": 1,
                      "HOST": 2,
@@ -196,10 +202,15 @@ function refresh_events() {
     for (var j in EventObject.object_header){
       var event_name = EventObject.object_header[j];
       var event = EventObject[event_name];
-      var score_info = get_needed_fields(event["Type"][0], ScoringObject);
+      var event_color = 'white';
+      var score_info = get_needed_fields(event["Type"][0], ScoringObject, false);
       var needed_fields = score_info.needed_fields;
       var score_description = score_info.score_description;
       all_infos.push([score_description]);
+      if (score_info.not_set){
+        event_color = 'red';
+      }
+      bg_events.push([event_color]);
       var color_array = ["black", "black", "black", "black"];
       if (needed_fields.length > 0){
         for (var i in needed_fields){
@@ -213,6 +224,7 @@ function refresh_events() {
     var event_col = EventObject.header_values.indexOf("Type") + 1;
     var event_range = event_sheet.getRange(2, event_col, EventObject.object_count, 1);
     event_range.setNotes(all_infos);
+    event_range.setBackgrounds(bg_events);
     var field_col = EventObject.header_values.indexOf("# Non- Members") + 1;
     var field_range = event_sheet.getRange(2, field_col, EventObject.object_count, 4);
     field_range.setBackgrounds(bg_colors);
