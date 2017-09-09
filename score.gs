@@ -10,7 +10,7 @@ function update_scores_event(object){
     // This might mean that the attendance event has been deleted
 //    if (typeof att_info.event_row == 'undefined'){
 //      att_obj = false};
-//  } else {
+  } else {
     var event_info = att_event_exists("Events", object);
     if (typeof event_info.event_row == 'undefined'){
       return;};
