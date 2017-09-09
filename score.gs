@@ -556,7 +556,7 @@ function get_current_scores(sheetName){
 }
 
 function get_score_event(myEvent){
-  var event_type = myEvent["Type"][0]
+  var event_type = myEvent["Type"][0];
   var score_data = get_score_method(event_type);
   Logger.log("(" + arguments.callee.name + ") ");
   Logger.log(score_data);
@@ -619,7 +619,7 @@ function edit_score_method_event(myEvent, score_method, totals){
     return null;
           }
   if (~score_method.indexOf("HOURS")){
-    update_service_hours();
+//    update_service_hours();
     return null;
           }
   if (~score_method.indexOf("MISC")){
@@ -729,6 +729,11 @@ function refresh_scores() {
       var event = EventObject[event_name];
       var event_type = event["Type"][0];
       var event_date = event["Date"][0];
+      var not_set = false;
+      if (event_type == ''){
+        event_type = 'Misc';
+        not_set = true;
+      }
       var semester = get_semester(event_date);
       var score_data = get_score_method(event_type, undefined, ScoringObject);
       var score_method_edit = null;
@@ -742,6 +747,12 @@ function refresh_scores() {
         score = score.toFixed(1);
         background = "dark gray 1";
       }
+      var note = score_data.score_method_note;
+      if (not_set){
+        score = 0;
+        background = "red";
+        note = "The event type must be set.";
+      }
       // Need to find the score, date, type to determine semester scoring
       var type_semester_score = type_semester[semester][event_type] ? type_semester[semester][event_type]:0;
       var combined_score = parseFloat(type_semester_score) + parseFloat(score);
@@ -752,7 +763,7 @@ function refresh_scores() {
       type_semester[semester][event_type] = combined_score;
       all_scores.push([combined_score]);
       all_backgrounds.push([background]);
-      all_notes.push([score_data.score_method_note]);
+      all_notes.push([note]);
     }
     var event_sheet = EventObject.sheet;
     var score_col = EventObject.header_values.indexOf("Score") + 1;
@@ -786,7 +797,7 @@ function refresh_scores() {
       type_semester[semester][submit_type] = combined_score;
     }
     update_score_att();
-    update_service_hours();
+//    update_service_hours();
     update_score_member_pledge();
     refresh_main_scores(type_semester, ss, ScoringObject);
     var total_col = ScoringObject["Meetings"]["CHAPTER TOTAL"][1];
