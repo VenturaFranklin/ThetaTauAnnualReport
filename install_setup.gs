@@ -159,7 +159,7 @@ function chapter_name_process(form) {
            'Next steps:\n'+
            '- Fill out Chapter Sheet\n'+
            '- Verify Membership\n'+
-           '- Add Events & Attendance\n\n'+
+           '- Add Events\n\n'+
            'Do not edit gray or black cells\n'+
            'Submit forms in menu "Add-ons-->ThetaTauReports"');
   } catch (e) {
@@ -404,15 +404,14 @@ function setup_dataval(){
     .setAllowInvalid(false).build();
   range.setDataValidation(rule);
   
-  var range = ss.getRange("Attendance!1:149");
-  var rule = SpreadsheetApp.newDataValidation()
-    .requireValueInList(['P', 'E', 'U', 'p', 'e', 'u'], false)
-    .setHelpText('P-Present; E-Excused; U-Unexcused')
-    .setAllowInvalid(false).build();
-  range.setDataValidation(rule);
+//  var range = ss.getRange("Attendance!1:149");
+//  var rule = SpreadsheetApp.newDataValidation()
+//    .requireValueInList(['P', 'E', 'U', 'p', 'e', 'u'], false)
+//    .setHelpText('P-Present; E-Excused; U-Unexcused')
+//    .setAllowInvalid(false).build();
+//  range.setDataValidation(rule);
   
-  remove = ["Membership!1:1", "Events!1:1",
-            "Attendance!1:1", "Attendance!A:B"];
+  remove = ["Membership!1:1", "Events!1:1"];
   for (var i in remove) {
     ss.getRange(remove[i]).clearDataValidations();
   }
@@ -639,8 +638,8 @@ function get_chapter_members(){
     Logger.log("(" + arguments.callee.name + ") " +new_values);
     range.setValues([new_values]);
   }
-  setup_attendance();
-  check_duplicate_names();
+//  setup_attendance();
+//  check_duplicate_names();
   progress_update("Finished Get Chapter Members");
   } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
@@ -666,79 +665,79 @@ function shorten_membership_list(object_header) {
   return short_list;
 }
 
-function setup_attendance(){
-//  var delete_att = ["Jeremy Faber", "Eugene Balaguer", "Jacob Landsiedel"];
-  progress_update("Started Updating Attendance Sheet");
-  Logger.log("(" + arguments.callee.name + ") ");
-  var previous_member = undefined;
-  var ChapterMemberObject = main_range_object("Membership");
-  var ss = get_active_spreadsheet();
-  var sheet = ss.getSheetByName("Attendance");
-  var max_column = sheet.getLastColumn();
-  var header_range = sheet.getRange(1, 1, 1, max_column);
-  var header_values = header_range.getValues()[0];
-  ChapterMemberObject["short_names"] = shorten_membership_list(ChapterMemberObject["object_header"]);
-  progress_update("Removing From Att, not on Membership");
-  var AttendanceObject = main_range_object("Attendance", "None", ss);
-  var att_header_values = AttendanceObject["header_values"];
-  att_header_values.reverse();
-  for(var i in att_header_values) {
-    var member_name = att_header_values[i];
-    if (ChapterMemberObject["short_names"].indexOf(member_name) > -1){
-      continue;
-    }
-    var header_values = header_range.getValues()[0];
-    var member_name_short = shorten(member_name, 20, false);
-    var col = header_values.indexOf(member_name_short)+1;
-    if (col > 2){
-      sheet.deleteColumn(col);
-    }
-  }
-  var AttendanceObject = main_range_object("Attendance", "None", ss);
-  for(var i in ChapterMemberObject["short_names"]) {
-    var member_name_short = ChapterMemberObject["short_names"][i];
-    if (AttendanceObject["header_values"].indexOf(member_name_short) > -1){
-      continue;
-    }
-    previous_member = ChapterMemberObject["short_names"][i-1];
-    align_attendance_members(previous_member, member_name_short, sheet);
-  }
-  progress_update("Finished Updating Attendance Sheet");
-  var format_range = ss.getRangeByName("FORMAT");
-  var max_column = sheet.getLastColumn();
-  var max_row = sheet.getLastRow();
-  format_range.copyFormatToRange(sheet, 3, max_column, 2, 100);
-  sheet.getRange(3, 2, max_row, max_column).clearDataValidations();
-  sheet.setRowHeight(1, 100);
-}
+//function setup_attendance(){
+////  var delete_att = ["Jeremy Faber", "Eugene Balaguer", "Jacob Landsiedel"];
+//  progress_update("Started Updating Attendance Sheet");
+//  Logger.log("(" + arguments.callee.name + ") ");
+//  var previous_member = undefined;
+//  var ChapterMemberObject = main_range_object("Membership");
+//  var ss = get_active_spreadsheet();
+//  var sheet = ss.getSheetByName("Attendance");
+//  var max_column = sheet.getLastColumn();
+//  var header_range = sheet.getRange(1, 1, 1, max_column);
+//  var header_values = header_range.getValues()[0];
+//  ChapterMemberObject["short_names"] = shorten_membership_list(ChapterMemberObject["object_header"]);
+//  progress_update("Removing From Att, not on Membership");
+//  var AttendanceObject = main_range_object("Attendance", "None", ss);
+//  var att_header_values = AttendanceObject["header_values"];
+//  att_header_values.reverse();
+//  for(var i in att_header_values) {
+//    var member_name = att_header_values[i];
+//    if (ChapterMemberObject["short_names"].indexOf(member_name) > -1){
+//      continue;
+//    }
+//    var header_values = header_range.getValues()[0];
+//    var member_name_short = shorten(member_name, 20, false);
+//    var col = header_values.indexOf(member_name_short)+1;
+//    if (col > 2){
+//      sheet.deleteColumn(col);
+//    }
+//  }
+//  var AttendanceObject = main_range_object("Attendance", "None", ss);
+//  for(var i in ChapterMemberObject["short_names"]) {
+//    var member_name_short = ChapterMemberObject["short_names"][i];
+//    if (AttendanceObject["header_values"].indexOf(member_name_short) > -1){
+//      continue;
+//    }
+//    previous_member = ChapterMemberObject["short_names"][i-1];
+//    align_attendance_members(previous_member, member_name_short, sheet);
+//  }
+//  progress_update("Finished Updating Attendance Sheet");
+//  var format_range = ss.getRangeByName("FORMAT");
+//  var max_column = sheet.getLastColumn();
+//  var max_row = sheet.getLastRow();
+//  format_range.copyFormatToRange(sheet, 3, max_column, 2, 100);
+//  sheet.getRange(3, 2, max_row, max_column).clearDataValidations();
+//  sheet.setRowHeight(1, 100);
+//}
 
 
-function align_attendance_members(previous_member, new_member, sheet){
-//  var previous_member = "REALLYLONGNAMEFORTESTINGTHINGSLIKETHIS";
-//  var new_member = "REALL3YLONGNAMEFORTESTINGTHINGSLIKETHIS";
-  var max_row = sheet.getLastRow() - 1;
-  max_row = (max_row != 0) ? max_row:1;
-  var max_column = sheet.getLastColumn();
-  var header_range = sheet.getRange(1, 1, 1, max_column);
-  var header_values = header_range.getValues()[0];
-  var previous_index = 2;
-  if (previous_member !== undefined){
-    for (var i in header_values){
-      var header_name = header_values[i];
-      if (header_name == "Event Name" || header_name == "Date"){
-        continue;
-      }
-      var new_string = att_name(header_name);
-      if (new_string == previous_member){
-        previous_index = parseInt(i)+1;
-      }
-    }
-  }
-  sheet.insertColumnAfter(previous_index);
-  var new_range = sheet.getRange(1, +previous_index+1);
-  new_range.setValue(new_member);
-  sheet.setColumnWidth(+previous_index+1, 50);
-}
+//function align_attendance_members(previous_member, new_member, sheet){
+////  var previous_member = "REALLYLONGNAMEFORTESTINGTHINGSLIKETHIS";
+////  var new_member = "REALL3YLONGNAMEFORTESTINGTHINGSLIKETHIS";
+//  var max_row = sheet.getLastRow() - 1;
+//  max_row = (max_row != 0) ? max_row:1;
+//  var max_column = sheet.getLastColumn();
+//  var header_range = sheet.getRange(1, 1, 1, max_column);
+//  var header_values = header_range.getValues()[0];
+//  var previous_index = 2;
+//  if (previous_member !== undefined){
+//    for (var i in header_values){
+//      var header_name = header_values[i];
+//      if (header_name == "Event Name" || header_name == "Date"){
+//        continue;
+//      }
+//      var new_string = att_name(header_name);
+//      if (new_string == previous_member){
+//        previous_index = parseInt(i)+1;
+//      }
+//    }
+//  }
+//  sheet.insertColumnAfter(previous_index);
+//  var new_range = sheet.getRange(1, +previous_index+1);
+//  new_range.setValue(new_member);
+//  sheet.setColumnWidth(+previous_index+1, 50);
+//}
 
 function RESET() {
   unlock();

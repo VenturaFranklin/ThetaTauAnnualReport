@@ -153,7 +153,7 @@ function process_missing(form) {
                   status, '', '', '', '', '', '', email];
     var new_range = sheet.getRange(max_rows+1, 1, 1, 12);
     new_range.setValues([new_row]);
-    setup_attendance();
+//    setup_attendance();
     return "Member added to membership sheet";
     } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
