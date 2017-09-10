@@ -20,11 +20,21 @@ function update_scores_event(object){
   if (myObject.Type[0] == "" || myObject.Date[0] == "" ||
       myObject["Event Name"][0] == ""){
     return;
-  } else if (typeof myObject["# Members"][0] != typeof 2 || !att_obj){
+  }
+  var date_range = myObject.sheet.getRange(myObject.object_row, myObject.Date[1]);
+  if (!check_date(myObject.Date[0])){
+    date_range.setBackground('red')
+    .setNote("Date should be within 2 years.");
+    return;
+  } else {
+    date_range.setBackground("white")
+      .clearNote();
+  }
+  if (typeof myObject["# Members"][0] != typeof 2 || !att_obj){
 //    attendance_add_event(myObject["Event Name"][0], myObject.Date[0]);
     event_add_calendar(myObject["Event Name"][0], myObject.Date[0],
                        myObject["Type"][0], myObject["Description"][0]);
-    myObject = range_object("Events", user_row);
+//    myObject = range_object("Events", user_row);
   }
   if (!event_fields_set(myObject)){
     return;

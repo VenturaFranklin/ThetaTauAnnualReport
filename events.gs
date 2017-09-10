@@ -194,6 +194,8 @@ function refresh_events() {
     var all_infos = [];
     var bg_colors = [];
     var bg_events = [];
+    var bg_dates = [];
+    var date_notes = [];
     var need_indx = {"# Non- Members": 0,
                      "STEM?": 1,
                      "HOST": 2,
@@ -203,6 +205,13 @@ function refresh_events() {
       var event_name = EventObject.object_header[j];
       var event = EventObject[event_name];
       var event_color = 'white';
+      if (!check_date(event.Date[0])){
+        bg_dates.push(['red'])
+        date_notes.push(["Date should be within 2 years."]);
+      } else {
+        bg_dates.push(['white'])
+        date_notes.push(['']);
+      }
       var score_info = get_needed_fields(event["Type"][0], ScoringObject, false);
       var needed_fields = score_info.needed_fields;
       var score_description = score_info.score_description;
@@ -225,6 +234,10 @@ function refresh_events() {
     var event_range = event_sheet.getRange(2, event_col, EventObject.object_count, 1);
     event_range.setNotes(all_infos);
     event_range.setBackgrounds(bg_events);
+    var date_col = event.Date[1];
+    var date_range = event_sheet.getRange(2, date_col, EventObject.object_count, 1);
+    date_range.setNotes(date_notes);
+    date_range.setBackgrounds(bg_dates);
     var field_col = EventObject.header_values.indexOf("# Non- Members") + 1;
     var field_range = event_sheet.getRange(2, field_col, EventObject.object_count, 4);
     field_range.setBackgrounds(bg_colors);

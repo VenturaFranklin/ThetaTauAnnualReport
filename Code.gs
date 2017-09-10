@@ -501,6 +501,21 @@ function set_refresh(property_name, property_value){
   SCRIPT_PROP.setProperty(property_name+"_refresh", newDateObj);
 }
 
+function check_date(date){
+  try{
+    var cur_date = new Date();
+    var cur_year = cur_date.getFullYear();
+    var event_year = date.getFullYear();
+    var delta = cur_year - event_year;
+    if (delta > 2 || delta < -2){
+      return false;
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 function get_dues_years(){
   var today = new Date();
   var month = today.getMonth() + 1;
