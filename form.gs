@@ -223,6 +223,34 @@ function save_form(csvFile, form_type){
   }
 }
 
+function get_chapter_emails(){
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName("Chapter");
+  var max_row = sheet.getLastRow();
+  var max_col = sheet.getLastColumn();
+  var header_range = sheet.getRange(1, 1, max_row, 1);
+  var header_values = header_range.getValues();
+  header_values = cleanArray(header_values, 50);
+  roles = ["Regent", "Vice Regent", "Treasurer",
+           "Scribe", "Corresponding Secretary"];
+  var role_info = {}
+  for (var ind in roles){
+    var role = roles[ind];
+    var row = header_values.indexOf(role) + 1;
+    var role_range = sheet.getRange(row,1, 1, max_col);
+    var role_row = role_range.getValues();
+    var role_email = role_row[0][3];
+    var role_phone = role_row[0][4];
+    Logger.log(role_phone);
+    role_info[role] = {
+      email: role_email,
+      phone: role_phone
+    }
+  }
+  Logger.log(role_info);
+  return role_info
+}
+
 function process_oer(form) {
 //  var form = {"Scribe": "Eugene Balaguer", "Service Chair": "Kyle Wilson", 
 //              "Treasurer": "Jeremy Faber", "Fundraising Chair": "N/A", 
@@ -236,6 +264,7 @@ function process_oer(form) {
 //              "Regent": "Adam Schilpero...", "Project Chair": "N/A"};
   Logger.log("(" + arguments.callee.name + ") ");
   try{
+  var chapter_info = get_chapter_emails();
   Logger.log(form);
   var MemberObject = main_range_object("Membership");
   var arr = [form.officer_start, form.officer_end, form.TCS_start, form.TCS_end];
@@ -281,7 +310,7 @@ function process_oer(form) {
     var member_object = find_member_shortname(MemberObject, form[key]);
     var row = ["", formatted, chapterName, key, start, end, member_object["Badge Number"][0],
               member_object["First Name"][0], member_object["Last Name"][0],
-              member_object["Phone Number"][0], member_object["Email Address"][0], ""];
+              member_object["Phone Number"][0], member_object["Email Address"][0], chapter_info[key].email];
     Logger.log("(" + arguments.callee.name + ") " +row);
     data.push(row);
     dash[key] = [chapterName, key, member_object["Member Name"][0],
