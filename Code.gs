@@ -92,7 +92,6 @@ function onOpen(e) {
                   .addItem('Unlock', 'unlock')
   );
   menu.addToUi();
-//  check_sheets();
 }
 
 function TEST(){
@@ -305,6 +304,9 @@ function reset_range(range, user_old_value){
 
 function _onEdit(e){
   try{
+    if(!check_sheets()){
+      return;
+    }
   Logger.log("(" + arguments.callee.name + ") " +"onEDIT");
   Logger.log(e)
   Logger.log("(" + arguments.callee.name + ") " +"onEdit, authMode: " + e.authMode);
@@ -453,16 +455,18 @@ function get_column_values(col, range_values){
 }
 
 function check_sheets(){
+  var refresh = check_refresh(false, "check");
+  if (JSON.parse(refresh)) {
   try {
   var sheet_names = ["Events", "Chapter", "Scoring",
                      "Membership", "Submissions", "Dashboard"];
   var ss = get_active_spreadsheet();
   for (var i in sheet_names){
-    var sheetName = sheet_names[i];
-    var sheet = ss.getSheetByName(sheetName);
+    var sheet_name = sheet_names[i];
+    var sheet = ss.getSheetByName(sheet_name);
     if (!sheet){
       var message = Utilities.formatString('You are missing a sheet!\nWhere is sheet name: %s?\nPlease rename the sheet back to its original name:\n%s',
-                                           sheetName||'', sheetName||'');
+                                           sheet_name||'', sheet_name||'');
       Logger = startBetterLog();
       Logger.severe(message);
       var ui = SpreadsheetApp.getUi();
@@ -470,11 +474,71 @@ function check_sheets(){
         'ERROR',
         message,
         ui.ButtonSet.OK);
+      set_refresh("check", true);
+      return false;
     }
-  }
+    var col_names = [];
+    switch (sheet_name){
+      case "Events":
+        col_names = ["Event Name", "Date", "Type", "Score", "# Members", "# Pledges",
+                     "# Alumni", "Description", "Event Hours", "# Non- Members",
+                     "STEM?", "HOST", "MILES"];
+        break;
+      case "Scoring":
+        col_names = ["ACTIVITY", "Long Description", "Type", "Points", "FALL SCORE",
+                     "SPRING SCORE", "CHAPTER TOTAL", "Top 10 Chapters", "EVENTS/ YEAR",
+                     "Max/ Semester", "How points are calculated", "Short Name",
+                     "Score Type", "Base Points", "Attendance Multiplier",
+                     "Member Add", "Special", "Event Fields"];
+        break;
+      case "Membership":
+        col_names = ["Member Name", "First Name", "Last Name", "Badge Number",
+                     "Chapter Status", "Status Start", "Status End", "Chapter Role",
+                     "Current Major", "School Status", "Phone Number", "Email Address",
+                     "Service Hrs FA", "Service Hrs SP", "Fall GPA", "Spring GPA",
+                     "Professional/ Technical Orgs", "Officer (Pro/Tech)", "Honor Orgs",
+                     "Officer (Honor)", "Other Orgs", "Officer (Other)"];
+        break;
+      case "Submissions":
+        col_names = ["Date", "File Name", "Type", "Score", "Location of Upload"];
+        break;
+    }
+    if (!check_cols(sheet, col_names)){
+      set_refresh("check", true);
+      return false;
+    };
+    }
   } catch (e) {
     Logger.log("(" + arguments.callee.name + ") " +e);
   }
+    set_refresh("check", false);
+  } else {
+    var check = JSON.parse(refresh);
+    return check;
+  }
+}
+
+function check_cols(sheet, col_names){
+  var max_column = sheet.getLastColumn();
+  var header_range = sheet.getRange(1, 1, 1, max_column);
+  var header_values = header_range.getValues();
+  for (var ind in col_names){
+    var col_name = col_names[ind];
+    if (header_values[0].indexOf(col_name) < 0){
+      var sheet_name = sheet.getSheetName();
+      var message = Utilities.formatString('You are missing a column name!\nWhere is column name: %s in sheet %s?\nPlease rename the column back to its original name.',
+                                           col_name||'', sheet_name||'');
+      Logger = startBetterLog();
+      Logger.severe(message);
+      var ui = SpreadsheetApp.getUi();
+      var result = ui.alert(
+        'ERROR',
+        message,
+        ui.ButtonSet.OK);
+      return false;
+    }
+  }
+  return true;
 }
 
 function refresh_members(){
