@@ -514,7 +514,7 @@ function check_sheets(){
     set_refresh("check", false);
   } else {
     var check = JSON.parse(refresh);
-    return check;
+    return true;
   }
 }
 
