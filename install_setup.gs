@@ -508,10 +508,10 @@ function get_chapter_members(){
       }
       if (CentralMemberObject['badge_numbers'].indexOf(badge_number) > -1){
         var new_role = member_object["Chapter Role"];
-        if (new_role == ""){continue;}
-        var prev_role = CentralMemberObject[badge_number]["Chapter Role"];
-        prev_role = (prev_role == "") ? new_role: prev_role+= ", " + new_role;
-        CentralMemberObject[badge_number]["Chapter Role"] = prev_role;
+//        if (new_role == ""){continue;}
+//        var prev_role = CentralMemberObject[badge_number]["Chapter Role"];
+//        prev_role = (prev_role == "") ? new_role: prev_role+= ", " + new_role;
+        CentralMemberObject[badge_number]["Chapter Role"] = new_role;
         continue;
       }
       CentralMemberObject['badge_numbers'].push(badge_number);
@@ -583,14 +583,21 @@ function get_chapter_members(){
         sheet.getRange(this_row, col).setValue(member_val);
       }
     }
+    var col = ChapterMemberObject[badge]['Last Update'][1];
+    sheet.getRange(this_row, col).setValue(new_date);
+    var range_note = sheet.getRange(this_row+1, 1);
+    range_note.clearNote();
   }
   old_members.sort();
   old_members.reverse();
   var delete_att = [];
+//  var alumn = [];
   for (var p in old_members){
     var badge = old_members[p];
     var this_row = ChapterMemberObject[badge]['object_row'];
-    if (ChapterMemberObject[badge]['Chapter Status'][0] == "Alumn"){continue;}
+//    if (ChapterMemberObject[badge]['Chapter Status'][0] == "Alumn"){
+//      alumn.push(ChapterMemberObject[badge]['Member Name']);
+//      continue;}
     delete_att.push(ChapterMemberObject[badge]['Member Name']);
     var badge_ind = ChapterMemberObject["object_header"].indexOf(badge);
     ChapterMemberObject["object_header"].splice(badge_ind, 1);
@@ -614,9 +621,10 @@ function get_chapter_members(){
       }
     }
     sheet.insertRowAfter(this_row);
-    var range = sheet.getRange(this_row+1, 1, 1, 12);
+    var range = sheet.getRange(this_row+1, 1, 1, 13);
     var range_note = sheet.getRange(this_row+1, 1);
-    range_note.setNote("Member Info Updated: "+new_date);
+//    range_note.setNote("Member Info Updated: "+new_date);
+    range_note.clearNote();
     var member_object = CentralMemberObject[new_badge];
     var new_values = [];
     for (var j in ChapterMemberObject["header_values"]){
@@ -628,6 +636,10 @@ function get_chapter_members(){
       }
       if (header == "Status Start" || header ==	"Status End"){
         new_values.push("");
+        continue;
+      }
+      if (header == "Last Update"){
+        new_values.push(new_date);
         continue;
       }
       var new_value = member_object[header];
