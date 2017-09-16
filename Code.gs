@@ -78,16 +78,16 @@ function onOpen(e) {
                   .addItem('Status Change', 'side_member')
                   .addItem('Submit Item', 'side_submit')
                   .addItem('Update Officers', 'side_officers')
-                  .addItem('SUBMIT ANNUAL REPORT', 'submit_report')
+                  .addItem('SYNC', 'sync')
   );
   menu.addItem('Send Survey', 'send_survey');
-  menu.addItem('SYNC', 'sync');
+  menu.addItem('SUBMIT ANNUAL REPORT', 'submit_report');
+  menu.addItem('SETUP', 'run_install');
   menu.addSeparator();
   menu.addSubMenu(SpreadsheetApp.getUi().createMenu("Debugging")
                   .addItem('Create Triggers', 'run_createTriggers')
                   .addItem('Add Missing Member', 'missing_form')
                   .addItem("RESET", 'RESET')
-                  .addItem('SETUP', 'run_install')
                   .addItem('Start Logging', 'start_logging')
                   .addItem('Unlock', 'unlock')
   );
@@ -400,12 +400,12 @@ function _onEdit(e){
       if (this_password == password){
         return;
       }
-//      var ui = SpreadsheetApp.getUi();
-//      var result = ui.alert(
-//        'ERROR',
-//        'Please do not edit member information here\n'+
-//        'Member information is changed by notifying the central office',
-//        ui.ButtonSet.OK);
+      var ui = SpreadsheetApp.getUi();
+      var result = ui.alert(
+        'ERROR',
+        'Please do not edit member information here\n'+
+        'Member information is changed by notifying the central office',
+        ui.ButtonSet.OK);
     }
   } else if (sheet_name == "Chapter") {
     Logger.log("(" + arguments.callee.name + ") " +"CHAPTER CHANGED");
@@ -492,7 +492,7 @@ function check_sheets(){
                      "Member Add", "Special", "Event Fields"];
         break;
       case "Membership":
-        col_names = ["Member Name", "First Name", "Last Name", "Badge Number",
+        col_names = ["Member Name", "Last Update", "First Name", "Last Name", "Badge Number",
                      "Chapter Status", "Status Start", "Status End", "Chapter Role",
                      "Current Major", "School Status", "Phone Number", "Email Address",
                      "Service Hrs FA", "Service Hrs SP", "Fall GPA", "Spring GPA",

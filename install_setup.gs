@@ -1,12 +1,11 @@
 function run_install(e){
-  unlock();
-  var this_password = SCRIPT_PROP.getProperty("password");
-  if (this_password != password){
-    var ui = SpreadsheetApp.getUi();
-    ui.alert('Incorrect Password!');
-    return;
+  var ui = SpreadsheetApp.getUi();
+  var result = ui.alert('Proceed with installing?',
+      ui.ButtonSet.YES_NO);
+//  var button = result.getSelectedButton();
+  if (result == ui.Button.YES) {
+    onInstall(e);
   }
-  onInstall(e);
 }
 
 function onInstall(e) {
