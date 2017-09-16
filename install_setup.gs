@@ -424,6 +424,17 @@ function setup_dataval(){
   }
   ss.getRange("Membership!N2:X100").setBackground("white");
   ss.getRange("Events!I1").setNote("How long was the event? Number of hours?");
+  
+  var rule = SpreadsheetApp.newDataValidation()
+    .requireNumberGreaterThan(0)
+    .setHelpText('Set this value greater than 0.')
+    .setAllowInvalid(false).build();
+  
+  var member_ranges = get_membership_ranges();
+  for (var member_range in member_ranges){
+    member_ranges[member_range].setDataValidation(rule);
+  }
+  
   progress_update("Finished Data Val Setup");
 //requireNumberGreaterThan(number)
 //requireTextIsEmail()

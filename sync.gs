@@ -139,6 +139,15 @@ function sync_region() {
     var score_type = score_dict[score_type_raw];
     var col = main_chapter.first_row.indexOf(score_type)+1;
     var val = member_value_obj[score_type_raw].getValue();
+    if (val == 0){
+      member_value_obj[score_type_raw]
+      .setNote("Scribe should set this value")
+      .setBackground('red');
+    } else {
+      member_value_obj[score_type_raw]
+      .clearNote()
+      .setBackground('white');
+    }
     var row_range = main_sheet.getRange(chapter_row, col).setValue(val);
   }
   var ss = get_active_spreadsheet();
