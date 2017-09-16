@@ -97,6 +97,14 @@ function get_chapter_fee(){
 
 function chapter_name_process(form) {
   try{
+  var cur_date = new Date();
+  var cur_year = cur_date.getFullYear();
+  var semester = get_semester(cur_date);
+    if (semester == "FALL"){
+      cur_year = cur_year + "-" + (cur_year + 1)
+    } else {
+      cur_year = (cur_year - 1) + "-" + cur_year
+    }
   Logger.log("(" + arguments.callee.name + ") ");
   Logger.log(form);
 //  var form = {'chapterslist': 'Chi Gamma'}
@@ -111,7 +119,7 @@ function chapter_name_process(form) {
   var default_doc = SpreadsheetApp.openById(default_id);
   var doc_name = default_doc.getName();
   doc_name = doc_name.replace("DEFAULT ", "");
-  doc_name = doc_name.replace("- Chapter", "- "+chapter_name);
+  doc_name = doc_name.replace("- Chapter", "- "+chapter_name + " " + cur_year);
   Logger.log("(" + arguments.callee.name + ") " +doc_name);
   ss.rename(doc_name);
   var sheet = ss.getSheetByName("Chapter");
@@ -144,7 +152,7 @@ function chapter_name_process(form) {
   range.setValue(balance);
   range.setNote("Last Updated: "+balance_date);
   range = sheet_dash.getRange(1, 1);
-  range.setValue(chapter_name + " CHAPTER ANNUAL REPORT");
+  range.setValue(chapter_name + " CHAPTER ANNUAL REPORT " + cur_year);
   range.getValue();
   create_submit_folder(chapter_name, region);
   get_chapter_members();
