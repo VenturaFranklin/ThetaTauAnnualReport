@@ -286,7 +286,7 @@ function process_oer(form) {
   delete form.TCS_end
   var header = ["Submitted by", "Date Submitted", "Chapter Name", "Office",
             "Term Begins (M/D/YYYY)", "Term Ends (M/D/YYYY)", "*ChapRoll",
-            "First Name", "Last Name", "Mobile Phone", "Campus Email", "Other Email"];
+            "First Name", "Last Name", "Mobile Phone", "Personal Email", "Campus Email"];
   var start_date = [];
   var data = [];
   data.push(header);
@@ -310,7 +310,7 @@ function process_oer(form) {
     var member_object = find_member_shortname(MemberObject, form[key]);
     var row = ["", formatted, chapterName, key, start, end, member_object["Badge Number"][0],
               member_object["First Name"][0], member_object["Last Name"][0],
-              member_object["Phone Number"][0], member_object["Email Address"][0], chapter_info[key].email];
+              member_object["Phone Number"][0], chapter_info[key].email, member_object["Email Address"][0]];
     Logger.log("(" + arguments.callee.name + ") " +row);
     data.push(row);
     dash[key] = [chapterName, key, member_object["Member Name"][0],
