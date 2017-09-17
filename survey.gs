@@ -128,8 +128,8 @@ function submit_survey(e) {
   try{
   Logger.log("(" + arguments.callee.name + ") ");
   Logger.log(e);
-  var fields = {"Fall Service": "Self Service Hrs FA",
-                "Spring Service": "Self Service Hrs SP", 
+  var fields = {"Fall Service": "Service Hrs FA",
+                "Spring Service": "Service Hrs SP", 
                 "Fall GPA": "Fall GPA", 
                 "Spring GPA": "Spring GPA",
                 "Professional Orgs": "Professional/ Technical Orgs", 
@@ -179,11 +179,22 @@ function send_survey() {
   Logger.log("(" + arguments.callee.name + ") ");
   var form = get_survey();
   var MemberObject = main_range_object("Membership");
+  var failed = new Array();
   for (var i in MemberObject["object_header"]){
     var member = MemberObject["object_header"][i];
     var email = MemberObject[member]["Email Address"][0];
-    survey_email(form, email, member);
+    var r = survey_email(form, email, member);
+    if (r == false){
+      failed.push(['\n' + member, email]);
+    }
   }
+    if (failed.length > 0){
+      var ui = SpreadsheetApp.getUi();
+      var result = ui.alert(
+        'EMAIL SURVEY ERROR',
+        "Survey failed to send for:" + failed,
+        ui.ButtonSet.OK);
+    }
     } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
                                          e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
@@ -224,12 +235,9 @@ function survey_email(form, email, member) {
       MailApp.sendEmail(email, subject,
                         emailBody,
                         optAdvancedArgs);
+      return true;
     } catch (e){
-      var ui = SpreadsheetApp.getUi();
-      var result = ui.alert(
-        'EMAIL ERROR',
-        "There was an error with the email for: "+ member,
-        ui.ButtonSet.OK);
+      return false;
     }
   }
 }
