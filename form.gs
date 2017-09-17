@@ -276,10 +276,10 @@ function process_oer(form) {
       ui.ButtonSet.OK);
     return false;
   }
-  var officer_start = format_date(form.officer_start);
-  var officer_end = format_date(form.officer_end);
-  var TCS_start = format_date(form.TCS_start);
-  var TCS_end = format_date(form.TCS_end);
+  var officer_start = format_date_first(form.officer_start);
+  var officer_end = format_date_first(form.officer_end);
+  var TCS_start = format_date_first(form.TCS_start);
+  var TCS_end = format_date_first(form.TCS_end);
   delete form.officer_start
   delete form.officer_end
   delete form.TCS_start
@@ -427,7 +427,7 @@ function process_init(form) {
       var badge_cost = jewelry.badges[badge];
       var guard_cost = jewelry.guards[guard];
       var sum = +init_fee + late + badge_cost + guard_cost;
-      date_grad = format_date(date_grad);
+      date_grad = format_date_first(date_grad);
       INIT.push(["", formatted, date_init, chapterName,
                  date_grad, roll, first, "",
                  last, GPA, testA,
@@ -546,7 +546,7 @@ function process_grad(form) {
              +name, 'ERROR', 5);
       return [false, name];
     }
-    date_start = format_date(date_start);
+    date_start = format_date_first(date_start);
     var status_range = sheet.getRange(member_object["object_row"],
                                       member_object["Chapter Status"][1]);
     var status_start_range = sheet.getRange(member_object["object_row"],
@@ -567,7 +567,7 @@ function process_grad(form) {
         var date_end = form["date_end"][nonalum_count];
         var dist = form["dist"][nonalum_count];
         var arr = [loc, date_start, date_end, dist];
-        date_end = format_date(date_end);
+        date_end = format_date_first(date_end);
         status_range.setValue("Away");
         status_end_range.setValue(date_end);
         nonalum_count++

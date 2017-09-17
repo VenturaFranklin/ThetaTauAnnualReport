@@ -160,11 +160,27 @@ function get_member_list(status){
   return member_list
 }
 
+function format_date_first(date) {
+  //"YYYY-MM-DD" to DD/MM/YYYY with day first of month
+//  var date = "2016-12-31";
+  try{
+    date = new Date(date);
+    date.setDate(1);
+    var new_date = (date.getMonth()+1) + "/" + date.getDate() + "/" + date.getFullYear()
+    return new_date
+  } catch (error) {
+    Logger.log("(" + arguments.callee.name + ") " +error);
+    return "";
+  }
+}
+
 function format_date(date) {
   //"YYYY-MM-DD" to DD/MM/YYYY 
+//  var date = "2016-12-31";
   try{
     var raw = date.split("-");
-    return raw[1] + "/" + raw[2] + "/" + raw[0]
+    var new_date = raw[1] + "/" + raw[2] + "/" + raw[0];
+    return new_date
   } catch (error) {
     Logger.log("(" + arguments.callee.name + ") " +error);
     return "";
