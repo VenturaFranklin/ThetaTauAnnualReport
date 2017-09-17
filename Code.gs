@@ -160,6 +160,22 @@ function get_member_list(status){
   return member_list
 }
 
+function date_check(start, end){
+//  var start = "2017-01-01";
+//  var end = "2016-01-01";
+  try{
+    var date_start = new Date(start);
+    var date_end = new Date(end);
+    if (date_end >= date_start){
+      return false;
+    }
+    return true;
+  } catch (error) {
+    Logger.log("(" + arguments.callee.name + ") " +error);
+    return false;
+  }
+}
+
 function format_date_first(date) {
   //"YYYY-MM-DD" to DD/MM/YYYY with day first of month
 //  var date = "2016-07-31";

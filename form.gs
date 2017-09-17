@@ -256,7 +256,7 @@ function process_oer(form) {
 //              "Treasurer": "Jeremy Faber", "Fundraising Chair": "N/A", 
 //              "Risk Management Chair": "N/A", "Recruitment Chair": "Hannah Rowe", 
 //              "Website/Social Media Chair": "N/A", "Pledge/New Member Educator": "Adam Schilpero...", 
-//              "officer_end": "2016-12-31", "Corresponding Secretary": "Kyle Wilson",
+//              "officer_end": "2017-12-31", "Corresponding Secretary": "Kyle Wilson",
 //              "TCS_start": "2016-08-01", "TCS_end": "2017-06-01",
 //              "Social/Brotherhood Chair": "N/A", 
 //              "officer_start": "2016-08-01", 
@@ -273,6 +273,15 @@ function process_oer(form) {
     var result = ui.alert(
      'ERROR',
      'You must set all of the dates',
+      ui.ButtonSet.OK);
+    return false;
+  }
+  if (date_check(form.officer_start, form.officer_end) ||
+      date_check(form.TCS_start, form.TCS_end)){
+    var ui = SpreadsheetApp.getUi();
+    var result = ui.alert(
+     'ERROR',
+     'Start dates must be less than end dates.',
       ui.ButtonSet.OK);
     return false;
   }
