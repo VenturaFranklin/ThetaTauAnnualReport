@@ -184,6 +184,12 @@ function event_fields_set(myObject){
 //  }
 //}
 
+function refresh_events_silent(){
+  SILENT = true;
+  refresh_events();
+  SILENT = false;
+}
+
 function refresh_events() {
   // This function should adjust the black bg add to calendar
   try{

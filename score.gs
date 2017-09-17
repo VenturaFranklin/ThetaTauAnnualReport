@@ -715,6 +715,12 @@ function refresh_main_scores(type_semester, ss, ScoringObject){
 //  update_dash_score(score_data.score_type, score_data.score_ids.chapter);
 }
 
+function refresh_scores_silent() {
+  SILENT = true;
+  refresh_scores();
+  SILENT = false;
+}
+
 function refresh_scores() {
   try{
     progress_update("REFRESH EVENTS");

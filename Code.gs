@@ -6,6 +6,7 @@
  *     running in, inspect e.authMode.
  */
 var WORKING = false;
+var SILENT = false;
 var SCRIPT_PROP = PropertiesService.getDocumentProperties();
 var betterLogStarted = false;
 logging_check();
@@ -69,16 +70,18 @@ function onOpen(e) {
   menu.addSubMenu(SpreadsheetApp.getUi().createMenu("Refresh")
 //                  .addItem('Refresh Attendance on Events', 'refresh_attendance')
                   .addItem('Refresh All Scores', 'refresh_scores')
+                  .addItem('Refresh All Scores Silent', 'refresh_scores_silent')
                   .addItem('Refresh Events Background Stuff', 'refresh_events')
+                  .addItem('Refresh Events Background Stuff Silent', 'refresh_events_silent')
 //                  .addItem('Refresh Events to Attendance', 'events_to_att')
                   .addItem('Refresh Members', 'refresh_members')
+                  .addItem('Refresh Members Silent', 'refresh_members_silent')
   );
   menu.addSubMenu(SpreadsheetApp.getUi().createMenu("Submit")
                   .addItem('Pledge Forms', 'side_pledge')
                   .addItem('Status Change', 'side_member')
                   .addItem('Submit Item', 'side_submit')
                   .addItem('Update Officers', 'side_officers')
-                  .addItem('SYNC', 'sync')
   );
   menu.addItem('Send Survey', 'send_survey');
   menu.addItem('SUBMIT ANNUAL REPORT', 'submit_report');
@@ -575,6 +578,12 @@ function check_cols(sheet, col_names){
     }
   }
   return true;
+}
+
+function refresh_members_silent(){
+  SILENT = true;
+  refresh_members();
+  SILENT = false;
 }
 
 function refresh_members(){

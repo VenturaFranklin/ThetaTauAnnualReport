@@ -31,6 +31,8 @@ message = ""
 
 function progress_update(this_message){
   try {
+    if (SILENT){
+      return;}
     Logger.log(this_message);
     message += "<br>" + this_message;
     var htmlOutput = HtmlService
