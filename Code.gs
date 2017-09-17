@@ -162,9 +162,13 @@ function get_member_list(status){
 
 function format_date_first(date) {
   //"YYYY-MM-DD" to DD/MM/YYYY with day first of month
-//  var date = "2016-12-31";
+//  var date = "2016-07-31";
+//  var date = "2017-12-31";
+//  var date = "2016-08-20";
+//  var date = "2017-06-01";
   try{
     date = new Date(date);
+    date.setDate(date.getDate() + 1);
     date.setDate(1);
     var new_date = (date.getMonth()+1) + "/" + date.getDate() + "/" + date.getFullYear()
     return new_date
