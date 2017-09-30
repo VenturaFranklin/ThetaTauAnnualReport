@@ -1,21 +1,22 @@
-function update_scores_event(object){
-//  var object = 6;
+function update_scores_event(sheet_name, object){
+//   var object = 3;
+//   var sheet_name = "Events";
 //  var object = range_object("Attendance", 3);
   Logger.log("(" + arguments.callee.name + ")");
   var att_obj = true;
   if (typeof(object)==typeof(2)){
     var user_row = object;
-    var myObject = range_object("Events", user_row);
+    var myObject = range_object(sheet_name, user_row);
 //    var att_info = att_event_exists("Attendance", myObject)
     // This might mean that the attendance event has been deleted
 //    if (typeof att_info.event_row == 'undefined'){
 //      att_obj = false};
   } else {
-    var event_info = att_event_exists("Events", object);
+    var event_info = att_event_exists(sheet_name, object);
     if (typeof event_info.event_row == 'undefined'){
       return;};
     var user_row = event_info.event_row;
-    var myObject = range_object("Events", user_row);
+    var myObject = range_object(sheet_name, user_row);
   }
   if (myObject.Type[0] == "" || myObject.Date[0] == "" ||
       myObject["Event Name"][0] == ""){
@@ -34,20 +35,21 @@ function update_scores_event(object){
 //    attendance_add_event(myObject["Event Name"][0], myObject.Date[0]);
     event_add_calendar(myObject["Event Name"][0], myObject.Date[0],
                        myObject["Type"][0], myObject["Description"][0]);
-//    myObject = range_object("Events", user_row);
   }
   if (!event_fields_set(myObject)){
     return;
   }
   var score_data = get_score_event(myObject);
-  var other_type_rows = update_score(user_row, "Events", score_data, myObject);
+  var other_type_rows = update_score(user_row, sheet_name, score_data, myObject);
   Logger.log("(" + arguments.callee.name + ") " +"OTHER ROWS" + other_type_rows);
 //  if (refresh != true){
     for (i in other_type_rows){
-      if (parseInt(other_type_rows[i])!=parseInt(user_row)){
-        var myObject = range_object("Events", other_type_rows[i]);
+      var other_row = other_type_rows[i][1];
+      var sheet = other_type_rows[i][0];
+      if (parseInt(other_row)!=parseInt(user_row)){
+        var myObject = range_object(sheet, other_row);
         var score_data = get_score_event(myObject);
-        update_score(other_type_rows[i], "Events", score_data, myObject);
+        update_score(other_row, sheet, score_data, myObject);
       }
     }
 //  }
@@ -431,7 +433,12 @@ function update_score(row, sheetName, score_data, myObject){
 //  var shetName = "Events";
   Logger.log("(" + arguments.callee.name + ") " +"SHEET: " + sheetName + " ROW: " + row)
   var ss = get_active_spreadsheet();
-  var sheet = ss.getSheetByName(sheetName);
+  if (typeof sheetName === "string"){
+    var sheet = ss.getSheetByName(sheetName);
+  } else {
+    var sheet = sheetName;
+    var sheetName = sheet.getName();
+  }
   var score_ind = myObject["Score"][1];
   var object_date = myObject["Date"][0];
   var object_type = myObject["Type"][0];
@@ -513,10 +520,62 @@ function update_dash_score(score_type, score_column){
   dash_score_range.setValue(total);
 }
 
+function get_current_scores_event(){
+  var EventObject = main_range_object("Events");
+  var date_types = new Array();
+  date_types["SPRING"] = {};
+  date_types["FALL"] = {};
+  for(var j in EventObject.object_header) {
+    var event_name = EventObject.object_header[j];
+    var event = EventObject[event_name];
+    var date = event.Date[0];
+    var row = event.object_row;
+    try{
+      if (typeof date == 'undefined' || date == ''){
+        continue;
+      } else {
+        var month = date.getMonth();
+      }
+    } catch (e) {
+      var message = Utilities.formatString('This error has automatically been sent to the developers. DATE ERROR; Date Obj: %s; i: %s; Date Values: %s; Date Ind: %s; Stack: "%s"; While processing: %s.',
+                                           date||'', row||'', date_values||'', date_ind||'',
+                                           e.stack||'', arguments.callee.name||'');
+      Logger = startBetterLog();
+      Logger.severe(message);
+//      var ui = SpreadsheetApp.getUi();
+//      var result = ui.alert(
+//        'ERROR',
+//        message,
+//        ui.ButtonSet.OK);
+      return date_types;
+    }
+    var type_name = event["Type"][0];
+    var score = event["Score"][0];
+    var sheet = event.sheet;
+    var semester = get_semester(date);
+    var old_score = date_types[semester][type_name] ? 
+        date_types[semester][type_name][0] : 0;
+    var new_score = parseFloat(old_score) + parseFloat(score);
+    var old_rows = date_types[semester][type_name] ? 
+        date_types[semester][type_name][1] : [];
+    old_rows.push([sheet, parseInt(row)]);
+    date_types[semester][type_name] = [new_score, old_rows]
+    }
+  return date_types;
+}
+
 function get_current_scores(sheetName){
+  if (sheetName.indexOf('Event') < 0){
+    return get_current_scores_orig(sheetName);
+  } 
+  return get_current_scores_event();
+}
+
+function get_current_scores_orig(sheetName){
 //  var sheetName = "Events";
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName(sheetName);
+//   var EventObject = main_range_object("Events");
   var max_column = sheet.getLastColumn();
   var max_row = sheet.getLastRow();
   var full_data_range = sheet.getRange(1, 1, max_row, max_column);

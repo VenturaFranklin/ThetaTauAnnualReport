@@ -361,7 +361,7 @@ function _onEdit(e){
   var user_old_value = e.oldValue
   Logger.log("(" + arguments.callee.name + ") " +"Row: " + user_row + " Col: " + user_col);
   var this_password = SCRIPT_PROP.getProperty("password");
-  if (sheet_name == "Events"){
+  if (sheet_name.indexOf('Event') >= 0){
     Logger.log("(" + arguments.callee.name + ") " +"EVENTS CHANGED");
     if (user_row == 1 || user_col == 4 
 //        || user_col == 5 || user_col == 6
@@ -373,10 +373,10 @@ function _onEdit(e){
       var ui = SpreadsheetApp.getUi();
       var result = ui.alert(
         'ERROR',
-        'The Score is updated automatically',
+        'The Score is updated automatically; And Do not edit header.',
         ui.ButtonSet.OK);
     } else {
-    update_scores_event(user_row);
+    update_scores_event(sheet_name, user_row);
     }
 //    show_event_sheet_alert();
 //    align_event_attendance();
@@ -679,6 +679,22 @@ function get_ind_from_string(str, range_values){
   }
 }
 
+function find_all_event_sheets(ss){
+  var event_sheets = new Array();
+	if (!ss){
+    var ss = get_active_spreadsheet();
+  }
+  var sheets = ss.getSheets();
+  for (var i = 0; i < sheets.length; i++){
+    var sheet = sheets[i];
+    var sheet_name = sheet.getName();
+    if (sheet_name.indexOf('Event') >= 0){
+      event_sheets[sheet_name] = sheet;
+    }
+  }
+  return event_sheets;
+}
+
 function main_range_object(sheetName, short_header, ss){
 //  var sheetName = "Membership"
 //  var sheetName = "Scoring"
@@ -688,7 +704,7 @@ function main_range_object(sheetName, short_header, ss){
   if (!ss){
     var ss = get_active_spreadsheet();
   }
-  var sheet = ss.getSheetByName(sheetName);
+  var sheets = new Array(); 
   switch (sheetName){
     case "Membership":
     case "REGIONS":
@@ -698,24 +714,34 @@ function main_range_object(sheetName, short_header, ss){
       var short_header = "Member Name";
       }
       var sort_val = short_header;
+      sheets[sheetName] = ss.getSheetByName(sheetName);
       break;
     case "Scoring":
       var short_header = "Short Name";
       var sort_val = short_header;
+      sheets[sheetName] = ss.getSheetByName(sheetName);
       break;
     case "Events":
       var short_header = "Event Name";
       var sort_val = "Date";
+      sheets = find_all_event_sheets(ss);
       break;
     case "Attendance":
       var short_header = "Event Name";
       var sort_val = "Date";
+      sheets[sheetName] = ss.getSheetByName(sheetName);
       break;
     case "Submissions":
       var short_header = "File Name";
       var sort_val = "Date";
+      sheets[sheetName] = ss.getSheetByName(sheetName);
       break;
   }
+ var myObject = new Array();
+ myObject["object_header"] = new Array();
+ myObject["original_names"] = new Array();
+ for (var sheetName in sheets){
+ 	var sheet = sheets[sheetName];
   var max_row = sheet.getLastRow()-1;
   Logger.log("(" + arguments.callee.name + ") " +"MAX_"+sheetName+": "+max_row);
   var max_column = sheet.getLastColumn();
@@ -734,9 +760,6 @@ function main_range_object(sheetName, short_header, ss){
   } else {
     short_names = [];
   }
-  var myObject = new Array();
-  myObject["object_header"] = new Array();
-  myObject["original_names"] = new Array();
   myObject["header_values"] = header_values[0];
   myObject["sheet"] = sheet;
   myObject["object_count"] = 0;
@@ -755,10 +778,12 @@ function main_range_object(sheetName, short_header, ss){
       // This prevents event duplicates
       short_name = short_name+temp["Date"][0];
     }
+   temp.sheet = sheet;
     myObject[short_name] = temp;
     myObject["object_header"].push(short_name);
     myObject["object_count"] = myObject["object_count"] ? myObject["object_count"]+1 : 1;
   }
+ }
   return myObject
 }
 
