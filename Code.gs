@@ -497,9 +497,13 @@ function check_sheets(){
   var refresh = check_refresh(false, "check");
   if (JSON.parse(refresh)) {
   try {
-  var sheet_names = ["Events", "Chapter", "Scoring",
+  var sheet_names = ["Chapter", "Scoring",
                      "Membership", "Submissions", "Dashboard"];
   var ss = get_active_spreadsheet();
+  var event_sheets = find_all_event_sheets(ss);
+  for (var sheet_name in event_sheets){
+    sheet_names.push(sheet_name);
+  }
   for (var i in sheet_names){
     var sheet_name = sheet_names[i];
     var sheet = ss.getSheetByName(sheet_name);
@@ -518,11 +522,6 @@ function check_sheets(){
     }
     var col_names = [];
     switch (sheet_name){
-      case "Events":
-        col_names = ["Event Name", "Date", "Type", "Score", "# Members", "# Pledges",
-                     "# Alumni", "Description", "Event Hours", "# Non- Members",
-                     "STEM?", "HOST", "MILES"];
-        break;
       case "Scoring":
         col_names = ["ACTIVITY", "Long Description", "Type", "Points", "FALL SCORE",
                      "SPRING SCORE", "CHAPTER TOTAL", "Top 10 Chapters", "EVENTS/ YEAR",
@@ -541,6 +540,11 @@ function check_sheets(){
       case "Submissions":
         col_names = ["Date", "File Name", "Type", "Score", "Location of Upload"];
         break;
+    }
+    if (sheet_name.indexOf("Event") >= 0){
+      col_names = ["Event Name", "Date", "Type", "Score", "# Members", "# Pledges",
+                   "# Alumni", "Description", "Event Hours", "# Non- Members",
+                   "STEM?", "HOST", "MILES"];
     }
     if (!check_cols(sheet, col_names)){
       set_refresh("check", true);
