@@ -387,60 +387,75 @@ function setup_sheets() {
 function setup_dataval(){
   progress_update("Started Data Val Setup");
   var ss = get_active_spreadsheet();
+  var event_sheets = find_all_event_sheets(ss);
+  var EventObject = main_range_object("Events", undefined, ss);
+  var yes_no_rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(['Yes', 'No'])
+    .setAllowInvalid(false).build();
   var events = get_type_list("Events");
-  var range = ss.getRangeByName("EventsType");
-  var rule = SpreadsheetApp.newDataValidation()
+  var type_rule = SpreadsheetApp.newDataValidation()
     .requireValueInList(events)
     .setHelpText('Must be a valid event type.')
     .setAllowInvalid(false).build();
-  range.setDataValidation(rule);
-
-  var yes_no = ["EventsSTEM", "EventsHost",
-                "MemberPro", "MemberHonor", "MemberOther"];
-  var rule = SpreadsheetApp.newDataValidation()
-    .requireValueInList(['Yes', 'No'])
-    .setAllowInvalid(false).build();
-  for (var i in yes_no){
-    var range_name = yes_no[i];
-    var range = ss.getRangeByName(range_name);
-    range.setDataValidation(rule);
-  }
-
-  var range = ss.getRangeByName("EventsDate");
-  var rule = SpreadsheetApp.newDataValidation()
+  var date_rule = SpreadsheetApp.newDataValidation()
     .requireDate()
     .setHelpText('Enter a valid date MM/DD/YYYY')
     .setAllowInvalid(false).build();
-  range.setDataValidation(rule);
-  
+  var type_col = EventObject.header_values.indexOf("Type") + 1;
+  var date_col = EventObject.header_values.indexOf("Date") + 1;
+  var stem_col = EventObject.header_values.indexOf("STEM?") + 1;
+  var host_col = EventObject.header_values.indexOf("HOST") + 1;
+  var hours_col = EventObject.header_values.indexOf("Event Hours") + 1;
+  var name_col = EventObject.header_values.indexOf("Event Name") + 1;
+  for (sheet_name in event_sheets){
+    var event_sheet = event_sheets[sheet_name];
+    var rows = event_sheet.getLastRow()-1;
+    var event_range = event_sheet.getRange(2, type_col, rows, 1);
+    event_range.setDataValidation(type_rule);
+    var date_range = event_sheet.getRange(2, date_col, rows, 1);
+    date_range.setDataValidation(date_rule);
+    var stem_range = event_sheet.getRange(2, stem_col, rows, 1);
+    stem_range.setDataValidation(yes_no_rule);
+    var host_range = event_sheet.getRange(2, host_col, rows, 1);
+    host_range.setDataValidation(yes_no_rule);
+    var hours_range = event_sheet.getRange(2, hours_col, 1, 1);
+    hours_range.setNote("How long was the event? Number of hours?");
+    var name_range = event_sheet.getRange(2, name_col, 1, 1);
+    name_range.clearDataValidations();
+  }
 //  var range = ss.getRange("Attendance!1:149");
 //  var rule = SpreadsheetApp.newDataValidation()
 //    .requireValueInList(['P', 'E', 'U', 'p', 'e', 'u'], false)
 //    .setHelpText('P-Present; E-Excused; U-Unexcused')
 //    .setAllowInvalid(false).build();
 //  range.setDataValidation(rule);
-  
-  remove = ["Membership!1:1", "Events!1:1"];
-  for (var i in remove) {
-    ss.getRange(remove[i]).clearDataValidations();
+  var MemberObject = main_range_object("Membership", undefined, ss);
+  var member_sheet = MemberObject.sheet;
+  var name_col = MemberObject.header_values.indexOf("Member Name") + 1;
+  var name_range = member_sheet.getRange(2, name_col, 1, 1);
+  name_range.clearDataValidations();
+  var edit_col = MemberObject.header_values.indexOf("Service Hrs FA") + 1;
+  var max_row = member_sheet.getLastRow() - 1;
+  var max_row = (max_row != 0) ? max_row:1;
+  var max_column = member_sheet.getLastColumn();
+  var edit_range = member_sheet.getRange(2, edit_col, max_row, max_column-edit_col+1);
+  edit_range.setBackground("white");
+  var ranges = ["Officer (Pro/Tech)", "Officer (Honor)", "Officer (Other)"];
+  for (var i in ranges){
+    var range_name = ranges[i];
+    var col = MemberObject.header_values.indexOf(range_name) + 1;
+    var range = member_sheet.getRange(2, col, max_row, 1);
+    range.setDataValidation(yes_no_rule);
   }
-  ss.getRange("Membership!N2:X100").setBackground("white");
-  ss.getRange("Events!I1").setNote("How long was the event? Number of hours?");
-  
   var rule = SpreadsheetApp.newDataValidation()
     .requireNumberGreaterThan(0)
     .setHelpText('Set this value greater than 0.')
     .setAllowInvalid(false).build();
-  
   var member_ranges = get_membership_ranges();
   for (var member_range in member_ranges){
     member_ranges[member_range].setDataValidation(rule);
   }
-  
   progress_update("Finished Data Val Setup");
-//requireNumberGreaterThan(number)
-//requireTextIsEmail()
-//requireTextIsUrl()
 }
 
 function get_chapter_members(){
