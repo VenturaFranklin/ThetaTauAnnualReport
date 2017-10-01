@@ -8,6 +8,22 @@ function get_event_list() {
   return event_list
 }
 
+function find_all_event_sheets(ss){
+  var event_sheets = new Array();
+  if (!ss){
+    var ss = get_active_spreadsheet();
+  }
+  var sheets = ss.getSheets();
+  for (var i = 0; i < sheets.length; i++){
+    var sheet = sheets[i];
+    var sheet_name = sheet.getName();
+    if (sheet_name.indexOf('Event') >= 0){
+      event_sheets[sheet_name] = sheet;
+    }
+  }
+  return event_sheets;
+}
+
 function att_event_exists(sheet_name, myObject) {
   // find if event exists on attendance or event sheet
 //  var sheet_name = "Events";
@@ -197,11 +213,12 @@ function refresh_events() {
     var ss = get_active_spreadsheet();
     var EventObject = main_range_object("Events", undefined, ss);
     var ScoringObject = main_range_object("Scoring");
-    var all_infos = [];
-    var bg_colors = [];
-    var bg_events = [];
-    var bg_dates = [];
-    var date_notes = [];
+    var all_infos = {};
+    var bg_colors = {};
+    var bg_events = {};
+    var bg_dates = {};
+    var date_notes = {};
+    var sheet_names = {};
     var need_indx = {"# Non- Members": 0,
                      "STEM?": 1,
                      "HOST": 2,
@@ -210,22 +227,29 @@ function refresh_events() {
     for (var j in EventObject.object_header){
       var event_name = EventObject.object_header[j];
       var event = EventObject[event_name];
+      var event_sheet_name = event.sheet_name;
+      sheet_names[event_sheet_name] = event.sheet;
       var event_color = 'white';
+      all_infos[event_sheet_name] = all_infos[event_sheet_name] ? all_infos[event_sheet_name]:[];
+      bg_colors[event_sheet_name] = bg_colors[event_sheet_name] ? bg_colors[event_sheet_name]:[];
+      bg_events[event_sheet_name] = bg_events[event_sheet_name] ? bg_events[event_sheet_name]:[];
+      bg_dates[event_sheet_name] = bg_dates[event_sheet_name] ? bg_dates[event_sheet_name]:[];
+      date_notes[event_sheet_name] = date_notes[event_sheet_name] ? date_notes[event_sheet_name]:[];
       if (!check_date(event.Date[0])){
-        bg_dates.push(['red'])
-        date_notes.push(["Date should be within 2 years."]);
+        bg_dates[event_sheet_name].push(['red'])
+        date_notes[event_sheet_name].push(["Date should be within 2 years."]);
       } else {
-        bg_dates.push(['white'])
-        date_notes.push(['']);
+        bg_dates[event_sheet_name].push(['white'])
+        date_notes[event_sheet_name].push(['']);
       }
       var score_info = get_needed_fields(event["Type"][0], ScoringObject, false);
       var needed_fields = score_info.needed_fields;
       var score_description = score_info.score_description;
-      all_infos.push([score_description]);
+      all_infos[event_sheet_name].push([score_description]);
       if (score_info.not_set){
         event_color = 'red';
       }
-      bg_events.push([event_color]);
+      bg_events[event_sheet_name].push([event_color]);
       var color_array = ["black", "black", "black", "black"];
       if (needed_fields.length > 0){
         for (var i in needed_fields){
@@ -233,20 +257,23 @@ function refresh_events() {
           color_array[need_indx[needed_field]] = "white";
         }
       }
-      bg_colors.push(color_array);
+      bg_colors[event_sheet_name].push(color_array);
     }
-    var event_sheet = EventObject.sheet;
-    var event_col = EventObject.header_values.indexOf("Type") + 1;
-    var event_range = event_sheet.getRange(2, event_col, EventObject.object_count, 1);
-    event_range.setNotes(all_infos);
-    event_range.setBackgrounds(bg_events);
-    var date_col = event.Date[1];
-    var date_range = event_sheet.getRange(2, date_col, EventObject.object_count, 1);
-    date_range.setNotes(date_notes);
-    date_range.setBackgrounds(bg_dates);
-    var field_col = EventObject.header_values.indexOf("# Non- Members") + 1;
-    var field_range = event_sheet.getRange(2, field_col, EventObject.object_count, 4);
-    field_range.setBackgrounds(bg_colors);
+  var date_col = event.Date[1];
+  var event_col = EventObject.header_values.indexOf("Type") + 1;
+  var field_col = EventObject.header_values.indexOf("# Non- Members") + 1;
+  for (event_sheet_name in sheet_names){
+    var event_sheet = sheet_names[event_sheet_name];
+    var rows = all_infos[event_sheet_name].length;
+    var event_range = event_sheet.getRange(2, event_col, rows, 1);
+    event_range.setNotes(all_infos[event_sheet_name]);
+    event_range.setBackgrounds(bg_events[event_sheet_name]);
+    var date_range = event_sheet.getRange(2, date_col, rows, 1);
+    date_range.setNotes(date_notes[event_sheet_name]);
+    date_range.setBackgrounds(bg_dates[event_sheet_name]);
+    var field_range = event_sheet.getRange(2, field_col, rows, 4);
+    field_range.setBackgrounds(bg_colors[event_sheet_name]);
+  }
     setup_dataval();
     progress_update("REFRESH EVENTS FINISHED");
   } catch (e) {

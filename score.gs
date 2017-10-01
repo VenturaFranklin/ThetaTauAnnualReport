@@ -789,13 +789,14 @@ function refresh_scores() {
     var SubmitObject = main_range_object("Submissions", undefined, ss);
 //    events_to_att(ss, attendance_object, EventObject);
 //    refresh_attendance(ss, attendance_object, EventObject);
-    EventObject = main_range_object("Events", undefined, ss);
+//     EventObject = main_range_object("Events", undefined, ss);
     var ScoringObject = main_range_object("Scoring", undefined, ss);
     var totals = get_total_members(true);
-    var all_scores = [];
-    var all_backgrounds = [];
-    var all_notes = [];
+    var all_scores = {};
+    var all_backgrounds = {};
+    var all_notes = {};
     var type_semester = {};
+    var sheet_names = {};
     type_semester["FALL"] = {};
     type_semester["SPRING"] = {};
     var exclude = ["Meetings", "Service Hours", "Misc"];
@@ -804,6 +805,8 @@ function refresh_scores() {
       var event = EventObject[event_name];
       var event_type = event["Type"][0];
       var event_date = event["Date"][0];
+      var event_sheet_name = event.sheet_name;
+      sheet_names[event_sheet_name] = event.sheet;
       var not_set = false;
       if (event_type == ''){
         event_type = 'Misc';
@@ -836,16 +839,22 @@ function refresh_scores() {
         combined_score = combined_score > 0 ? combined_score:0;
         }
       type_semester[semester][event_type] = combined_score;
-      all_scores.push([combined_score]);
-      all_backgrounds.push([background]);
-      all_notes.push([note]);
+      all_scores[event_sheet_name] = all_scores[event_sheet_name] ? all_scores[event_sheet_name]:[];
+      all_scores[event_sheet_name].push([combined_score]);
+      all_backgrounds[event_sheet_name] = all_backgrounds[event_sheet_name] ? all_backgrounds[event_sheet_name]:[];
+      all_backgrounds[event_sheet_name].push([background]);
+      all_notes[event_sheet_name] = all_notes[event_sheet_name] ? all_notes[event_sheet_name]:[];
+      all_notes[event_sheet_name].push([note]);
     }
-    var event_sheet = EventObject.sheet;
-    var score_col = EventObject.header_values.indexOf("Score") + 1;
-    var score_range = event_sheet.getRange(2, score_col, EventObject.object_count , 1);
+  var score_col = EventObject.header_values.indexOf("Score") + 1;
+  for (event_sheet_name in sheet_names){
+    var event_sheet = sheet_names[event_sheet_name];
+    var rows = all_scores[event_sheet_name].length;
+    var score_range = event_sheet.getRange(2, score_col, rows, 1);
     score_range.setValues(all_scores);
     score_range.setBackgrounds(all_backgrounds);
     score_range.setNotes(all_notes);
+  }
     for (var j in SubmitObject.object_header){
       var submit_name = SubmitObject.object_header[j];
       var submit = SubmitObject[submit_name];

@@ -679,22 +679,6 @@ function get_ind_from_string(str, range_values){
   }
 }
 
-function find_all_event_sheets(ss){
-  var event_sheets = new Array();
-	if (!ss){
-    var ss = get_active_spreadsheet();
-  }
-  var sheets = ss.getSheets();
-  for (var i = 0; i < sheets.length; i++){
-    var sheet = sheets[i];
-    var sheet_name = sheet.getName();
-    if (sheet_name.indexOf('Event') >= 0){
-      event_sheets[sheet_name] = sheet;
-    }
-  }
-  return event_sheets;
-}
-
 function main_range_object(sheetName, short_header, ss){
 //  var sheetName = "Membership"
 //  var sheetName = "Scoring"
@@ -779,6 +763,7 @@ function main_range_object(sheetName, short_header, ss){
       short_name = short_name+temp["Date"][0];
     }
    temp.sheet = sheet;
+   temp.sheet_name = sheetName;
     myObject[short_name] = temp;
     myObject["object_header"].push(short_name);
     myObject["object_count"] = myObject["object_count"] ? myObject["object_count"]+1 : 1;
