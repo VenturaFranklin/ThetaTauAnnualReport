@@ -437,8 +437,10 @@ function setup_dataval(){
     .setHelpText('Set this value greater than 0.')
     .setAllowInvalid(false).build();
   var member_ranges = get_membership_ranges();
-  for (var member_range in member_ranges){
-    member_ranges[member_range].setDataValidation(rule);
+  for (var member_range_year in member_ranges){
+    for (var member_range_type in member_ranges[member_range_year]){
+      member_ranges[member_range_year][member_range_type].range.setDataValidation(rule);
+    }
   }
   progress_update("Finished Data Val Setup");
 }
