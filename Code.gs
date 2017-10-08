@@ -490,7 +490,7 @@ function get_chapter_info(){
     chapter_info[row_name].row = row;
     chapter_info[row_name].range = range;
 //     chapter_info[row_name].values = range.getValues()[0];
-    chapter_info[row_name].values = range_values[row].slice(1, max_column-1);
+    chapter_info[row_name].values = range_values[row].slice(1, max_column);
   }
   return chapter_info;
 }
@@ -512,31 +512,21 @@ function get_membership_ranges(){
       j = parseInt(j);
       var name_row = rows[j];
       membership_ranges[sm_yr][name_row] = {};
-//       membership_ranges[sm_yr][name].values = chapter_info[name].values[i];
       var row = chapter_info[name_row].row;
       var range = sheet.getRange(row+1, +i+2, 1, 1);
       membership_ranges[sm_yr][name_row].range = range;
-//      membership_ranges[sm_yr][name_row].values = range.getValues()[0][0];
       membership_ranges[sm_yr][name_row].value = chapter_info[name_row].values.slice(+i, +i+1);
     }
-//   var init_sp_range = ss.getRangeByName("INIT_SP");
-//   var init_fa_range = ss.getRangeByName("INIT_FA");
-//   var pledge_sp_range = ss.getRangeByName("PLEDGE_SP");
-//   var pledge_fa_range = ss.getRangeByName("PLEDGE_FA");
-//   var grad_sp_range = ss.getRangeByName("GRAD_SP");
-//   var grad_fa_range = ss.getRangeByName("GRAD_FA");
-//   var act_sp_range = ss.getRangeByName("ACT_SP");
-//   var act_fa_range = ss.getRangeByName("ACT_FA");
   }
   return membership_ranges
 }
 
 function get_column_values(col, range_values){
-	var newArray = new Array();
-	for(var i=0; i<range_values.length; i++){
-		newArray.push(range_values[i][col]);
+  var newArray = new Array();
+  for(var i=0; i<range_values.length; i++){
+    newArray.push(range_values[i][col]);
      }
-	return newArray;
+  return newArray;
 }
 
 function check_sheets(){
@@ -545,6 +535,9 @@ function check_sheets(){
   try {
   var sheet_names = ["Chapter", "Scoring",
                      "Membership", "Submissions", "Dashboard"];
+  var chapter_info = get_chapter_info();
+  var years = chapter_info['Years'].values;
+  var semesters = chapter_info['Semesters'].values;
   var ss = get_active_spreadsheet();
   var event_sheets = find_all_event_sheets(ss);
   for (var sheet_name in event_sheets){
@@ -569,19 +562,27 @@ function check_sheets(){
     var col_names = [];
     switch (sheet_name){
       case "Scoring":
-        col_names = ["ACTIVITY", "Long Description", "Type", "Points", "FALL SCORE",
-                     "SPRING SCORE", "CHAPTER TOTAL", "Top 10 Chapters", "EVENTS/ YEAR",
-                     "Max/ Semester", "How points are calculated", "Short Name",
-                     "Score Type", "Base Points", "Attendance Multiplier",
-                     "Member Add", "Special", "Event Fields"];
+        col_names = ["ACTIVITY", "Long Description", "Type", "Points"];
+        for (var i in years){
+          col_names.push(years[i] + " " + semesters[i]);
+        }
+        var col_names2 = ["CHAPTER TOTAL", "Top 10 Chapters", "EVENTS/ YEAR",
+                          "Max/ Semester", "How points are calculated", "Short Name",
+                          "Score Type", "Base Points", "Attendance Multiplier",
+                          "Member Add", "Special", "Event Fields"];
+        col_names.push.apply(col_names, col_names2);
         break;
       case "Membership":
         col_names = ["Member Name", "Last Update", "First Name", "Last Name", "Badge Number",
                      "Chapter Status", "Status Start", "Status End", "Chapter Role",
-                     "Current Major", "School Status", "Phone Number", "Email Address",
-                     "Service Hrs FA", "Service Hrs SP", "Fall GPA", "Spring GPA",
-                     "Professional/ Technical Orgs", "Officer (Pro/Tech)", "Honor Orgs",
-                     "Officer (Honor)", "Other Orgs", "Officer (Other)"];
+                     "Current Major", "School Status", "Phone Number", "Email Address"];
+        for (var i in years){
+          col_names.push(years[i]  + " " + semesters[i] + " GPA");
+          col_names.push(years[i]  + " " + semesters[i] + " Service");
+        }
+        var col_names2 = ["Professional/ Technical Orgs", "Officer (Pro/Tech)", "Honor Orgs",
+                          "Officer (Honor)", "Other Orgs", "Officer (Other)"];
+        col_names.push.apply(col_names, col_names2);
         break;
       case "Submissions":
         col_names = ["Date", "File Name", "Type", "Score", "Location of Upload"];
@@ -614,17 +615,20 @@ function check_cols(sheet, col_names){
   for (var ind in col_names){
     var col_name = col_names[ind];
     if (header_values[0].indexOf(col_name) < 0){
+      sheet.insertColumns(+ind+1);
+      var new_range = sheet.getRange(1, +ind + 1);
+      new_range.setValue(col_name);
       var sheet_name = sheet.getSheetName();
       var message = Utilities.formatString('You are missing a column name!\nWhere is column name: %s in sheet %s?\nPlease rename the column back to its original name.',
                                            col_name||'', sheet_name||'');
       Logger = startBetterLog();
       Logger.severe(message);
-      var ui = SpreadsheetApp.getUi();
-      var result = ui.alert(
-        'ERROR',
-        message,
-        ui.ButtonSet.OK);
-      return false;
+//       var ui = SpreadsheetApp.getUi();
+//       var result = ui.alert(
+//         'ERROR',
+//         message,
+//         ui.ButtonSet.OK);
+//       return false;
     }
   }
   return true;
@@ -775,7 +779,7 @@ function main_range_object(sheetName, short_header, ss){
  myObject["object_header"] = new Array();
  myObject["original_names"] = new Array();
  for (var sheetName in sheets){
- 	var sheet = sheets[sheetName];
+  var sheet = sheets[sheetName];
   var max_row = sheet.getLastRow()-1;
   Logger.log("(" + arguments.callee.name + ") " +"MAX_"+sheetName+": "+max_row);
   var max_column = sheet.getLastColumn();
