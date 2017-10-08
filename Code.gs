@@ -464,25 +464,71 @@ function _onEdit(e){
   }
 }
 
-function get_membership_ranges(){
+function get_start_year(){
+  var chapter_info = get_chapter_info();
+  var start_year = chapter_info['Years'].values[0];
+  return start_year
+}
+
+function get_chapter_info(){
   var ss = get_active_spreadsheet();
-  var init_sp_range = ss.getRangeByName("INIT_SP");
-  var init_fa_range = ss.getRangeByName("INIT_FA");
-  var pledge_sp_range = ss.getRangeByName("PLEDGE_SP");
-  var pledge_fa_range = ss.getRangeByName("PLEDGE_FA");
-  var grad_sp_range = ss.getRangeByName("GRAD_SP");
-  var grad_fa_range = ss.getRangeByName("GRAD_FA");
-  var act_sp_range = ss.getRangeByName("ACT_SP");
-  var act_fa_range = ss.getRangeByName("ACT_FA");
-  return {init_sp_range: init_sp_range,
-          init_fa_range: init_fa_range,
-          pledge_sp_range: pledge_sp_range,
-          pledge_fa_range: pledge_fa_range,
-          grad_sp_range: grad_sp_range,
-          grad_fa_range: grad_fa_range,
-          act_sp_range: act_sp_range,
-          act_fa_range: act_fa_range
+  var sheet = ss.getSheetByName('Chapter');
+  var chapter_info = {};
+//   get_column_values(col, range_values)
+  var max_row = sheet.getLastRow()-1;
+  var max_column = sheet.getLastColumn();
+  var range = sheet.getRange(1, 1, max_row, max_column);
+  var range_values = range.getValues();
+  chapter_info.range = range;
+  chapter_info.values = range_values;
+  chapter_info.sheet = sheet;
+  for (var row in range_values){
+    row = parseInt(row);
+    var range = sheet.getRange(row+1, 2, 1, max_column-1);
+    var row_name = range_values[row][0];
+    chapter_info[row_name] = chapter_info[row_name] ? chapter_info[row_name]:{};
+    chapter_info[row_name].row = row;
+    chapter_info[row_name].range = range;
+//     chapter_info[row_name].values = range.getValues()[0];
+    chapter_info[row_name].values = range_values[row].slice(1, max_column-1);
   }
+  return chapter_info;
+}
+
+function get_membership_ranges(){
+  var chapter_info = get_chapter_info();
+  var sheet = chapter_info.sheet;
+  var membership_ranges = {};
+  var years = chapter_info['Years'].values;
+  var semesters = chapter_info['Semesters'].values;
+  var rows = ["Initiated Pledges", "Total Pledges",
+              "Graduated Members", "Active Members"];
+  for (var i in years){
+    var year = years[i];
+    var semester = semesters[i]
+    var sm_yr = year + " " + semester;
+    membership_ranges[sm_yr] = {};
+    for (var j in rows){
+      j = parseInt(j);
+      var name_row = rows[j];
+      membership_ranges[sm_yr][name_row] = {};
+//       membership_ranges[sm_yr][name].values = chapter_info[name].values[i];
+      var row = chapter_info[name_row].row;
+      var range = sheet.getRange(row+1, +i+2, 1, 1);
+      membership_ranges[sm_yr][name_row].range = range;
+//      membership_ranges[sm_yr][name_row].values = range.getValues()[0][0];
+      membership_ranges[sm_yr][name_row].value = chapter_info[name_row].values.slice(+i, +i+1);
+    }
+//   var init_sp_range = ss.getRangeByName("INIT_SP");
+//   var init_fa_range = ss.getRangeByName("INIT_FA");
+//   var pledge_sp_range = ss.getRangeByName("PLEDGE_SP");
+//   var pledge_fa_range = ss.getRangeByName("PLEDGE_FA");
+//   var grad_sp_range = ss.getRangeByName("GRAD_SP");
+//   var grad_fa_range = ss.getRangeByName("GRAD_FA");
+//   var act_sp_range = ss.getRangeByName("ACT_SP");
+//   var act_fa_range = ss.getRangeByName("ACT_FA");
+  }
+  return membership_ranges
 }
 
 function get_column_values(col, range_values){
