@@ -170,77 +170,59 @@ function update_score_att(){
 
 function update_score_member_pledge(){
   var ss = get_active_spreadsheet();
-  var sheet = ss.getSheetByName("Scoring");
-  var member_value_obj = get_membership_ranges();
-  var init_sp_value = member_value_obj.init_sp_range.getValue();
-  init_sp_value = typeof(init_sp_value) == typeof(0) ? init_sp_value:0;
-  var init_fa_value = member_value_obj.init_fa_range.getValue();
-  init_fa_value = typeof(init_fa_value) == typeof(0) ? init_fa_value:0;
-  var pledge_sp_value = member_value_obj.pledge_sp_range.getValue();
-  pledge_sp_value = typeof(pledge_sp_value) == typeof(0) ? pledge_sp_value:0;
-  var pledge_fa_value = member_value_obj.pledge_fa_range.getValue();
-  pledge_fa_value = typeof(pledge_fa_value) == typeof(0) ? pledge_fa_value:0;
-  var grad_sp_value = member_value_obj.grad_sp_range.getValue();
-  grad_sp_value = typeof(grad_sp_value) == typeof(0) ? grad_sp_value:0;
-  var grad_fa_value = member_value_obj.grad_fa_range.getValue();
-  grad_fa_value = typeof(grad_fa_value) == typeof(0) ? grad_fa_value:0;
-  
-  var totals = get_total_members(true);
-  var act_sp_value = totals["SPRING"]["Student"];
-  act_sp_value = typeof(act_sp_value) == typeof(0) ? act_sp_value:0;
-  var act_fa_value = totals["FALL"]["Student"];
-  act_fa_value = typeof(act_fa_value) == typeof(0) ? act_fa_value:0;
-  
-  var all_vals = [init_sp_value, init_fa_value, pledge_sp_value, pledge_fa_value,
-                  grad_sp_value, grad_fa_value, act_sp_value, act_fa_value];
-  Logger.log("(" + arguments.callee.name + ") " + all_vals)
-  if (all_vals.indexOf("") > -1){return;};
   var ScoringObject = main_range_object("Scoring");
+  var sheet = ScoringObject.sheet;
   var score_method_pledge_raw = ScoringObject["Pledge Ratio"]["Special"][0];
   var score_pledge_max = ScoringObject["Pledge Ratio"]["Max/ Semester"][0];
-  var score_method_pledge_fa = score_method_pledge_raw.replace("INIT", init_fa_value);
-  score_method_pledge_fa = score_method_pledge_fa.replace("PLEDGE", pledge_fa_value);
-  var score_pledge_fa = eval_score(score_method_pledge_fa, score_pledge_max);
-  var score_method_pledge_sp = score_method_pledge_raw.replace("INIT", init_sp_value);
-  score_method_pledge_sp = score_method_pledge_sp.replace("PLEDGE", pledge_sp_value);
-  var score_pledge_sp = eval_score(score_method_pledge_sp, score_pledge_max);
   var score_method_raw = ScoringObject["Membership"]["Special"][0];
   var score_max = ScoringObject["Membership"]["Max/ Semester"][0];
-  var score_method_fa = score_method_raw.replace("OUT", grad_fa_value);
-  score_method_fa = score_method_fa.replace("IN", init_fa_value);
-  score_method_fa = score_method_fa.replace("MEMBERS", act_fa_value);
-  var score_fa = eval_score(score_method_fa, score_max);
-  var score_method_sp = score_method_raw.replace("OUT", grad_sp_value);
-  score_method_sp = score_method_sp.replace("IN", init_sp_value);
-  score_method_sp = score_method_sp.replace("MEMBERS", act_sp_value);
-  var score_sp = eval_score(score_method_sp, score_max);
   var score_row = ScoringObject["Membership"].object_row;
-  var score_fa_range = sheet.getRange(score_row,
-                                      ScoringObject["Membership"]["FALL SCORE"][1]);
-  var score_sp_range = sheet.getRange(score_row,
-                                      ScoringObject["Membership"]["SPRING SCORE"][1]);
-  var total_col = ScoringObject["Membership"]["CHAPTER TOTAL"][1];
-  var score_tot_range = sheet.getRange(score_row,total_col);
   var score_pledge_row = ScoringObject["Pledge Ratio"].object_row;
-  var score_pledge_fa_range = sheet.getRange(score_pledge_row,
-                                      ScoringObject["Pledge Ratio"]["FALL SCORE"][1]);
-  var score_pledge_sp_range = sheet.getRange(score_pledge_row,
-                                      ScoringObject["Pledge Ratio"]["SPRING SCORE"][1]);
-  var score_pledge_tot_range = sheet.getRange(score_pledge_row,total_col);
-  score_sp = score_sp >= 0 ? score_sp:0;
-  score_fa = score_fa >= 0 ? score_fa:0;
-  score_sp = !(isNaN(score_sp)) ? score_sp:0;
-  score_fa = !(isNaN(score_fa)) >= 0 ? score_fa:0;
-  score_fa_range.setValue(score_fa);
-  score_sp_range.setValue(score_sp);
-  score_tot_range.setValue(score_fa + score_sp);
-  score_pledge_sp = score_pledge_sp >= 0 ? score_pledge_sp:0;
-  score_pledge_fa = score_pledge_fa >= 0 ? score_pledge_fa:0;
-  score_pledge_sp = !(isNaN(score_pledge_sp)) ? score_pledge_sp:0;
-  score_pledge_fa = !(isNaN(score_pledge_fa)) ? score_pledge_fa:0;
-  score_pledge_fa_range.setValue(score_pledge_fa);
-  score_pledge_sp_range.setValue(score_pledge_sp);
-  score_pledge_tot_range.setValue(score_pledge_fa + score_pledge_sp);
+  var member_ranges = get_membership_ranges();
+  var score_pledge_tot = 0;
+  var score_tot = 0;
+  for (var member_range_year in member_ranges){
+    var score_method_pledge = score_method_pledge_raw.repeat(1);
+    var score_method_member = score_method_raw.repeat(1);
+    for (var member_range_type in member_ranges[member_range_year]){
+      value = member_ranges[member_range_year][member_range_type].value;
+      value = typeof(value) == typeof(0) ? value:0;
+      switch (member_range_type){
+        case "Initiated Pledges":
+          score_method_pledge = score_method_pledge.replace("INIT", value);
+          score_method_member = score_method_member.replace("IN", value);
+          break
+        case "Total Pledges":
+          score_method_pledge = score_method_pledge.replace("PLEDGE", value);
+          break
+        case "Graduated Members":
+          score_method_member = score_method_member.replace("OUT", value);
+          break
+        case "Active Members":
+          score_method_member = score_method_member.replace("MEMBERS", value);
+          break
+      }
+    }
+    var score_pledge = eval_score(score_method_pledge, score_pledge_max);
+    score_pledge = score_pledge >= 0 ? score_pledge:0;
+    score_pledge = !(isNaN(score_pledge)) ? score_pledge:0;
+    var score = eval_score(score_method_member, score_max);
+    score = score >= 0 ? score:0;
+    score = !(isNaN(score)) >= 0 ? score:0;
+    var score_range = sheet.getRange(score_row,
+      ScoringObject["Membership"][member_range_year][1]);
+    score_range.setValue(score);
+    score_tot += score;
+    var score_pledge_range = sheet.getRange(score_pledge_row,
+      ScoringObject["Pledge Ratio"][member_range_year][1]);
+    score_pledge_range.setValue(score_pledge);
+    score_pledge_tot += score_pledge;
+    }
+  var total_col = ScoringObject["Membership"]["CHAPTER TOTAL"][1];
+  var score_tot_range = sheet.getRange(score_row, total_col);
+  var score_pledge_tot_range = sheet.getRange(score_pledge_row, total_col);
+  score_tot_range.setValue(score_tot);
+  score_pledge_tot_range.setValue(score_pledge_tot);
   update_dash_score("Operate", total_col);
   update_dash_score("Brotherhood", total_col);
 }
@@ -770,7 +752,7 @@ function refresh_main_scores(type_semester, ss, ScoringObject){
   }
   var fall_col = ScoringObject.header_values.indexOf("FALL SCORE");
   var semester_range = score_sheet.getRange(2, fall_col, ScoringObject.object_count, 3);
-//  semester_range.setValues(all_scores);
+  semester_range.setValues(all_scores);
 //  update_dash_score(score_data.score_type, score_data.score_ids.chapter);
 }
 
@@ -851,9 +833,9 @@ function refresh_scores() {
     var event_sheet = sheet_names[event_sheet_name];
     var rows = all_scores[event_sheet_name].length;
     var score_range = event_sheet.getRange(2, score_col, rows, 1);
-    score_range.setValues(all_scores);
-    score_range.setBackgrounds(all_backgrounds);
-    score_range.setNotes(all_notes);
+    score_range.setValues(all_scores[event_sheet_name]);
+    score_range.setBackgrounds(all_backgrounds[event_sheet_name]);
+    score_range.setNotes(all_notes[event_sheet_name]);
   }
     for (var j in SubmitObject.object_header){
       var submit_name = SubmitObject.object_header[j];
@@ -883,6 +865,7 @@ function refresh_scores() {
     update_score_att();
 //    update_service_hours();
     update_score_member_pledge();
+    var ScoringObject = main_range_object("Scoring", undefined, ss);
     refresh_main_scores(type_semester, ss, ScoringObject);
     var total_col = ScoringObject["Meetings"]["CHAPTER TOTAL"][1];
     update_dash_score("ProDev", total_col);
