@@ -479,29 +479,29 @@ function update_20171015(){
   }
   if (MemberObject.header_values.indexOf("Self Service Hrs FA") >= 0){
     col = MemberObject.header_values.indexOf("Self Service Hrs FA");
-    member_sheet.getRange(1, +col+1).setValue("2016 Fall Service");
+    member_sheet.getRange(1, +col+1).setValue("2016 FALL Service");
   }
   if (MemberObject.header_values.indexOf("Self Service Hrs SP") >= 0){
     col = MemberObject.header_values.indexOf("Self Service Hrs SP");
-    member_sheet.getRange(1, +col+1).setValue("2017 Spring Service");
+    member_sheet.getRange(1, +col+1).setValue("2017 SPRING Service");
   }
   if (MemberObject.header_values.indexOf("Fall GPA") >= 0){
     col = MemberObject.header_values.indexOf("Fall GPA");
-    member_sheet.getRange(1, +col+1).setValue("2016 Fall GPA");
+    member_sheet.getRange(1, +col+1).setValue("2016 FALL GPA");
   }
   if (MemberObject.header_values.indexOf("Spring GPA") >= 0){
     col = MemberObject.header_values.indexOf("Spring GPA");
-    member_sheet.getRange(1, +col+1).setValue("2017 Spring GPA");
+    member_sheet.getRange(1, +col+1).setValue("2017 SPRING GPA");
   }
   var ScoringObject = main_range_object("Scoring");
   var scoring_sheet = ScoringObject.sheet;
   if (MemberObject.header_values.indexOf("FALL SCORE") >= 0){
     col = MemberObject.header_values.indexOf("FALL SCORE");
-    scoring_sheet.getRange(1, +col+1).setValue("2016 Fall");
+    scoring_sheet.getRange(1, +col+1).setValue("2016 FALL");
   }
   if (MemberObject.header_values.indexOf("SPRING SCORE") >= 0){
     col = MemberObject.header_values.indexOf("SPRING SCORE");
-    scoring_sheet.getRange(1, +col+1).setValue("2017 Spring");
+    scoring_sheet.getRange(1, +col+1).setValue("2017 SPRING");
   }
   var chapter_info = get_chapter_info();
   var chapter_sheet = chapter_info.sheet;
@@ -518,7 +518,7 @@ function update_20171015(){
   }
   if (!("Semesters" in chapter_info)){
     chapter_sheet.insertRows(6);
-    chapter_sheet.getRange(6, 1, 1, 5).setValues([["Semesters", 'Fall', 'Spring',  'Fall', 'Spring']]);
+    chapter_sheet.getRange(6, 1, 1, 5).setValues([["Semesters", 'FALL', 'SPRING',  'FALL', 'SPRING']]);
   }
   if (!("Regent" in chapter_info)){
     chapter_sheet.insertRows(18);
@@ -578,6 +578,19 @@ function get_chapter_info(){
 }
 
 function get_membership_ranges(){
+  /*
+  membership_ranges[4]
+    2016 Fall[4]
+    2017 Spring[4]
+    2017 Fall[4]
+    2018 Spring[4]
+      Initiated Pledges[2]
+      Total Pledges[2]
+      Graduated Members[2]
+      Active Members[2]
+        range
+        value[1]
+  */
   var chapter_info = get_chapter_info();
   var sheet = chapter_info.sheet;
   var membership_ranges = {};
@@ -587,7 +600,7 @@ function get_membership_ranges(){
               "Graduated Members", "Active Members"];
   for (var i in years){
     var year = years[i];
-    var semester = semesters[i]
+    var semester = semesters[i].toUpperCase();
     var sm_yr = year + " " + semester;
     membership_ranges[sm_yr] = {};
     for (var j in rows){
@@ -788,7 +801,6 @@ function get_dues_years(){
 }
 
 function get_total_members(refresh){
-  
   var refresh = check_refresh(refresh, "get_total_members");
   if (refresh == true) {
     var MemberObject = main_range_object("Membership");
