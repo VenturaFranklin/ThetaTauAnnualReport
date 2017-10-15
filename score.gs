@@ -150,25 +150,23 @@ function update_score_att(){
         counts[year_semester] + 1:1;
     }
   }
-  var fall_avg = date_types["FALL"]/counts["FALL"];
-  var spring_avg = date_types["SPRING"]/counts["SPRING"];
-  Logger.log("(" + arguments.callee.name + ") " +"FALL ATT: " + fall_avg + " SPRING ATT: " + spring_avg);
   var score_method_raw = ScoringObject["Meetings"]["Special"][0];
   var score_max = ScoringObject["Meetings"]["Max/ Semester"][0];
-  var score_method_fa = score_method_raw.replace("MEETINGS", fall_avg);
   var score_row = ScoringObject["Meetings"].object_row;
   var total_col = ScoringObject["Meetings"]["CHAPTER TOTAL"][1];
-  var score_range_fa = sheet.getRange(score_row, ScoringObject["Meetings"]["FALL SCORE"][1]);
-  var score_range_sp = sheet.getRange(score_row, ScoringObject["Meetings"]["SPRING SCORE"][1]);
   var score_range_tot = sheet.getRange(score_row, total_col);
-  var score_method_sp = score_method_raw.replace("MEETINGS", spring_avg);
-  var score_fa = eval_score(score_method_fa, score_max);
-  var score_sp = eval_score(score_method_sp, score_max);
-  score_sp = score_sp >= 0 ? score_sp:0;
-  score_fa = score_fa >= 0 ? score_fa:0;
-  score_range_fa.setValue(score_fa);
-  score_range_sp.setValue(score_sp);
-  score_range_tot.setValue(+score_fa + score_sp);
+  var score_tot = 0;
+  for (year_semester in date_types){
+    avg = date_types[year_semester]/counts[year_semester];
+    Logger.log("(" + arguments.callee.name + ") " + year_semester + ": " + avg);
+    var score_method = score_method_raw.replace("MEETINGS", avg);
+    var score_range = sheet.getRange(score_row, ScoringObject["Meetings"][year_semester][1]);
+    var score = eval_score(score_method, score_max);
+    score = score >= 0 ? score:0;
+    score_range.setValue(score);
+    score_tot += score;
+  }
+  score_range_tot.setValue(score_tot);
   update_dash_score("Operate", total_col);
 }
 
@@ -542,7 +540,7 @@ function get_current_scores_event(){
     var semester = get_semester(date);
     var year = date.getFullYear();
     var year_semester = year + " " + semester
-    if (!(year_semester in date_types){
+    if (!(year_semester in date_types)){
       date_types[year_semester] = {};
     }
     var old_score = date_types[year_semester][type_name] ? 
@@ -605,7 +603,7 @@ function get_current_scores_orig(sheetName){
     var semester = get_semester(date);
     var year = date.getFullYear();
     var year_semester = year + " " + semester
-    if (!(year_semester in date_types){
+    if (!(year_semester in date_types)){
       date_types[year_semester] = {};
     }
     var old_score = date_types[year_semester][type_name] ? 
