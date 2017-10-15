@@ -115,17 +115,7 @@ function sync_region() {
     }
   }
   progress_update("Syncing Chapter info");
-  var member_value_obj = get_membership_ranges();
-  var score_dict= {
-    init_sp_range: 'Spring Init',
-    init_fa_range: 'Fall Init',
-    pledge_sp_range: 'Spring Pledge',
-    pledge_fa_range: 'Fall Pledge',
-    grad_sp_range: 'Spring Graduated',
-    grad_fa_range: 'Fall Graduated',
-    act_sp_range: 'Spring Active',
-    act_fa_range: 'Fall Active'
-  }
+  var member_ranges = get_membership_ranges();
   var chapter_row = main_values.length + 1;
   if (chapter+chapter in main_chapter){
     chapter_row = main_chapter[chapter+chapter][1];
@@ -135,20 +125,20 @@ function sync_region() {
     main_sheet.getRange(chapter_row, 2).setValue(SCRIPT_PROP.getProperty("email"));
     main_sheet.getRange(chapter_row, 3).setValue(SCRIPT_PROP.getProperty("tax"));
   }
-  for (var score_type_raw in member_value_obj){
-    var score_type = score_dict[score_type_raw];
-    var col = main_chapter.first_row.indexOf(score_type)+1;
-    var val = member_value_obj[score_type_raw].getValue();
-    if (val == 0){
-      member_value_obj[score_type_raw]
-      .setNote("Scribe should set this value")
-      .setBackground('red');
-    } else {
-      member_value_obj[score_type_raw]
-      .clearNote()
-      .setBackground('white');
+  var update_cnt = 0;
+  for (var member_range_year in member_ranges){
+    for (var member_range_type in member_ranges[member_range_year]){
+      var score_type = member_range_year + " " + member_range_type;
+      var col = main_chapter.first_row.indexOf(score_type)+1;
+      if (col == 0){
+        main_sheet.insertColumns(11 + update_cnt);
+        col = 11 + update_cnt;
+        update_cnt += 1;
+        main_sheet.getRange(1, col).setValue(score_type);
+      }
+      var val = member_ranges[member_range_year][member_range_type].value;
+      main_sheet.getRange(chapter_row, col).setValue(val).setWrap(true);
     }
-    var row_range = main_sheet.getRange(chapter_row, col).setValue(val);
   }
   var ss = get_active_spreadsheet();
   var scores = ['Brotherhood', 'Service', 'Operate', 'ProDev'];
