@@ -182,8 +182,8 @@ function update_score_member_pledge(){
   var score_pledge_tot = 0;
   var score_tot = 0;
   for (var member_range_year in member_ranges){
-    var score_method_pledge = score_method_pledge_raw.repeat(1);
-    var score_method_member = score_method_raw.repeat(1);
+    var score_method_pledge = score_method_pledge_raw;
+    var score_method_member = score_method_raw;
     for (var member_range_type in member_ranges[member_range_year]){
       value = member_ranges[member_range_year][member_range_type].value;
       value = typeof(value) == typeof(0) ? value:0;
