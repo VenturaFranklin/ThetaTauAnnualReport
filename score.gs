@@ -140,13 +140,14 @@ function update_score_att(){
       var meeting_att = EventObject[event_name]["# Members"][0];
       var semester = get_semester(object_date);
       var year = object_date.getFullYear();
-      var actives = total_members[year + " " + semester]["Active Members"];
+      var year_semester = year + " " + semester
+      var actives = total_members[year_semester]["Active Members"];
       actives = actives==0 ? 1:actives;
       meeting_att = parseFloat(meeting_att / actives);
-      date_types[semester] = date_types[semester] ? 
-        date_types[semester] + meeting_att:meeting_att;
-      counts[semester] = counts[semester] ? 
-        counts[semester] + 1:1;
+      date_types[year_semester] = date_types[year_semester] ? 
+        date_types[year_semester] + meeting_att:meeting_att;
+      counts[year_semester] = counts[year_semester] ? 
+        counts[year_semester] + 1:1;
     }
   }
   var fall_avg = date_types["FALL"]/counts["FALL"];
@@ -433,9 +434,11 @@ function update_score(row, sheetName, score_data, myObject){
   var total_scores = get_current_scores(sheetName);
   Logger.log("(" + arguments.callee.name + ") " +total_scores)
   var semester = get_semester(object_date);
-  score_data.semester = semester;
-  var type_score = total_scores[semester][object_type][0];
-  var other_type_rows = total_scores[semester][object_type][1];
+  var year = object_date.getFullYear();
+  var year_semester = year + " " + semester
+  score_data.semester = year_semester;
+  var type_score = total_scores[year_semester][object_type][0];
+  var other_type_rows = total_scores[year_semester][object_type][1];
   Logger.log("(" + arguments.callee.name + ") " +"Type Score: " + type_score);
   score_range.setNote(score_data.score_method_note);
   var score = score_data.score;
@@ -466,14 +469,15 @@ function update_main_score(score_data){
   var sheet = ss.getSheetByName("Scoring");
   var score_row = score_data.score_ids.score_row
   var semester_range = sheet.getRange(score_row, score_data.score_ids[score_data.semester]);
-  var other_semester = score_data.semester=="FALL" ? "SPRING":"FALL";
-  var other_semester_range = sheet.getRange(score_row, score_data.score_ids[other_semester]);
-  var other_semester_value = other_semester_range.getValue();
-  var other_semester_value = (other_semester_value != "") ? other_semester_value:0;
+  var semester_years = get_year_semesters();
+  var total_score = 0;
+  for (var semester_year in semester_years){
+    total_score += sheet.getRange(score_row, score_data.score_ids[semester_year]).getValue();
+  }
   var total_range = sheet.getRange(score_row, score_data.score_ids.chapter);
   var total_sem_score = parseFloat(score_data.final_score) + score_data.type_score;
-  var total_score = parseFloat(other_semester_value) + total_sem_score;
   semester_range.setValue(total_sem_score);
+  total_score += total_sem_score;
   total_range.setValue(total_score);
   update_dash_score(score_data.score_type, score_data.score_ids.chapter);
 }
@@ -508,8 +512,6 @@ function update_dash_score(score_type, score_column){
 function get_current_scores_event(){
   var EventObject = main_range_object("Events");
   var date_types = new Array();
-  date_types["SPRING"] = {};
-  date_types["FALL"] = {};
   for(var j in EventObject.object_header) {
     var event_name = EventObject.object_header[j];
     var event = EventObject[event_name];
@@ -538,13 +540,18 @@ function get_current_scores_event(){
     var score = event["Score"][0];
     var sheet = event.sheet;
     var semester = get_semester(date);
-    var old_score = date_types[semester][type_name] ? 
-        date_types[semester][type_name][0] : 0;
+    var year = date.getFullYear();
+    var year_semester = year + " " + semester
+    if (!(year_semester in date_types){
+      date_types[year_semester] = {};
+    }
+    var old_score = date_types[year_semester][type_name] ? 
+        date_types[year_semester][type_name][0] : 0;
     var new_score = parseFloat(old_score) + parseFloat(score);
-    var old_rows = date_types[semester][type_name] ? 
-        date_types[semester][type_name][1] : [];
+    var old_rows = date_types[year_semester][type_name] ? 
+        date_types[year_semester][type_name][1] : [];
     old_rows.push([sheet, parseInt(row)]);
-    date_types[semester][type_name] = [new_score, old_rows]
+    date_types[year_semester][type_name] = [new_score, old_rows]
     }
   return date_types;
 }
@@ -572,8 +579,6 @@ function get_current_scores_orig(sheetName){
   var date_values = get_column_values(date_ind-1, full_data_values);
   var type_values = get_column_values(type_ind-1, full_data_values);
   var date_types = new Array();
-  date_types["SPRING"] = {};
-  date_types["FALL"] = {};
   for(var i = 1; i< date_values.length; i++) {
                 var date = date_values[i];
     try{
@@ -598,13 +603,18 @@ function get_current_scores_orig(sheetName){
     var type_name = type_values[i];
     var score = score_values[i];
     var semester = get_semester(date);
-    var old_score = date_types[semester][type_name] ? 
-            date_types[semester][type_name][0] : 0;
+    var year = date.getFullYear();
+    var year_semester = year + " " + semester
+    if (!(year_semester in date_types){
+      date_types[year_semester] = {};
+    }
+    var old_score = date_types[year_semester][type_name] ? 
+            date_types[year_semester][type_name][0] : 0;
     var new_score = parseFloat(old_score) + parseFloat(score);
-    var old_rows = date_types[semester][type_name] ? 
-      date_types[semester][type_name][1] : [];
+    var old_rows = date_types[year_semester][type_name] ? 
+      date_types[year_semester][type_name][1] : [];
     old_rows.push(parseInt(i) + 1);
-    date_types[semester][type_name] = [new_score, old_rows]
+    date_types[year_semester][type_name] = [new_score, old_rows]
           }
   return date_types;
 }
@@ -717,9 +727,11 @@ function get_score_method(event_type, mod, ScoringObject){
   }
   var score_ids = {
      score_row: score_object.object_row,
-     FALL: score_object["FALL SCORE"][1],
-     SPRING: score_object["SPRING SCORE"][1],
      chapter: score_object["CHAPTER TOTAL"][1]
+  }
+  var year_semesters = get_year_semesters();
+  for (var year_semester in year_semesters){
+    score_ids[year_semester] = score_object[year_semester][1]
   }
   return {score_method: score_method,
           score_method_note: score_method_note,
@@ -736,30 +748,36 @@ function refresh_main_scores(type_semester, ss, ScoringObject){
     var ScoringObject = main_range_object("Scoring", undefined, ss);
   }
   var score_sheet = ScoringObject.sheet;
+  var year_semesters = get_year_semesters();
+  var cols = [];
+  for (var year_semester in year_semesters){
+    cols.push(ScoringObject.header_values.indexOf(year_semester));
+    }
+  var start_col = Math.min(cols);
+  var year_semester_cols = {};
+  for (var year_semester in year_semesters){
+    year_semester_cols[year_semester] = ScoringObject.header_values.indexOf(year_semester) - start_col;
+  }
+  cols.push(99);
   var all_scores = [];
   for (var i in ScoringObject.object_header){
-    var this_type = ScoringObject.object_header[i];
-    all_scores.push([ScoringObject[this_type]["FALL SCORE"][0],
-                     ScoringObject[this_type]["SPRING SCORE"][0],
-                     ScoringObject[this_type]["CHAPTER TOTAL"][0]]);
+    // This is so we do not have empty array/rows
+    all_scores.push(cols);
   }
-//  var all_scores =
-//        Array.apply(null, Array(ScoringObject.object_count)).map(function() { return [0, 0, 0] });
-  for (var semester in type_semester){
-    var semester_col = semester == "FALL" ? 0:1;
-    for (var event_type in type_semester[semester]){
-      var event_score = type_semester[semester][event_type];
+  for (var year_semester in type_semester){
+    for (var event_type in type_semester[year_semester]){
+      var semester_col = year_semester_cols[year_semester];
+      var event_score = type_semester[year_semester][event_type];
       var score_row = ScoringObject[event_type].object_row - 2 // 2 of header and row in sheet starts at 1 not 0;
       all_scores[score_row][semester_col]=event_score;
     }
   }
   for (var ind in all_scores){
-    all_scores[ind][2] = all_scores[ind][0] + all_scores[ind][1];
+    // This is the total score update
+    all_scores[ind][cols.length-1] = all_scores[ind].reduce(function(pv, cv) { return pv + cv; }, 0);
   }
-  var fall_col = ScoringObject.header_values.indexOf("FALL SCORE");
-  var semester_range = score_sheet.getRange(2, fall_col, ScoringObject.object_count, 3);
+  var semester_range = score_sheet.getRange(2, start_col, ScoringObject.object_count, 3);
   semester_range.setValues(all_scores);
-//  update_dash_score(score_data.score_type, score_data.score_ids.chapter);
 }
 
 function refresh_scores_silent() {
@@ -785,8 +803,6 @@ function refresh_scores() {
     var all_notes = {};
     var type_semester = {};
     var sheet_names = {};
-    type_semester["FALL"] = {};
-    type_semester["SPRING"] = {};
     var exclude = ["Meetings", "Service Hours", "Misc"];
     for (var j in EventObject.object_header){
       var event_name = EventObject.object_header[j];
@@ -800,7 +816,12 @@ function refresh_scores() {
         event_type = 'Misc';
         not_set = true;
       }
+      var year = event_date.getFullYear();
       var semester = get_semester(event_date);
+      var year_semester = year + " " + semester;
+      if (!(year_semester in type_semester)){
+        type_semester[year_semester] = {};
+      }
       var score_data = get_score_method(event_type, undefined, ScoringObject);
       var score_method_edit = null;
       if (exclude.indexOf(event_type) < 0){
@@ -820,13 +841,13 @@ function refresh_scores() {
         note = "The event type must be set.";
       }
       // Need to find the score, date, type to determine semester scoring
-      var type_semester_score = type_semester[semester][event_type] ? type_semester[semester][event_type]:0;
+      var type_semester_score = type_semester[year_semester][event_type] ? type_semester[year_semester][event_type]:0;
       var combined_score = parseFloat(type_semester_score) + parseFloat(score);
       if (combined_score > parseFloat(score_data.score_max_semester)){
         combined_score = score_data.score_max_semester - type_semester_score;
         combined_score = combined_score > 0 ? combined_score:0;
         }
-      type_semester[semester][event_type] = combined_score;
+      type_semester[year_semester][event_type] = combined_score;
       all_scores[event_sheet_name] = all_scores[event_sheet_name] ? all_scores[event_sheet_name]:[];
       all_scores[event_sheet_name].push([combined_score]);
       all_backgrounds[event_sheet_name] = all_backgrounds[event_sheet_name] ? all_backgrounds[event_sheet_name]:[];
@@ -858,15 +879,17 @@ function refresh_scores() {
       }
       var submit_date = submit["Date"][0];
       var submit_score = submit["Score"][0];
+      var year = submit_date.getFullYear();
       var semester = get_semester(submit_date);
+      var year_semester = year + " " + semester;
       var score_data = get_score_method(submit_type, undefined, ScoringObject);
-      var type_semester_score = type_semester[semester][submit_type] ? type_semester[semester][submit_type]:0;
+      var type_semester_score = type_semester[year_semester][submit_type] ? type_semester[year_semester][submit_type]:0;
       var combined_score = parseFloat(type_semester_score) + parseFloat(submit_score);
       if (combined_score > parseFloat(score_data.score_max_semester)){
         combined_score = score_data.score_max_semester - type_semester_score;
         combined_score = combined_score > 0 ? combined_score:0;
         }
-      type_semester[semester][submit_type] = combined_score;
+      type_semester[year_semester][submit_type] = combined_score;
     }
     update_score_att();
 //    update_service_hours();
