@@ -129,7 +129,7 @@ function update_score_att(){
   var sheet = ss.getSheetByName("Scoring");
   var EventObject = main_range_object("Events");
   var ScoringObject = main_range_object("Scoring");
-  var total_members = get_total_members(true);
+  var total_members = get_membership_ranges();
   var date_types = [];
   var counts = [];
   for (var i = 0; i < EventObject.object_count; i++){
@@ -139,7 +139,10 @@ function update_score_att(){
       var object_date = EventObject[event_name]["Date"][0];
       var meeting_att = EventObject[event_name]["# Members"][0];
       var semester = get_semester(object_date);
-      meeting_att = parseFloat(meeting_att / total_members[semester]["Student"]);
+      var year = object_date.getFullYear();
+      var actives = total_members[year + " " + semester]["Active Members"];
+      actives = actives==0 ? 1:actives;
+      meeting_att = parseFloat(meeting_att / actives);
       date_types[semester] = date_types[semester] ? 
         date_types[semester] + meeting_att:meeting_att;
       counts[semester] = counts[semester] ? 
@@ -339,7 +342,7 @@ function get_scores_org_gpa_serv(){
       var gpa_raw = MemberObject[member_name][gpa_type][0];
       gpa_raw = gpa_raw == "" ? 0:gpa_raw;
       var gpa = parseFloat(gpa_raw);
-      if (gpa_type.indexOf("Fall") > -1){
+      if (gpa_type.indexOf("FALL") > -1){
         if(!fall_mult){continue;
         }
       } else {
@@ -572,7 +575,7 @@ function get_current_scores_orig(sheetName){
   date_types["SPRING"] = {};
   date_types["FALL"] = {};
   for(var i = 1; i< date_values.length; i++) {
-		var date = date_values[i];
+                var date = date_values[i];
     try{
       if (typeof date == 'undefined' || date == ''){
         continue;
@@ -592,17 +595,17 @@ function get_current_scores_orig(sheetName){
 //        ui.ButtonSet.OK);
       return date_types;
     }
-		var type_name = type_values[i];
-		var score = score_values[i];
-		var semester = get_semester(date);
-        var old_score = date_types[semester][type_name] ? 
-				date_types[semester][type_name][0] : 0;
-        var new_score = parseFloat(old_score) + parseFloat(score);
-        var old_rows = date_types[semester][type_name] ? 
-				date_types[semester][type_name][1] : [];
-        old_rows.push(parseInt(i) + 1);
-		date_types[semester][type_name] = [new_score, old_rows]
-	  }
+    var type_name = type_values[i];
+    var score = score_values[i];
+    var semester = get_semester(date);
+    var old_score = date_types[semester][type_name] ? 
+            date_types[semester][type_name][0] : 0;
+    var new_score = parseFloat(old_score) + parseFloat(score);
+    var old_rows = date_types[semester][type_name] ? 
+      date_types[semester][type_name][1] : [];
+    old_rows.push(parseInt(i) + 1);
+    date_types[semester][type_name] = [new_score, old_rows]
+          }
   return date_types;
 }
 
@@ -628,11 +631,14 @@ function edit_score_method_event(myEvent, score_method, totals){
   var attend = (attend != "") ? attend:0;
   if (~score_method.indexOf("memberATT")){
     if (!totals){
-      var totals = get_total_members(true);
+      var total_members = get_membership_ranges();
     }
       var event_date = myEvent["Date"][0];
       var semester = get_semester(event_date);
-      var percent_attend = attend / totals[semester]["Student"];
+      var year = event_date.getFullYear();
+      var actives = total_members[year + " " + semester]["Active Members"];
+      actives = actives==0 ? 1:actives;
+      var percent_attend = attend / actives;
       score_method = score_method.replace("memberATT", percent_attend);
           }
   if (~score_method.indexOf("memberADD")){
@@ -710,10 +716,10 @@ function get_score_method(event_type, mod, ScoringObject){
    var score_method =  special;
   }
   var score_ids = {
-		  score_row: score_object.object_row,
-		  FALL: score_object["FALL SCORE"][1],
-		  SPRING: score_object["SPRING SCORE"][1],
-		  chapter: score_object["CHAPTER TOTAL"][1]
+     score_row: score_object.object_row,
+     FALL: score_object["FALL SCORE"][1],
+     SPRING: score_object["SPRING SCORE"][1],
+     chapter: score_object["CHAPTER TOTAL"][1]
   }
   return {score_method: score_method,
           score_method_note: score_method_note,
@@ -773,7 +779,7 @@ function refresh_scores() {
 //    refresh_attendance(ss, attendance_object, EventObject);
 //     EventObject = main_range_object("Events", undefined, ss);
     var ScoringObject = main_range_object("Scoring", undefined, ss);
-    var totals = get_total_members(true);
+    var total_members = get_membership_ranges();
     var all_scores = {};
     var all_backgrounds = {};
     var all_notes = {};
@@ -798,7 +804,7 @@ function refresh_scores() {
       var score_data = get_score_method(event_type, undefined, ScoringObject);
       var score_method_edit = null;
       if (exclude.indexOf(event_type) < 0){
-        score_method_edit = edit_score_method_event(event, score_data.score_method, totals);
+        score_method_edit = edit_score_method_event(event, score_data.score_method, total_members);
       }
       var background = "black";
       var score = 0
