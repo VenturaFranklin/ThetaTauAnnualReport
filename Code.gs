@@ -597,7 +597,17 @@ function get_membership_ranges(){
       var row = chapter_info[name_row].row;
       var range = sheet.getRange(row+1, +i+2, 1, 1);
       membership_ranges[sm_yr][name_row].range = range;
-      membership_ranges[sm_yr][name_row].value = chapter_info[name_row].values.slice(+i, +i+1);
+      var val = chapter_info[name_row].values.slice(+i, +i+1);
+      membership_ranges[sm_yr][name_row].value = val;
+      if (val < 1){
+        member_ranges[member_range_year][member_range_type].range
+        .setNote("Scribe should set this value")
+        .setBackground('red');
+      } else {
+        member_ranges[member_range_year][member_range_type].range
+        .clearNote()
+        .setBackground('white');
+      }
     }
   }
   return membership_ranges
