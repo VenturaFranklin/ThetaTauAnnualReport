@@ -343,6 +343,7 @@ function reset_range(range, user_old_value){
 
 function _onEdit(e){
   try{
+    update_20171015();
     if(!check_sheets()){
       return;
     }
@@ -464,6 +465,87 @@ function _onEdit(e){
   }
 }
 
+function update_20171015(){
+  var update_test = SCRIPT_PROP.getProperty('20171015');
+  if (!update_test){
+  var MemberObject = main_range_object("Membership");
+  var member_sheet = MemberObject.sheet;
+  var cols_to_del = [];
+  if (MemberObject.header_values.indexOf("Service Hours Fall") >= 0){
+    cols_to_del.push(MemberObject.header_values.indexOf("Service Hours Fall"));
+  }
+  if (MemberObject.header_values.indexOf("Service Hours Spring") >= 0){
+    cols_to_del.push(MemberObject.header_values.indexOf("Service Hours Spring"));
+  }
+  if (MemberObject.header_values.indexOf("Self Service Hrs FA") >= 0){
+    col = MemberObject.header_values.indexOf("Self Service Hrs FA");
+    member_sheet.getRange(1, +col+1).setValue("2016 Fall Service");
+  }
+  if (MemberObject.header_values.indexOf("Self Service Hrs SP") >= 0){
+    col = MemberObject.header_values.indexOf("Self Service Hrs SP");
+    member_sheet.getRange(1, +col+1).setValue("2017 Spring Service");
+  }
+  if (MemberObject.header_values.indexOf("Fall GPA") >= 0){
+    col = MemberObject.header_values.indexOf("Fall GPA");
+    member_sheet.getRange(1, +col+1).setValue("2016 Fall GPA");
+  }
+  if (MemberObject.header_values.indexOf("Spring GPA") >= 0){
+    col = MemberObject.header_values.indexOf("Spring GPA");
+    member_sheet.getRange(1, +col+1).setValue("2017 Spring GPA");
+  }
+  var ScoringObject = main_range_object("Scoring");
+  var scoring_sheet = ScoringObject.sheet;
+  if (MemberObject.header_values.indexOf("FALL SCORE") >= 0){
+    col = MemberObject.header_values.indexOf("FALL SCORE");
+    scoring_sheet.getRange(1, +col+1).setValue("2016 Fall");
+  }
+  if (MemberObject.header_values.indexOf("SPRING SCORE") >= 0){
+    col = MemberObject.header_values.indexOf("SPRING SCORE");
+    scoring_sheet.getRange(1, +col+1).setValue("2017 Spring");
+  }
+  var chapter_info = get_chapter_info();
+  var chapter_sheet = chapter_info.sheet;
+  if ("Time of Year" in chapter_info){
+    chapter_sheet.deleteRow(4);
+  }
+  if (!("Physical Address for mailing things:" in chapter_info)){
+    chapter_sheet.insertRows(4);
+    chapter_sheet.getRange(4, 1).setValue("Physical Address for mailing things:").setWrap(true);
+  }
+  if (!("Years" in chapter_info)){
+    chapter_sheet.insertRows(5);
+    chapter_sheet.getRange(5, 1, 1, 5).setValues([["Years", '2016', '2017', '2017', '2018']]);
+  }
+  if (!("Semesters" in chapter_info)){
+    chapter_sheet.insertRows(6);
+    chapter_sheet.getRange(6, 1, 1, 5).setValues([["Semesters", 'Fall', 'Spring',  'Fall', 'Spring']]);
+  }
+  if (!("Regent" in chapter_info)){
+    chapter_sheet.insertRows(18);
+    chapter_sheet.getRange(18, 1).setValue("Regent");
+    chapter_sheet.getRange(18, 2).setValue("Emails used when chapter has a single email for each officer role. Set this before submitting officers to the central office.");
+  }
+  if (!("Vice Regent" in chapter_info)){
+    chapter_sheet.insertRows(19);
+    chapter_sheet.getRange(19, 1).setValue("Vice Regent");
+  }
+  if (!("Treasurer" in chapter_info)){
+    chapter_sheet.insertRows(20);
+    chapter_sheet.getRange(20, 1).setValue("Treasurer");
+  }
+  if (!("Scribe" in chapter_info)){
+    chapter_sheet.insertRows(21);
+    chapter_sheet.getRange(21, 1).setValue("Scribe");
+  }
+  if (!("Corresponding Secretary" in chapter_info)){
+    chapter_sheet.insertRows(22);
+    chapter_sheet.getRange(22, 1).setValue("Corresponding Secretary");
+    chapter_sheet.getRange(18, 2, 5, 2).merge().setWrap(true);
+  }
+ SCRIPT_PROP.setProperty('20171015', true) 
+ }
+}
+
 function get_start_year(){
   var chapter_info = get_chapter_info();
   var start_year = chapter_info['Years'].values[0];
@@ -475,7 +557,7 @@ function get_chapter_info(){
   var sheet = ss.getSheetByName('Chapter');
   var chapter_info = {};
 //   get_column_values(col, range_values)
-  var max_row = sheet.getLastRow()-1;
+  var max_row = sheet.getLastRow();
   var max_column = sheet.getLastColumn();
   var range = sheet.getRange(1, 1, max_row, max_column);
   var range_values = range.getValues();
