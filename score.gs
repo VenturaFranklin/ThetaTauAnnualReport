@@ -269,7 +269,7 @@ function update_scores_org_gpa_serv(){
   var gpa_tot_range = sheet.getRange(ScoringObject["GPA"].object_row, total_col);
   gpa_tot_range.setValue(gpa_tot);
   var service_tot_range = sheet.getRange(ScoringObject["Service Hours"].object_row, total_col);
-  service_range.setValue(service_tot);
+  service_tot_range.setValue(service_tot);
   Logger.log("(" + arguments.callee.name + ") " +"SOC: " + societies_method + ", SCORE: " + socieities_score);
   societies_range.setValue(socieities_score);
   update_dash_score("ProDev", total_col);
@@ -369,6 +369,7 @@ function get_scores_org_gpa_serv(){
     var gpa_type = year_semester + " GPA";
     var service_type = year_semester + " Service";
     var active_total = year_semesters[year_semester]["Active Members"].value;
+    active_total = active_total == 0 ? 1000:active_total;
     var service_count = service_counts[service_type];
     var gpa_count = gpa_counts[gpa_type];
     var percent_service = service_count / active_total;
