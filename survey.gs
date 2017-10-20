@@ -128,16 +128,18 @@ function submit_survey(e) {
   try{
   Logger.log("(" + arguments.callee.name + ") ");
   Logger.log(e);
-  var fields = {"Fall Service": "Service Hrs FA",
-                "Spring Service": "Service Hrs SP", 
-                "Fall GPA": "Fall GPA", 
-                "Spring GPA": "Spring GPA",
+  var fields = {
+//                 "Fall Service": "Service Hrs FA",
+//                 "Spring Service": "Service Hrs SP", 
+//                 "Fall GPA": "Fall GPA", 
+//                 "Spring GPA": "Spring GPA",
                 "Professional Orgs": "Professional/ Technical Orgs", 
                 "Professional Officer": "Officer (Pro/Tech)", 
                 "Honor Orgs": "Honor Orgs", 
                 "Honor Officer": "Officer (Honor)",
                 "Other Orgs": "Other Orgs", 
-                "Other Officer": "Officer (Other)"};
+                "Other Officer": "Officer (Other)"
+                };
   var MemberObject = main_range_object("Membership");
   var sheet = MemberObject["sheet"];
   var survey_name = e.namedValues["Name"][0];
