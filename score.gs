@@ -285,104 +285,102 @@ function eval_score(score_method, score_max){
 }
 
 function get_scores_org_gpa_serv(){
-  var gpa_counts = {};
   var officer_counts = {};
   var org_counts = {};
-  var service_count_fa = 0;
-  var service_count_sp = 0;
-  var active_total_fa = 0;
-  var active_total_sp = 0;
-  var active_total = 0;
+  var gpa_counts = {};
+  var service_counts = {};
   var officer_count = 0;
   var org_count = 0;
   var officers = ["Officer (Pro/Tech)", "Officer (Honor)", "Officer (Other)"];
   var orgs = ["Professional/ Technical Orgs", "Honor Orgs", "Other Orgs"];
-  var gpas = ["Fall GPA", "Service Hours Fall", "Spring GPA"];
+  var year_semesters = get_membership_ranges(); // TODO:
   var MemberObject = main_range_object("Membership");
   var gpa = 0;
   for (var i = 0; i < MemberObject.object_count; i++){
     var member_name = MemberObject.object_header[i];
     var org_true = false;
     var officer_true = false;
-    var spring_mult = 1;
-    var fall_mult = 1;
-    var status = MemberObject[member_name]["Chapter Status"][0];
-    var start = MemberObject[member_name]["Status Start"][0];
-    if (typeof(start) != typeof(new Date())){
-      if (start != ""){
-        if (start.indexOf("undefined") >= 0){
-          continue;
-        }
-      }
-    }
-    switch (status){
-      case "Pledge":
-        continue;
-        break;
-      case "Shiny":
-        var month = start.getMonth() + 1;
-        if (month<=6){fall_mult = 0;
-        } else {spring_mult = 0;
-        }
-        break;
-      case "Away":
-      case "Alumn":
-        var month = start.getMonth() + 1;
-        if (month<=6){spring_mult = 0;
-        } else {fall_mult = 0;
-        }
-        break;
-    }
-    active_total_fa += fall_mult;
-    active_total_sp += spring_mult;
-    active_total += 1;
+//     var status = MemberObject[member_name]["Chapter Status"][0];
+//     var start = MemberObject[member_name]["Status Start"][0];
+//     if (typeof(start) != typeof(new Date())){
+//       if (start != ""){
+//         if (start.indexOf("undefined") >= 0){
+//           continue;
+//         }
+//       }
+//     }
+//     switch (status){
+//       case "Pledge":
+//         continue;
+//         break;
+//       case "Shiny":
+//         var month = start.getMonth() + 1;
+//         if (month<=6){fall_mult = 0;
+//         } else {spring_mult = 0;
+//         }
+//         break;
+//       case "Away":
+//       case "Alumn":
+//         var month = start.getMonth() + 1;
+//         if (month<=6){spring_mult = 0;
+//         } else {fall_mult = 0;
+//         }
+//         break;
+//     }
+//     active_total_fa += fall_mult;
+//     active_total_sp += spring_mult;
+//     active_total += 1;
     for (var j = 0; j <= 2; j++){
-      var gpa_type = gpas[j];
-      var gpa_raw = MemberObject[member_name][gpa_type][0];
-      gpa_raw = gpa_raw == "" ? 0:gpa_raw;
-      var gpa = parseFloat(gpa_raw);
-      if (gpa_type.indexOf("FALL") > -1){
-        if(!fall_mult){continue;
-        }
-      } else {
-        if(!spring_mult){continue;
-        }
-      }
-      gpa_counts[gpa_type] = gpa_counts[gpa_type] ? gpa_counts[gpa_type]+gpa:gpa;
       var org_type = orgs[j];
       var this_org = MemberObject[member_name][org_type][0].toString();
       org_counts[org_type] = org_counts[org_type] ? org_counts[org_type]:1;
-      org_counts[org_type] = ((this_org.toUpperCase()!="NONE") && (this_org!="")) ? org_counts[org_type]+1:org_counts[org_type];
+      org_counts[org_type] = ((this_org.toUpperCase()!="NONE") && (this_org!="")) ?
+        org_counts[org_type]+1:org_counts[org_type];
       org_true = (this_org.toUpperCase()!="NONE" && this_org!="") ? true:org_true;
       var officer = MemberObject[member_name][officers[j]][0];
       officer_counts[officers[j]] = officer_counts[officers[j]] ? officer_counts[officers[j]]:0;
-      officer_counts[officers[j]] = officer.toUpperCase()=="YES" ? officer_counts[officers[j]]+1:officer_counts[officers[j]];
+      officer_counts[officers[j]] = officer.toUpperCase()=="YES" ?
+        officer_counts[officers[j]]+1:officer_counts[officers[j]];
       officer_true = officer.toUpperCase()=="YES" ? true:officer_true;
-//      Logger.log("(" + arguments.callee.name + ") " +"GPA: " + gpa + " ORG: " + org_true + " OFFICER: " + officer);
     }
-//    var service_hours_fa = MemberObject[member_name]["Service Hours Fall"][0];
-//    var service_hours_sp = MemberObject[member_name]["Service Hours Spring"][0];
-    var service_hours_self_fa = MemberObject[member_name]["Service Hrs FA"][0];
-    var service_hours_self_sp = MemberObject[member_name]["Service Hrs SP"][0];
-    var service_hours_fa = (+service_hours_self_fa) * fall_mult;
-    var service_hours_sp = (+service_hours_self_sp) * spring_mult;
-    var service_count_fa = service_hours_fa >= 8 ? service_count_fa + 1:service_count_fa;
-    var service_count_sp = service_hours_sp >= 8 ? service_count_sp + 1:service_count_sp;
     officer_count = officer_true ? officer_count + 1:officer_count;
     org_count = org_true ? org_count + 1:org_count;
+    for (year_semester in year_semesters){
+      var gpa_type = year_semester + " GPA";
+      var service_type = year_semester + " Service";
+      var gpa_raw = MemberObject[member_name][gpa_type][0];
+      gpa_raw = gpa_raw == "" ? 0:gpa_raw;
+      var gpa = parseFloat(gpa_raw);
+//       if (gpa_type.indexOf("FALL") > -1){
+//         if(!fall_mult){continue;
+//         }
+//       } else {
+//         if(!spring_mult){continue;
+//         }
+//       }
+      gpa_counts[gpa_type] = gpa_counts[gpa_type] ?
+        gpa_counts[gpa_type]+gpa:gpa;
+      var service_hours = MemberObject[member_name][service_type][0];
+      service_counts[service_type] = (+service_hours) >= 8 ?
+        service_counts[service_type] + 1:service_hours;
+    }
   }
-  var percent_service_fa = active_total_fa==0 ? 0:service_count_fa / active_total_fa;
-  var percent_service_sp = active_total_sp==0 ? 0:service_count_sp / active_total_sp;
+  var percents = {};
+  for (year_semester in year_semesters){
+    var gpa_type = year_semester + " GPA";
+    var service_type = year_semester + " Service";
+    var active_total = year_semesters[year_semester]["Active Members"].value;
+    var service_count = service_counts[service_type];
+    var gpa_count = gpa_counts[gpa_type];
+    var percent_service = service_count / active_total;
+    var percent_gpa = gpa_count / active_total;
+    percents[gpa_type] = percent_gpa;
+    percents[service_type] = percent_service;
+  }
   var percent_org = active_total==0 ? 0:org_count / active_total;
-  var gpa_avg_fall = active_total_fa==0 ? 0:gpa_counts["Fall GPA"] / active_total_fa;
-  var gpa_avg_spring = active_total_sp==0 ? 0:gpa_counts["Spring GPA"] / active_total_sp;
-  return {percent_service_fa: percent_service_fa,
-          percent_service_sp: percent_service_sp,
-          percent_org: percent_org,
-          officer_count: officer_count,
-          gpa_avg_fall: gpa_avg_fall,
-          gpa_avg_spring: gpa_avg_spring
-          }
+  percents["percent_org"] = percent_org;
+  percents["officer_count"] = officer_count;
+  return percents
 }
 
 function get_score_submit(myScore){
