@@ -542,7 +542,12 @@ function update_20171015(){
     chapter_sheet.getRange(22, 1).setValue("Corresponding Secretary");
     chapter_sheet.getRange(18, 2, 5, 2).merge().setWrap(true);
   }
- SCRIPT_PROP.setProperty('20171015', true) 
+  var ss = get_active_spreadsheet();
+  var sheet = ss.getSheetByName('Attendance');
+  sheet.insertRows(2);
+  sheet.getRange(2, 2, 1, 40).setDataValidation(null).merge().setBackground('red').setValue("This sheet is only for your chapter's use." + 
+    "The attendance will no longer be automatically sent to the events sheet.").setFontWeight("bold").setHorizontalAlignment('left');
+ SCRIPT_PROP.setProperty('20171015', true);
  }
 }
 
