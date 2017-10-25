@@ -90,6 +90,7 @@ function onOpen(e) {
   menu.addSubMenu(SpreadsheetApp.getUi().createMenu("Debugging")
                   .addItem('Create Triggers', 'run_createTriggers')
                   .addItem('Add Missing Member', 'missing_form')
+                  .addItem('Update Chapter Name', 'chapter_name')
                   .addItem("RESET", 'RESET')
                   .addItem('Start Logging', 'start_logging')
                   .addItem('Unlock', 'unlock')
