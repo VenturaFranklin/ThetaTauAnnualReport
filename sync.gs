@@ -282,6 +282,9 @@ function sync_main(){
   }
   var update_col = main_object.header_values.indexOf("Last Updated")+1;
   main_sheet.getRange(chapter_row, update_col).setValue(new Date());
+  var school_col = main_object.header_values.indexOf("School Name")+1;
+  var school = main_sheet.getRange(chapter_row, school_col).getValue();
+  SCRIPT_PROP.setProperty("school", school);
   sync_rds(ss_prop);
   sync_jewelry(ss_prop);
   progress_update("FINISHED SYNCING NATIONALS");
