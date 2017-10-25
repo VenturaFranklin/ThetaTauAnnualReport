@@ -518,6 +518,7 @@ function process_grad(form) {
 //  return;
   var MemberObject = main_range_object("Membership");
   var sheet = MemberObject["sheet"];
+  var school = SCRIPT_PROP.getProperty("school");
   var MSCR = [header_MSCR()];
 //  var MSCR_type = ["Degree received", "Transfer", "PreAlumn"];
   var COOP = [header_COOP()];
@@ -607,23 +608,23 @@ function process_grad(form) {
     }
     switch (type) {
       case "Degree received":
-        MSCR.push(["", formatted, badge, first, last, phone, email,
+        MSCR.push(["", formatted, school, badge, first, last, phone, email,
                    "Graduated from school", degree, date_start, loc, "",
                    "", "", "", "", "", ""]);
         break;
       case "Transfer":
-        MSCR.push(["", formatted, badge, first, last, "", "",
+        MSCR.push(["", formatted, school, badge, first, last, "", "",
                    "Transferring to another school", "",
                    "", "", "", "", "", "",
                    loc, date_start, ""]);
         break;
       case "Withdrawn":
-        MSCR.push(["", formatted, badge, first, last, "", "",
+        MSCR.push(["", formatted, school, badge, first, last, "", "",
                    "Withdrawing from school", "", "", "", "", "",
                    "Yes", date_start, "", "", ""]);
         break;
       case "PreAlumn":
-        MSCR.push(["", formatted, badge, first, last, "", "",
+        MSCR.push(["", formatted, school, badge, first, last, "", "",
                    "Wishes to REQUEST Premature Alum Status", "",
                    "", "", "", "", "", "", "", "", prealumn]);
         break;
@@ -680,7 +681,7 @@ function process_grad(form) {
        }
 
 function header_MSCR(){
-  return ["Submitted by", "Date Submitted", "ChapRoll",
+  return ["Submitted by", "Date Submitted", "School Name", "ChapRoll",
    "First Name", "Last Name", "Mobile Phone", "EmailAddress",
    "Reason for Status Change", "Degree Received",
    "Graduation Date (M/D/YYYY)", "Employer", "Work Email",
