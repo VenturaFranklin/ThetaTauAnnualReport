@@ -30,14 +30,40 @@ function side_member() {
       .showSidebar(htmlOutput);
 }
 
+function get_submit_folders(submit_types){
+  var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
+  var ss_prop = SpreadsheetApp.openById(properties_id);
+  var ss = get_active_spreadsheet();
+  var main_object = main_range_object("ScoreInfo", "Short Name", ss_prop);
+  var submit_folders = [];
+  for (var i in submit_types){
+    var submit_type = submit_types[i];
+    var submit_folder = main_object[submit_type]["Submit Folder"][0];
+    submit_folders.push(submit_folder);
+  }
+  return submit_folders
+}
+
 function side_submit() {
    var template = HtmlService
    .createTemplateFromFile('side_submit')
 //  .createHtmlOutputFromFile('SubmitForm');
    var list_info = get_type_list('Submit', true);
   template.submissions = list_info.type_list;
+  var submit_folders = get_submit_folders(list_info.type_list);
+  template.submissions_folders = submit_folders;
   template.descriptions = list_info.type_desc;
   template.folder_id = get_submit_id();
+  var chapter = get_chapter_name();
+  var date = new Date();
+  var currentMonth = date.getMonth() + 1;
+  if (currentMonth < 10) { currentMonth = '0' + currentMonth; }
+  var currentDay = date.getDate().toString();
+  if (currentDay < 10) { currentDay = '0' + currentDay; }
+  var str_date = date.getFullYear().toString()+
+                 currentMonth.toString()+
+                 currentDay.toString();
+  template.name = chapter + "_" + str_date  + "_";
   var htmlOutput = template.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setTitle('Submit Item')

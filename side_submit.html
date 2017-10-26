@@ -12,7 +12,8 @@ HELP</a><br>
       <select name="submissions" id="submissionslist" form="submissions">
         <? for (var i = 0; i < submissions.length; i++) { ?>
             <? var option = submissions[i] ?>
-              <option value="<?= option ?>"><?= option ?></option>
+            <? var opt_val = submissions_folders[i] ?>
+              <option value="<?= opt_val ?>"><?= option ?></option>
           <? } ?>
       </select>
     <label>Submission Description: </label> <br>
@@ -32,7 +33,9 @@ HELP</a><br>
     <input type="file" name="myFile">
     <input type="submit" value="Upload File" 
                onclick="this.value='Uploading...';
-                        insertFile(this.parentNode, folder_id='<?= folder_id ?>');
+                        insertFile(this.parentNode,
+                            folder_id='<?= folder_id ?>',
+                                name='<?= name ?>');
                         return false;">
    </form>
 </div>
@@ -97,7 +100,7 @@ HELP</a><br>
         auth2.signOut();
       }
       
-    function insertFile(form, folder_id, callback) {
+    function insertFile(form, folder_id, name, callback) {
     var fileData = form.myFile.files[0];
   const boundary = '-------314159265358979323846';
   const delimiter = "\r\n--" + boundary + "\r\n";
@@ -107,10 +110,13 @@ HELP</a><br>
   reader.readAsBinaryString(fileData);
   reader.onload = function(e) {
     var contentType = fileData.type || 'application/octet-stream';
+    var nat_folder_id = $('#submissionslist').val();
+    var type = $('#submissionslist').text();
+    var name = name + type;
     var metadata = {
-      'title': fileData.name,
+      'title': name, //fileData.name,
       'mimeType': contentType,
-      'parents': [{'id': folder_id}]
+      'parents': [{'id': folder_id}, {'id': nat_folder_id}]
     };
 
     var base64Data = btoa(reader.result);
@@ -136,7 +142,6 @@ HELP</a><br>
     if (!callback) {
       callback = function(file) {
 //        console.log(file);
-        var type = $('#submissionslist').val();
         var program = $('#program').val();
 //        console.log(type);
         google.script.run.withSuccessHandler(fileUploaded)
