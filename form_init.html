@@ -4,7 +4,7 @@
     <base target="_top">
   </head>
   <body>
-Default graduation date: <input size="2" name="default_date" type="date">
+Default graduation date: <input size="2" id="default_date" type="date">
 <input type="submit" id="default_date_submit"
        onclick="this.value='Updating...';
          update_dates();
@@ -95,10 +95,10 @@ Default graduation date: <input size="2" name="default_date" type="date">
 <script>
 function update_dates(){
   var dates = document.getElementsByName("date_grad");
-  var default_date = document.getElementById("default_date_submit");
+  var default_date = document.getElementById("default_date");
   for (i = 0; i < dates.length; i++){
     var date = dates[i];
-    date.value = default_date;
+    date.value = default_date.value;
   }
 }
 function clear_names(){
