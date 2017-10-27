@@ -31,6 +31,8 @@ function side_member() {
 }
 
 function get_submit_folders(submit_types){
+//   var update_test = SCRIPT_PROP.getProperty('submit_folders');
+//   if (!update_test){
   var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
   var ss_prop = SpreadsheetApp.openById(properties_id);
   var ss = get_active_spreadsheet();
@@ -41,6 +43,10 @@ function get_submit_folders(submit_types){
     var submit_folder = main_object[submit_type]["Submit Folder"][0];
     submit_folders.push(submit_folder);
   }
+//     SCRIPT_PROP.setProperty('submit_folders', JSON.stringify(submit_folders));
+//   } else {
+//     var submit_folders = JSON.parse(update_test);
+//   }
   return submit_folders
 }
 
