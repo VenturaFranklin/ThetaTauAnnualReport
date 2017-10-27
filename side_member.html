@@ -44,7 +44,7 @@ Ctrl or shift to select multiple
   </select>
 </td>
 <td>
-  <label for="Degree">Degree received:</label>
+  <label for="Degree" title="Member is graduating">Degree received:</label>
   <br>
   <select id="Degree" name="Degree" size="1" multiple>
   <option value="None">None Selected</option>
@@ -53,7 +53,7 @@ Ctrl or shift to select multiple
 </tr>
 <tr>
 <td>
-<label for="CoOp">CoOp/Abroad:</label>
+<label for="CoOp" title="Member is going on CoOp or Study abroad">CoOp/Abroad:</label>
 <br>
   <select id="CoOp" form="members" name="CoOp"  size="1" multiple>
   <option value="None">None Selected</option>
@@ -62,7 +62,7 @@ Ctrl or shift to select multiple
 </tr>
 <tr>
 <td>
-<label for="Military">Military Deploy:</label>
+<label for="Military" title="Member is being deployed">Military Deploy:</label>
 <br>
   <select id="Military" form="members" name="Military"  size="1" multiple>
   <option value="None">None Selected</option>
@@ -82,7 +82,7 @@ Ctrl or shift to select multiple
 -->
 <tr>
 <td>
-<label for="Transfer">Transfer:</label>
+<label for="Transfer" title="Member is transferring to another school">Transfer:</label>
 <br>
   <select id="Transfer" form="members" name="Transfer"  size="1" multiple>
   <option value="None">None Selected</option>
@@ -91,7 +91,7 @@ Ctrl or shift to select multiple
 </tr>
 <tr>
 <td>
-<label for="Withdrawn">Withdrawn:</label>
+<label for="Withdrawn" title="Member is withdrawing from school">Withdrawn:</label>
 <br>
   <select id="Withdrawn" form="members" name="Withdrawn"  size="1" multiple>
   <option value="None">None Selected</option>
@@ -100,7 +100,7 @@ Ctrl or shift to select multiple
 </tr>
 <tr>
 <td>
-<label for="Returning">Returning:</label>
+<label for="Returning" title="Member is returning to school">Returning:</label>
 <br>
   <select id="Returning" form="members" name="Returning"  size="1" multiple>
   <option value="None">None Selected</option>
@@ -108,7 +108,9 @@ Ctrl or shift to select multiple
 </td>
 </tr>
 </table>
-<br>
+  <a href="http://thetatau.org/forms-manuals-resources" target="_blank">
+    Other forms<br>(Pre alumn, advisor, etc.)</a>
+<br><br>
 <input type="submit"
        onclick="this.value='Processing...';
                 select_all();
