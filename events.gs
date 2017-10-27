@@ -8,6 +8,35 @@ function get_event_list() {
   return event_list
 }
 
+function add_event_sheet(){
+  var ui = SpreadsheetApp.getUi();
+  var result = ui.prompt('What do you want to name new event sheet?\n'+
+                         '(Events is added automatically,\neg. Events-yourname)\n'+
+                         'Sheet added at end, you will have to move it if you want.',
+      ui.ButtonSet.OK_CANCEL);
+  var button = result.getSelectedButton();
+  var name = result.getResponseText();
+  if (button == ui.Button.OK) {
+    var ss = get_active_spreadsheet();
+    var sheets = find_all_event_sheets(ss);
+//   for (var sheet_name in sheets){
+//     var sheet = sheets[sheet_name];
+//     break;
+//   }
+    var sheet = sheets[Object.keys(sheets)[0]];
+    var new_sheet = sheet.copyTo(ss);
+//   SpreadsheetApp.flush();
+    i = 0;
+    var new_sheet_name = "Events-" + name;
+    while (new_sheet_name in sheets){
+      new_sheet_name = "Events-" + name + str(i);
+      i+=1;
+    }
+    new_sheet.setName(new_sheet_name);
+    new_sheet.deleteRows(2, new_sheet.getLastRow());
+  }
+}
+
 function find_all_event_sheets(ss){
   var event_sheets = new Array();
   if (!ss){

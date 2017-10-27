@@ -84,6 +84,7 @@ function onOpen(e) {
                   .addItem('Update Officers', 'side_officers')
   );
   menu.addItem('Send Survey', 'send_survey');
+  menu.addItem('Add event sheet', 'add_event_sheet');
   menu.addItem('SUBMIT ANNUAL REPORT', 'submit_report');
   menu.addItem('SETUP', 'run_install');
   menu.addSeparator();
