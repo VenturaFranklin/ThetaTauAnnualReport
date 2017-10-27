@@ -4,6 +4,11 @@
     <base target="_top">
   </head>
   <body>
+Default date for dates: <input size="2" name="default_date" type="date">
+<input type="submit" id="default_date_submit"
+       onclick="this.value='Updating...';
+         update_dates();
+         return false;"/>
     <form id="status_update" name="status_update">
 <table>
 <tbody>
@@ -189,6 +194,14 @@
 <div id="output"></div>
 
 <script>
+function update_dates(){
+  var dates = document.getElementsByName("date_start");
+  var default_date = document.getElementById("default_date_submit");
+  for (i = 0; i < dates.length; i++){
+    var date = dates[i];
+    date.value = default_date;
+  }
+}
 function clear_names(){
   var names = document.getElementsByName("name");
   for (i = 0; i < names.length; i++){

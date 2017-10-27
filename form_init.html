@@ -4,6 +4,11 @@
     <base target="_top">
   </head>
   <body>
+Default graduation date: <input size="2" name="default_date" type="date">
+<input type="submit" id="default_date_submit"
+       onclick="this.value='Updating...';
+         update_dates();
+         return false;"/>
   <form id="status_update" name="status_update">
   <label for="date_init">Initiation Date: </label>
   <input size="2" name="date_init" id="date_init" type="date">
@@ -88,6 +93,14 @@
 <div id="output"></div>
 
 <script>
+function update_dates(){
+  var dates = document.getElementsByName("date_grad");
+  var default_date = document.getElementById("default_date_submit");
+  for (i = 0; i < dates.length; i++){
+    var date = dates[i];
+    date.value = default_date;
+  }
+}
 function clear_names(){
   document.getElementById("date_init").style = "background-color: #ffffff";
   var names = document.getElementsByName("name_init");
