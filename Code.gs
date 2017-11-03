@@ -881,6 +881,7 @@ function main_range_object(sheetName, short_header, ss){
       var sort_val = short_header;
       sheets[sheetName] = ss.getSheetByName(sheetName);
       break;
+    case "ScoreInfo":
     case "Scoring":
       var short_header = "Short Name";
       var sort_val = short_header;
