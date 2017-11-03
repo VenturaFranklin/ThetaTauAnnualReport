@@ -30,12 +30,11 @@ HELP</a><br>
         </div>
     <? } ?>
     <br>
+    <input type="hidden" form="submissions" size="1" name="file_name" value="<?= file_name ?>" id="file_name" >
     <input type="file" name="myFile">
     <input type="submit" value="Upload File" 
                onclick="this.value='Uploading...';
-                        insertFile(this.parentNode,
-                            folder_id='<?= folder_id ?>',
-                                name='<?= name ?>');
+                        insertFile(this.parentNode, '<?= folder_id ?>');
                         return false;">
    </form>
 </div>
@@ -100,7 +99,7 @@ HELP</a><br>
         auth2.signOut();
       }
       
-    function insertFile(form, folder_id, name, callback) {
+    function insertFile(form, folder_id, callback) {
     var fileData = form.myFile.files[0];
   const boundary = '-------314159265358979323846';
   const delimiter = "\r\n--" + boundary + "\r\n";
@@ -111,10 +110,12 @@ HELP</a><br>
   reader.onload = function(e) {
     var contentType = fileData.type || 'application/octet-stream';
     var nat_folder_id = $('#submissionslist').val();
-    var type = $('#submissionslist').text();
-    var name = name + type;
+    var type = $('#submissionslist').find(":selected").text();
+    var file_name = $('#file_name').val();
+    debugger;
+    var file_name = file_name + type + "_" + fileData.name;
     var metadata = {
-      'title': name, //fileData.name,
+      'title': file_name,
       'mimeType': contentType,
       'parents': [{'id': folder_id}, {'id': nat_folder_id}]
     };

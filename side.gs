@@ -84,7 +84,7 @@ function side_submit() {
   var str_date = date.getFullYear().toString()+
                  currentMonth.toString()+
                  currentDay.toString();
-  template.name = chapter + "_" + str_date  + "_";
+  template.file_name = chapter + "_" + str_date  + "_";
   var htmlOutput = template.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setTitle('Submit Item')
