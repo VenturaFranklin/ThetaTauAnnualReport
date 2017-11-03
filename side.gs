@@ -30,6 +30,19 @@ function side_member() {
       .showSidebar(htmlOutput);
 }
 
+function side_survey() {
+  var template = HtmlService
+      .createTemplateFromFile('side_survey');
+  var year_semesters = get_year_semesters();
+  year_semesters = Object.keys(year_semesters);
+  template.year_semesters = year_semesters;
+  var htmlOutput = template.evaluate()
+      .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+      .setTitle('Survey Members');
+  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
+      .showSidebar(htmlOutput);
+}
+
 function get_submit_folders(submit_types){
 //   var update_test = SCRIPT_PROP.getProperty('submit_folders');
 //   if (!update_test){

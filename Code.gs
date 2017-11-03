@@ -83,7 +83,7 @@ function onOpen(e) {
                   .addItem('Submit Item', 'side_submit')
                   .addItem('Update Officers', 'side_officers')
   );
-  menu.addItem('Send Survey', 'send_survey');
+  menu.addItem('Send Survey', 'side_survey');
   menu.addItem('Add event sheet', 'add_event_sheet');
   menu.addItem('SUBMIT ANNUAL REPORT', 'submit_report');
   menu.addItem('SETUP', 'run_install');
@@ -158,6 +158,9 @@ function get_member_list(status){
       member_status = "Student";
     }
     if (member_status == status){
+      member_name = shorten(member_name, 15);
+      member_list.push(member_name);
+    } else if (status == "All"){
       member_name = shorten(member_name, 15);
       member_list.push(member_name);
     }

@@ -168,24 +168,19 @@ function submit_survey(e) {
   }
 }
 
-function send_survey() {
-  var ui = SpreadsheetApp.getUi();
-  var response = ui.alert('Do you want to send a survey to all members?',
-                           ui.ButtonSet.YES_NO);
-
-  // Process the user's response.
-  if (response == ui.Button.NO) {
-    return;
-  }
+function send_survey(form) {
   try{
   Logger.log("(" + arguments.callee.name + ") ");
-  var form = get_survey();
+  Logger.log(form);
+  var survey = get_survey();
   var MemberObject = main_range_object("Membership");
   var failed = new Array();
-  for (var i in MemberObject["object_header"]){
-    var member = MemberObject["object_header"][i];
-    var email = MemberObject[member]["Email Address"][0];
-    var r = survey_email(form, email, member);
+  for (var i in form.memberlist){
+    var member = form.memberlist[i];
+    var member_object = find_member_shortname(MemberObject, member);
+    var email = member_object["Email Address"][0];
+    var r = false;
+    var r = survey_email(survey, email, member);
     if (r == false){
       failed.push(['\n' + member, email]);
     }

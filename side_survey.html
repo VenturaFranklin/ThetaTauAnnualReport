@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+<a href="https://docs.google.com/document/d/1-6PKYjISCNFpQhyD1K4pu5YEUwJYQPjREJpZSePDtXQ/edit#heading=h.3znysh7">
+HELP</a>
+<br>
+<label for="members">Select Survey Type:</label>
+<form id="members" name="members">
+TODO: Add year_semesters
+<br>
+<label for="memberlist">Select Members to Survey:</label>
+<br>
+Ctrl or shift to select multiple
+<table>
+<tr>
+<td rowspan="6">
+  <select id="memberlist" name="memberlist"  size="15" multiple>
+  <option value="member1">Loading...</option>
+  </select>
+</td>
+</tr>
+</table>
+<br><br>
+<input type="submit"
+       onclick="this.value='Processing...';
+                google.script.run.withSuccessHandler()
+                .send_survey(this.parentNode);
+                return false;"/>
+</form>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js">
+</script>
+<script>
+// The code in this function runs when the page is loaded.
+$(function () {
+    google.script.run.withSuccessHandler(buildOptionList)
+        .get_member_list("All");
+});
+
+function buildOptionList(members) {
+    var list = $('#memberlist');
+    list.empty();
+    for (var i = 0; i < members.length; i++) {
+        var option = $('<option></option>').attr("value", members[i]).text(members[i]);
+        list.append(option);
+    }
+}
+</script>
+  </body>
+</html>
+
+
