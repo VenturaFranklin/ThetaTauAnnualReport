@@ -589,11 +589,10 @@ function get_chapter_info(){
 
 function get_year_semesters(){
   var update_test = SCRIPT_PROP.getProperty('year_semesters');
-  var update = SCRIPT_PROP.getProperty('update');
-  if (!update_test || update){
+  if (!update_test){
     var year_semesters = {};
     var membership_ranges = get_membership_ranges();
-    for (year_semester in year_semesters){
+    for (var year_semester in membership_ranges){
       year_semesters[year_semester] = null;
     }
     SCRIPT_PROP.setProperty('year_semesters', JSON.stringify(year_semesters))
