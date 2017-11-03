@@ -96,7 +96,17 @@ function onOpen(e) {
                   .addItem('Start Logging', 'start_logging')
                   .addItem('Unlock', 'unlock')
   );
+  menu.addItem('Version', 'version');
   menu.addToUi();
+}
+
+function version(){
+  var ui = SpreadsheetApp.getUi();
+  var result = ui.alert('Chapter Management Tool\n'+
+                        'version: 2.0 = 35 (google version)\n'+
+                        'Maintaned and developed by Franklin Ventura Frank.Ventura@thetatau.org\n'+
+                        'https://github.com/VenturaFranklin/ThetaTauAnnualReport',
+                        ui.ButtonSet.OK);
 }
 
 function TEST(){
