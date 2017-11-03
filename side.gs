@@ -31,10 +31,12 @@ function side_member() {
 }
 
 function side_survey() {
+  Logger.log("(" + arguments.callee.name + ") ");
   var template = HtmlService
       .createTemplateFromFile('side_survey');
   var year_semesters = get_year_semesters();
   year_semesters = Object.keys(year_semesters);
+  Logger.log(year_semesters);
   template.year_semesters = year_semesters;
   var htmlOutput = template.evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)

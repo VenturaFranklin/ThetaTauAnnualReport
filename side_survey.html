@@ -7,10 +7,11 @@
 <a href="https://docs.google.com/document/d/1-6PKYjISCNFpQhyD1K4pu5YEUwJYQPjREJpZSePDtXQ/edit#heading=h.3znysh7">
 HELP</a>
 <br>
-<label for="members">Select Survey Type:</label>
+<label for="members">Select Survey Year and Semester:</label>
 <form id="members" name="members">
-TODO: Add year_semesters
-<br>
+<? for (var i = 0; i < year_semesters.length; i++) { ?>
+<input type="radio" name="year_semester" value="<?= year_semesters[i] ?>"><?= year_semesters[i] ?><br>
+<? } ?>
 <label for="memberlist">Select Members to Survey:</label>
 <br>
 Ctrl or shift to select multiple
