@@ -387,6 +387,8 @@ function setup_dataval(){
     .setHelpText('Enter a valid date MM/DD/YYYY')
     .setAllowInvalid(false).build();
   var type_col = EventObject.header_values.indexOf("Type") + 1;
+  var member_col = EventObject.header_values.indexOf("# Members") + 1;
+  var pledge_col = EventObject.header_values.indexOf("# Pledges") + 1;
   var date_col = EventObject.header_values.indexOf("Date") + 1;
   var stem_col = EventObject.header_values.indexOf("STEM?") + 1;
   var host_col = EventObject.header_values.indexOf("HOST") + 1;
@@ -395,6 +397,9 @@ function setup_dataval(){
   for (sheet_name in event_sheets){
     var event_sheet = event_sheets[sheet_name];
     var rows = event_sheet.getLastRow()-1;
+    if (rows < 100){
+      rows = 100;
+    }
     var event_range = event_sheet.getRange(2, type_col, rows, 1);
     event_range.setDataValidation(type_rule);
     var date_range = event_sheet.getRange(2, date_col, rows, 1);
@@ -407,6 +412,10 @@ function setup_dataval(){
     hours_range.setNote("How long was the event? Number of hours?");
     var name_range = event_sheet.getRange(2, name_col, 1, 1);
     name_range.clearDataValidations();
+    var member_range = event_sheet.getRange(2, member_col, rows, 1);
+    member_range.setBackground("white");
+    var pledge_range = event_sheet.getRange(2, pledge_col, rows, 1);
+    pledge_range.setBackground("white");
   }
 //  var range = ss.getRange("Attendance!1:149");
 //  var rule = SpreadsheetApp.newDataValidation()
@@ -658,7 +667,7 @@ function get_chapter_members(){
         new_values.push(full_name);
         continue;
       }
-      if (header == "Status Start" || header ==	"Status End"){
+      if (header == "Status Start" || header == "Status End"){
         new_values.push("");
         continue;
       }
