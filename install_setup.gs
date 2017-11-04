@@ -419,7 +419,9 @@ function setup_dataval(){
   var name_col = MemberObject.header_values.indexOf("Member Name") + 1;
   var name_range = member_sheet.getRange(2, name_col, 1, 1);
   name_range.clearDataValidations();
-  var edit_col = MemberObject.header_values.indexOf("Service Hrs FA") + 1;
+  var start_year = get_start_year();
+  var start_col_name = start_year + " FALL Service";
+  var edit_col = MemberObject.header_values.indexOf(start_col_name) + 1;
   var max_row = member_sheet.getLastRow() - 1;
   var max_row = (max_row != 0) ? max_row:1;
   var max_column = member_sheet.getLastColumn();
