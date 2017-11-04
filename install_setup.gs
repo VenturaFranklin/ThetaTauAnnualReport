@@ -537,9 +537,9 @@ function get_chapter_members(){
       }
       if (CentralMemberObject['badge_numbers'].indexOf(badge_number) > -1){
         var new_role = member_object["Chapter Role"];
-//        if (new_role == ""){continue;}
-//        var prev_role = CentralMemberObject[badge_number]["Chapter Role"];
-//        prev_role = (prev_role == "") ? new_role: prev_role+= ", " + new_role;
+        if (new_role == ""){continue;}
+        var prev_role = CentralMemberObject[badge_number]["Chapter Role"];
+        prev_role = (prev_role == "") ? new_role: prev_role+= ", " + new_role;
         CentralMemberObject[badge_number]["Chapter Role"] = new_role;
         continue;
       }
