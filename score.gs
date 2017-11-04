@@ -1,5 +1,5 @@
 function update_scores_event(sheet_name, object){
-//   var object = 3;
+//   var object = 4;
 //   var sheet_name = "Events";
 //  var object = range_object("Attendance", 3);
   Logger.log("(" + arguments.callee.name + ")");
@@ -23,9 +23,11 @@ function update_scores_event(sheet_name, object){
     return;
   }
   var date_range = myObject.sheet.getRange(myObject.object_row, myObject.Date[1]);
-  if (!check_date(myObject.Date[0])){
+  if (!check_date_year_semester(myObject.Date[0])){
+    var year_semesters = get_year_semesters();
+    year_semesters = Object.keys(year_semesters);
     date_range.setBackground('red')
-    .setNote("Date should be within 2 years.");
+    .setNote("Date should be within year/semesters of Annual report.\n" + year_semesters.join(", "));
     return;
   } else {
     date_range.setBackground("white")
@@ -141,8 +143,9 @@ function update_score_att(){
       var semester = get_semester(object_date);
       var year = object_date.getFullYear();
       var year_semester = year + " " + semester
-      var actives = total_members[year_semester]["Active Members"];
-      actives = actives==0 ? 1:actives;
+      var actives = total_members[year_semester]["Active Members"].value;
+      actives = typeof actives === 'string' ? 1000:actives;
+      actives = actives==0 ? 1000:actives;
       meeting_att = parseFloat(meeting_att / actives);
       date_types[year_semester] = date_types[year_semester] ? 
         date_types[year_semester] + meeting_att:meeting_att;
@@ -292,7 +295,7 @@ function get_scores_org_gpa_serv(){
   var org_count = 0;
   var officers = ["Officer (Pro/Tech)", "Officer (Honor)", "Officer (Other)"];
   var orgs = ["Professional/ Technical Orgs", "Honor Orgs", "Other Orgs"];
-  var year_semesters = get_membership_ranges(); // TODO:
+  var year_semesters = get_membership_ranges();
   var MemberObject = main_range_object("Membership");
   var gpa = 0;
   for (var i = 0; i < MemberObject.object_count; i++){
@@ -369,6 +372,7 @@ function get_scores_org_gpa_serv(){
     var gpa_type = year_semester + " GPA";
     var service_type = year_semester + " Service";
     var active_total = year_semesters[year_semester]["Active Members"].value;
+    actives = typeof actives === 'string' ? 1000:actives;
     active_total = active_total == 0 ? 1000:active_total;
     var service_count = service_counts[service_type];
     var gpa_count = gpa_counts[gpa_type];
@@ -459,6 +463,13 @@ function update_score(row, sheetName, score_data, myObject){
 }
 
 function update_main_score(score_data){
+//  var score_data = {
+//    "score_ids": {"chapter": 9.0, "2017 FALL": 7.0, "score_row": 6.0,
+//    "2016 FALL": 5.0, "2017 SPRING": 6.0, "2018 SPRING": 8.0},
+//    "score": 0.1, "final_score": 0.1, "score_method": "memberATT*5+memberADD*0",
+//    "type_score": 0.0, "score_method_note": "5*(% Attendance)",
+//    "semester": "2017 SPRING", "score_max_semester": 10.0, "score_type": "ProDev"
+//  }
   Logger.log("(" + arguments.callee.name + ") ");
   Logger.log(score_data);
   var ss = get_active_spreadsheet();
@@ -468,7 +479,9 @@ function update_main_score(score_data){
   var semester_years = get_year_semesters();
   var total_score = 0;
   for (var semester_year in semester_years){
-    total_score += sheet.getRange(score_row, score_data.score_ids[semester_year]).getValue();
+    var semester_val = sheet.getRange(score_row, score_data.score_ids[semester_year]).getValue();
+    semester_val = typeof semester_val === 'string' ? 0:semester_val;
+    total_score += parseInt(semester_val);
   }
   var total_range = sheet.getRange(score_row, score_data.score_ids.chapter);
   var total_sem_score = parseFloat(score_data.final_score) + score_data.type_score;
@@ -638,13 +651,18 @@ function edit_score_method_event(myEvent, score_method, totals){
   if (~score_method.indexOf("memberATT")){
     if (!totals){
       var total_members = get_membership_ranges();
+    } else {
+      var total_members = totals;
     }
       var event_date = myEvent["Date"][0];
       var semester = get_semester(event_date);
       var year = event_date.getFullYear();
-      var actives = total_members[year + " " + semester]["Active Members"];
-      actives = actives==0 ? 1:actives;
+      var year_semester = year + " " + semester;
+      var actives = total_members[year_semester]["Active Members"].value;
+      actives = typeof actives === 'string' ? 1000:actives;
+      actives = actives==0 ? 1000:actives;
       var percent_attend = attend / actives;
+      percent_attend = percent_attend>1 ? 0:percent_attend;
       score_method = score_method.replace("memberATT", percent_attend);
           }
   if (~score_method.indexOf("memberADD")){
@@ -749,7 +767,7 @@ function refresh_main_scores(type_semester, ss, ScoringObject){
   for (var year_semester in year_semesters){
     cols.push(ScoringObject.header_values.indexOf(year_semester));
     }
-  var start_col = Math.min(cols);
+  var start_col = Math.min.apply(null, cols) + 1;
   var year_semester_cols = {};
   for (var year_semester in year_semesters){
     year_semester_cols[year_semester] = ScoringObject.header_values.indexOf(year_semester) - start_col;
@@ -758,7 +776,15 @@ function refresh_main_scores(type_semester, ss, ScoringObject){
   var all_scores = [];
   for (var i in ScoringObject.object_header){
     // This is so we do not have empty array/rows
-    all_scores.push(cols);
+    //var this_type = ScoringObject.object_header[i];
+    var score_row = [];
+    for (var year_semester in year_semesters){
+      //score_row.push(ScoringObject[this_type][year_semester][0]);
+      score_row.push(0)
+    }
+    //score_row.push(ScoringObject[this_type]["CHAPTER TOTAL"][0]);
+    score_row.push(0)
+    all_scores.push(score_row);
   }
   for (var year_semester in type_semester){
     for (var event_type in type_semester[year_semester]){
@@ -772,7 +798,7 @@ function refresh_main_scores(type_semester, ss, ScoringObject){
     // This is the total score update
     all_scores[ind][cols.length-1] = all_scores[ind].reduce(function(pv, cv) { return pv + cv; }, 0);
   }
-  var semester_range = score_sheet.getRange(2, start_col, ScoringObject.object_count, 3);
+  var semester_range = score_sheet.getRange(2, start_col, ScoringObject.object_count, 5);
   semester_range.setValues(all_scores);
 }
 
@@ -878,6 +904,9 @@ function refresh_scores() {
       var year = submit_date.getFullYear();
       var semester = get_semester(submit_date);
       var year_semester = year + " " + semester;
+      if (!(year_semester in type_semester)){
+        type_semester[year_semester] = {};
+      }
       var score_data = get_score_method(submit_type, undefined, ScoringObject);
       var type_semester_score = type_semester[year_semester][submit_type] ? type_semester[year_semester][submit_type]:0;
       var combined_score = parseFloat(type_semester_score) + parseFloat(submit_score);
