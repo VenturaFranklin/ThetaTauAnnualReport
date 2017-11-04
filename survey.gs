@@ -169,12 +169,16 @@ function submit_survey(e) {
 }
 
 function send_survey(form) {
+//  var form = {"memberlist": "Franklin Ventu..."}
   try{
   Logger.log("(" + arguments.callee.name + ") ");
   Logger.log(form);
   var survey = get_survey();
   var MemberObject = main_range_object("Membership");
   var failed = new Array();
+  if (typeof form.memberlist === 'string'){
+    form.memberlist = [form.memberlist];
+  }
   for (var i in form.memberlist){
     var member = form.memberlist[i];
     var member_object = find_member_shortname(MemberObject, member);
