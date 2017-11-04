@@ -100,13 +100,9 @@ function get_chapter_fee(){
 function chapter_name_process(form) {
   try{
   var cur_date = new Date();
-  var cur_year = cur_date.getFullYear();
-  var semester = get_semester(cur_date);
-    if (semester == "FALL"){
-      cur_year = cur_year + "-" + (cur_year + 1)
-    } else {
-      cur_year = (cur_year - 1) + "-" + cur_year
-    }
+  var start_year = get_start_year();
+  var stop_year = get_stop_year();
+  var cur_year = start_year + "-" + stop_year;
   Logger.log("(" + arguments.callee.name + ") ");
   Logger.log(form);
 //  var form = {'chapterslist': 'Chi Gamma'}
