@@ -826,6 +826,8 @@ function refresh_scores() {
     var type_semester = {};
     var sheet_names = {};
     var exclude = ["Meetings", "Service Hours", "Misc"];
+    var year_semesters = get_year_semesters();
+    year_semesters = Object.keys(year_semesters);
     for (var j in EventObject.object_header){
       var event_name = EventObject.object_header[j];
       var event = EventObject[event_name];
@@ -833,10 +835,19 @@ function refresh_scores() {
       var event_date = event["Date"][0];
       var event_sheet_name = event.sheet_name;
       sheet_names[event_sheet_name] = event.sheet;
+      all_notes[event_sheet_name] = all_notes[event_sheet_name] ? all_notes[event_sheet_name]:[];
+      all_backgrounds[event_sheet_name] = all_backgrounds[event_sheet_name] ? all_backgrounds[event_sheet_name]:[];
+      all_scores[event_sheet_name] = all_scores[event_sheet_name] ? all_scores[event_sheet_name]:[];
       var not_set = false;
       if (event_type == ''){
         event_type = 'Misc';
         not_set = true;
+      }
+      if (!check_date_year_semester(event_date)){
+        all_scores[event_sheet_name].push([0]);
+        all_backgrounds[event_sheet_name].push(['red']);
+        all_notes[event_sheet_name].push(["Date should be within year/semesters of Annual report.\n" + year_semesters.join(", ")]);
+        continue;
       }
       var year = event_date.getFullYear();
       var semester = get_semester(event_date);
@@ -870,11 +881,8 @@ function refresh_scores() {
         combined_score = combined_score > 0 ? combined_score:0;
         }
       type_semester[year_semester][event_type] = combined_score;
-      all_scores[event_sheet_name] = all_scores[event_sheet_name] ? all_scores[event_sheet_name]:[];
       all_scores[event_sheet_name].push([combined_score]);
-      all_backgrounds[event_sheet_name] = all_backgrounds[event_sheet_name] ? all_backgrounds[event_sheet_name]:[];
       all_backgrounds[event_sheet_name].push([background]);
-      all_notes[event_sheet_name] = all_notes[event_sheet_name] ? all_notes[event_sheet_name]:[];
       all_notes[event_sheet_name].push([note]);
     }
   var score_col = EventObject.header_values.indexOf("Score") + 1;

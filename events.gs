@@ -253,6 +253,8 @@ function refresh_events() {
                      "HOST": 2,
                      "MILES": 3
                     }
+    var year_semesters = get_year_semesters();
+    year_semesters = Object.keys(year_semesters);
     for (var j in EventObject.object_header){
       var event_name = EventObject.object_header[j];
       var event = EventObject[event_name];
@@ -264,9 +266,9 @@ function refresh_events() {
       bg_events[event_sheet_name] = bg_events[event_sheet_name] ? bg_events[event_sheet_name]:[];
       bg_dates[event_sheet_name] = bg_dates[event_sheet_name] ? bg_dates[event_sheet_name]:[];
       date_notes[event_sheet_name] = date_notes[event_sheet_name] ? date_notes[event_sheet_name]:[];
-      if (!check_date(event.Date[0])){
+      if (!check_date_year_semester(event.Date[0])){
         bg_dates[event_sheet_name].push(['red'])
-        date_notes[event_sheet_name].push(["Date should be within 2 years."]);
+        date_notes[event_sheet_name].push(["Date should be within year/semesters of Annual report.\n" + year_semesters.join(", ")]);
       } else {
         bg_dates[event_sheet_name].push(['white'])
         date_notes[event_sheet_name].push(['']);
