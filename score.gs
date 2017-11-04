@@ -347,9 +347,11 @@ function get_scores_org_gpa_serv(){
     }
     officer_count = officer_true ? officer_count + 1:officer_count;
     org_count = org_true ? org_count + 1:org_count;
-    for (year_semester in year_semesters){
+    for (var year_semester in year_semesters){
       var gpa_type = year_semester + " GPA";
+      if (!(gpa_type in gpa_counts)){gpa_counts[gpa_type] = 0;};
       var service_type = year_semester + " Service";
+      if (!(service_type in service_counts)){service_counts[service_type] = 0;};
       var gpa_raw = MemberObject[member_name][gpa_type][0];
       gpa_raw = gpa_raw == "" ? 0:gpa_raw;
       var gpa = parseFloat(gpa_raw);
@@ -360,19 +362,18 @@ function get_scores_org_gpa_serv(){
 //         if(!spring_mult){continue;
 //         }
 //       }
-      gpa_counts[gpa_type] = gpa_counts[gpa_type] ?
-        gpa_counts[gpa_type]+gpa:gpa;
+      gpa_counts[gpa_type] = gpa_counts[gpa_type]+gpa;
       var service_hours = MemberObject[member_name][service_type][0];
       service_counts[service_type] = (+service_hours) >= 8 ?
-        service_counts[service_type] + 1:service_hours;
+        service_counts[service_type] + 1:service_counts[service_type];
     }
   }
   var percents = {};
-  for (year_semester in year_semesters){
+  for (var year_semester in year_semesters){
     var gpa_type = year_semester + " GPA";
     var service_type = year_semester + " Service";
     var active_total = year_semesters[year_semester]["Active Members"].value;
-    actives = typeof actives === 'string' ? 1000:actives;
+    active_total = typeof active_total === 'string' ? 1000:active_total;
     active_total = active_total == 0 ? 1000:active_total;
     var service_count = service_counts[service_type];
     var gpa_count = gpa_counts[gpa_type];
