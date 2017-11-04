@@ -572,6 +572,12 @@ function get_start_year(){
   return start_year
 }
 
+function get_stop_year(){
+  var chapter_info = get_chapter_info();
+  var stop_year = chapter_info['Years'].values[3];
+  return stop_year
+}
+
 function get_chapter_info(){
   var ss = get_active_spreadsheet();
   var sheet = ss.getSheetByName('Chapter');
