@@ -802,6 +802,21 @@ function set_refresh(property_name, property_value){
   SCRIPT_PROP.setProperty(property_name+"_refresh", newDateObj);
 }
 
+function check_date_year_semester(date){
+  try{
+    var year_semesters = get_year_semesters();
+    var semester = get_semester(date);
+    var year = date.getFullYear();
+    var year_semester = year + " " + semester;
+    if (!(year_semester in year_semesters)){
+      return false;
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 function check_date(date){
   try{
     var cur_date = new Date();
@@ -1009,9 +1024,11 @@ function range_object_fromValues(header_values, range_values, range_row){
 
 function test_onEdit() {
   var ss = get_active_spreadsheet();
-  var sheet = ss.getSheetByName("Attendance");
+  var sheet = ss.getSheetByName("Events");
   var range = sheet.getRange(2, 3, 1, 1);
   var value = range.getValue();
+  Logger.log("TEST");
+  Logger.log(value);
   _onEdit({
     user : Session.getActiveUser().getEmail(),
     source : ss,
