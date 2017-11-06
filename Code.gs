@@ -508,15 +508,25 @@ function update_20171015(){
     col = MemberObject.header_values.indexOf("Spring GPA");
     member_sheet.getRange(1, +col+1).setValue("2017 SPRING GPA");
   }
+  for (var i in cols_to_del){
+    var col = cols_to_del[i];
+    member_sheet.deleteColumn(+col+1);
+  }
   var ScoringObject = main_range_object("Scoring");
   var scoring_sheet = ScoringObject.sheet;
-  if (MemberObject.header_values.indexOf("FALL SCORE") >= 0){
-    col = MemberObject.header_values.indexOf("FALL SCORE");
+  if (ScoringObject.header_values.indexOf("FALL SCORE") >= 0){
+    col = ScoringObject.header_values.indexOf("FALL SCORE");
     scoring_sheet.getRange(1, +col+1).setValue("2016 FALL");
   }
-  if (MemberObject.header_values.indexOf("SPRING SCORE") >= 0){
-    col = MemberObject.header_values.indexOf("SPRING SCORE");
+  if (ScoringObject.header_values.indexOf("SPRING SCORE") >= 0){
+    col = ScoringObject.header_values.indexOf("SPRING SCORE");
     scoring_sheet.getRange(1, +col+1).setValue("2017 SPRING");
+  }
+  var EventObject = main_range_object("Events");
+  var event_sheet = EventObject.sheet;
+  if (EventObject.header_values.indexOf("PLEDGE Focus") >= 0){
+    col = EventObject.header_values.indexOf("PLEDGE Focus");
+    event_sheet.deleteColumn(+col+1);;
   }
   var chapter_info = get_chapter_info();
   var chapter_sheet = chapter_info.sheet;
@@ -721,8 +731,10 @@ function check_sheets(){
                      "Chapter Status", "Status Start", "Status End", "Chapter Role",
                      "Current Major", "School Status", "Phone Number", "Email Address"];
         for (var i in years){
-          col_names.push(years[i]  + " " + semesters[i] + " GPA");
           col_names.push(years[i]  + " " + semesters[i] + " Service");
+        }
+        for (var i in years){
+          col_names.push(years[i]  + " " + semesters[i] + " GPA");
         }
         var col_names2 = ["Professional/ Technical Orgs", "Officer (Pro/Tech)", "Honor Orgs",
                           "Officer (Honor)", "Other Orgs", "Officer (Other)"];
