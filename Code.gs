@@ -480,9 +480,7 @@ function _onEdit(e){
   }
 }
 
-function update_20171015(){
-  var update_test = SCRIPT_PROP.getProperty('20171015');
-  if (!update_test){
+function update_20171015_main(){
   var MemberObject = main_range_object("Membership");
   var member_sheet = MemberObject.sheet;
   var cols_to_del = [];
@@ -572,8 +570,14 @@ function update_20171015(){
   sheet.insertRows(2);
   sheet.getRange(2, 2, 1, 40).setDataValidation(null).merge().setBackground('red').setValue("This sheet is only for your chapter's use." + 
     "The attendance will no longer be automatically sent to the events sheet.").setFontWeight("bold").setHorizontalAlignment('left');
- SCRIPT_PROP.setProperty('20171015', true);
- }
+}
+
+function update_20171015(){
+  var update_test = SCRIPT_PROP.getProperty('20171015');
+  if (!update_test){
+    update_20171015_main()
+    SCRIPT_PROP.setProperty('20171015', true);
+  }
 }
 
 function get_start_year(){
@@ -645,6 +649,12 @@ function get_membership_ranges(){
   var chapter_info = get_chapter_info();
   var sheet = chapter_info.sheet;
   var membership_ranges = {};
+  try{
+  var years = chapter_info['Years'].values;
+  } catch (e) {
+    update_20171015_main();
+    var years = chapter_info['Years'].values;
+  }
   var semesters = chapter_info['Semesters'].values;
   var rows = ["Initiated Pledges", "Total Pledges",
               "Graduated Members", "Active Members"];
