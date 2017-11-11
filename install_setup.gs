@@ -29,11 +29,9 @@ function onInstall(e) {
 
 message = ""
 
-function progress_update(this_message, local){
+function progress_update(this_message){
   try {
     if (SILENT){
-      return;}
-    if (!local){
       return;}
     Logger.log(this_message);
     message += "<br>" + this_message;
