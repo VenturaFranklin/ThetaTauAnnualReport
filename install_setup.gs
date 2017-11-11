@@ -29,16 +29,18 @@ function onInstall(e) {
 
 message = ""
 
-function progress_update(this_message){
+function progress_update(this_message, local){
   try {
     if (SILENT){
+      return;}
+    if (!local){
       return;}
     Logger.log(this_message);
     message += "<br>" + this_message;
     var htmlOutput = HtmlService
     .createHtmlOutput(message)
     .setWidth(400)
-    .setHeight(300)
+    .setHeight(300);
     SpreadsheetApp.getUi()
     .showModalDialog(htmlOutput, 'Progress');
   } catch (e) {

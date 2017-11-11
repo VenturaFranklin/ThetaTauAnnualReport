@@ -1,9 +1,9 @@
-function sync(){
+function sync(local){
   try{
-    progress_update("STARTING TO SYNC");
-    sync_region();
-    sync_main();
-    progress_update("FINISHED SYNC");
+    progress_update("STARTING TO SYNC", local);
+    sync_region(local);
+    sync_main(local);
+    progress_update("FINISHED SYNC", local);
     } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
                                          e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
@@ -20,10 +20,11 @@ function sync(){
 }
 
 function submit_report(){
-  sync();
-  progress_update("Emailing submission to RDs!");
+  var local = true;
+  sync(local);
+  progress_update("Emailing submission to RDs!", local);
   RD_email();
-  progress_update("Submission complete!");
+  progress_update("Submission complete!", local);
 }
 
 function RD_email() {
@@ -63,9 +64,9 @@ function RD_email() {
   }
 }
 
-function sync_region() {
+function sync_region(local) {
 //  var dash_id = "10ebwK7tTKgveVCEOpRle2S17d4UjwmsoXXCPFvC9A-A";
-  progress_update("STARTED TO SYNC REGION INFO");
+  progress_update("STARTED TO SYNC REGION INFO", local);
   var dash_id = SCRIPT_PROP.getProperty("dash");
   var dash_file = SpreadsheetApp.openById(dash_id);
   var chapter = SCRIPT_PROP.getProperty("chapter");
@@ -81,7 +82,7 @@ function sync_region() {
   var event_object = main_range_object("Events");
   var submit_object = main_range_object("Submissions");
   var event_extend = [];
-  progress_update("Syncing Events");
+  progress_update("Syncing Events", local);
   for (var event_name in event_object){
     var event = event_object[event_name];
     if (typeof event != typeof {}){continue;};
@@ -101,7 +102,7 @@ function sync_region() {
       }
     }
   }
-  progress_update("Syncing Submissions");
+  progress_update("Syncing Submissions", local);
   var submit_extend = [];
   for (var submit in submit_object){
     submit = submit_object[submit];
@@ -114,7 +115,7 @@ function sync_region() {
       }
     }
   }
-  progress_update("Syncing Chapter info");
+  progress_update("Syncing Chapter info", local);
   var member_ranges = get_membership_ranges();
   var chapter_row = main_values.length + 1;
   if (chapter+chapter in main_chapter){
@@ -142,7 +143,7 @@ function sync_region() {
   }
   var ss = get_active_spreadsheet();
   var scores = ['Brotherhood', 'Service', 'Operate', 'ProDev'];
-  progress_update("Syncing Scores");
+  progress_update("Syncing Scores", local);
   var score_total = 0;
   for (var score_num in scores){
     var score_type_raw  = scores[score_num];
@@ -183,7 +184,7 @@ function sync_region() {
     submit_sheet.getRange(submit_row_max, 1, 1, submit_col_max)
     .setValues([row]);
   }
-  progress_update("FINISHED SYNCING REGION");
+  progress_update("FINISHED SYNCING REGION", local);
 }
 
 function delete_rds(){
@@ -251,14 +252,14 @@ function sync_rds(ss_prop){
   }
 }
 
-function sync_main(){
-  progress_update("STARTED TO SYNC NATIONAL INFO");
+function sync_main(local){
+  progress_update("STARTED TO SYNC NATIONAL INFO", local);
   var properties_id = "1vCVKh8MExPxg8eHTEGYx7k-KTu9QUypGwbtfliLm58A";
   var ss_prop = SpreadsheetApp.openById(properties_id);
   var ss = get_active_spreadsheet();
   var main_object = main_range_object("MAIN", "Organization Name", ss_prop);
   var top_avg = calc_top_average(main_object);
-  progress_update("Updating Top/Avg Scores");
+  progress_update("Updating Top/Avg Scores", local);
   for (var attr in top_avg.nat_avgs){
     var top_name = "TOP_"+attr.toUpperCase();
     var nat_name = "NAT_"+attr.toUpperCase();
@@ -287,7 +288,7 @@ function sync_main(){
   SCRIPT_PROP.setProperty("school", school);
   sync_rds(ss_prop);
   sync_jewelry(ss_prop);
-  progress_update("FINISHED SYNCING NATIONALS");
+  progress_update("FINISHED SYNCING NATIONALS", local);
 }
 
 function calc_top_average(main_object){
