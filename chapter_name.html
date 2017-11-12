@@ -15,7 +15,8 @@
       </select>
      <p>After submission, wait for setup complete message.</p>
     <input type="submit" value="Submit" 
-               onclick="google.script.run
+               onclick="this.value='Submitting...';
+                        google.script.run
                         .chapter_name_process(this.parentNode);
                         return false;">
    </form>
