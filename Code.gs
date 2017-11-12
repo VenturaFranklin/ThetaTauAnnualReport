@@ -86,7 +86,7 @@ function onOpen(e) {
   menu.addItem('Send Survey', 'side_survey');
   menu.addItem('Add event sheet', 'add_event_sheet');
   menu.addItem('SUBMIT ANNUAL REPORT', 'submit_report');
-  menu.addItem('SETUP', 'run_install');
+  menu.addItem('Update', 'update');
   menu.addSeparator();
   menu.addSubMenu(SpreadsheetApp.getUi().createMenu("Debugging")
                   .addItem('Create Triggers', 'run_createTriggers')
@@ -94,6 +94,7 @@ function onOpen(e) {
                   .addItem('Update Chapter Name', 'chapter_name')
                   .addItem("RESET", 'RESET')
                   .addItem('Start Logging', 'start_logging')
+                  .addItem('SETUP', 'run_install')
                   .addItem('Unlock', 'unlock')
   );
   menu.addItem('Version', 'version');
@@ -480,6 +481,10 @@ function _onEdit(e){
   }
 }
 
+function update(){
+  update_20171015_main();
+}
+
 function update_20171015_main(){
   var MemberObject = main_range_object("Membership");
   var member_sheet = MemberObject.sheet;
@@ -764,7 +769,11 @@ function check_sheets(){
     };
     }
   } catch (e) {
-    Logger.log("(" + arguments.callee.name + ") " +e);
+    var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
+                                         e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
+                                         e.stack||'', arguments.callee.name||'');
+    Logger = startBetterLog();
+    Logger.severe(message);
   }
     set_refresh("check", false);
   } else {
