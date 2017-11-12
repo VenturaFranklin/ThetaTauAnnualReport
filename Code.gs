@@ -483,6 +483,7 @@ function _onEdit(e){
 
 function update(){
   update_20171015_main();
+  check_sheets();
 }
 
 function update_20171015_main(){
@@ -499,7 +500,15 @@ function update_20171015_main(){
     col = MemberObject.header_values.indexOf("Self Service Hrs FA");
     member_sheet.getRange(1, +col+1).setValue("2016 FALL Service");
   }
+  if (MemberObject.header_values.indexOf("Service Hrs FA") >= 0){
+    col = MemberObject.header_values.indexOf("Self Service Hrs FA");
+    member_sheet.getRange(1, +col+1).setValue("2016 FALL Service");
+  }
   if (MemberObject.header_values.indexOf("Self Service Hrs SP") >= 0){
+    col = MemberObject.header_values.indexOf("Self Service Hrs SP");
+    member_sheet.getRange(1, +col+1).setValue("2017 SPRING Service");
+  }
+  if (MemberObject.header_values.indexOf("Service Hrs SP") >= 0){
     col = MemberObject.header_values.indexOf("Self Service Hrs SP");
     member_sheet.getRange(1, +col+1).setValue("2017 SPRING Service");
   }
@@ -575,6 +584,7 @@ function update_20171015_main(){
   sheet.insertRows(2);
   sheet.getRange(2, 2, 1, 40).setDataValidation(null).merge().setBackground('red').setValue("This sheet is only for your chapter's use." + 
     "The attendance will no longer be automatically sent to the events sheet.").setFontWeight("bold").setHorizontalAlignment('left');
+  
 }
 
 function update_20171015(){
