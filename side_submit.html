@@ -161,9 +161,10 @@ $(function () {
   $('.group').hide();
   $('#Article').show();
   $('#submissionslist').change(function () {
-//  console.log($(this).val());
+  var type = $('#submissionslist').find(":selected").text();
+  console.log(type);
   $('.group').hide();
-  $('#'+$(this).val().split(" ")[0]).show();
+  $('#'+type.split(" ")[0]).show();
   })
 });
     
