@@ -104,7 +104,7 @@ function onOpen(e) {
 function version(){
   var ui = SpreadsheetApp.getUi();
   var result = ui.alert('Chapter Management Tool\n'+
-                        'version: 2.2.2 = 39 (google version) = 36 (published version)\n'+
+                        'version: 2.2.3 = 40 (google version) = 37 (published version)\n'+
                         'Maintaned and developed by Franklin Ventura Frank.Ventura@thetatau.org\n'+
                         'https://github.com/VenturaFranklin/ThetaTauAnnualReport',
                         ui.ButtonSet.OK);
@@ -501,7 +501,7 @@ function update_20171015_main(){
     member_sheet.getRange(1, +col+1).setValue("2016 FALL Service");
   }
   if (MemberObject.header_values.indexOf("Service Hrs FA") >= 0){
-    col = MemberObject.header_values.indexOf("Self Service Hrs FA");
+    col = MemberObject.header_values.indexOf("Service Hrs FA");
     member_sheet.getRange(1, +col+1).setValue("2016 FALL Service");
   }
   if (MemberObject.header_values.indexOf("Self Service Hrs SP") >= 0){
@@ -509,7 +509,7 @@ function update_20171015_main(){
     member_sheet.getRange(1, +col+1).setValue("2017 SPRING Service");
   }
   if (MemberObject.header_values.indexOf("Service Hrs SP") >= 0){
-    col = MemberObject.header_values.indexOf("Self Service Hrs SP");
+    col = MemberObject.header_values.indexOf("Service Hrs SP");
     member_sheet.getRange(1, +col+1).setValue("2017 SPRING Service");
   }
   if (MemberObject.header_values.indexOf("Fall GPA") >= 0){
@@ -708,8 +708,6 @@ function get_column_values(col, range_values){
 }
 
 function check_sheets(){
-  var refresh = check_refresh(false, "check");
-  if (JSON.parse(refresh)) {
   try {
   var sheet_names = ["Chapter", "Scoring",
                      "Membership", "Submissions", "Dashboard"];
@@ -784,11 +782,6 @@ function check_sheets(){
                                          e.stack||'', arguments.callee.name||'');
     Logger = startBetterLog();
     Logger.severe(message);
-  }
-    set_refresh("check", false);
-  } else {
-    var check = JSON.parse(refresh);
-    return true;
   }
 }
 
