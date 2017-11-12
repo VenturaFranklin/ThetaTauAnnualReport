@@ -104,7 +104,7 @@ function onOpen(e) {
 function version(){
   var ui = SpreadsheetApp.getUi();
   var result = ui.alert('Chapter Management Tool\n'+
-                        'version: 2.2.1 = 38 (google version) = 35 (published version)\n'+
+                        'version: 2.2.2 = 39 (google version) = 36 (published version)\n'+
                         'Maintaned and developed by Franklin Ventura Frank.Ventura@thetatau.org\n'+
                         'https://github.com/VenturaFranklin/ThetaTauAnnualReport',
                         ui.ButtonSet.OK);
