@@ -104,7 +104,7 @@ function onOpen(e) {
 function version(){
   var ui = SpreadsheetApp.getUi();
   var result = ui.alert('Chapter Management Tool\n'+
-                        'version: 2.2.3 = 40 (google version) = 37 (published version)\n'+
+                        'version: 2.2.5 = 42 (google version) = 39 (published version)\n'+
                         'Maintaned and developed by Franklin Ventura Frank.Ventura@thetatau.org\n'+
                         'https://github.com/VenturaFranklin/ThetaTauAnnualReport',
                         ui.ButtonSet.OK);
@@ -361,6 +361,7 @@ function _onEdit(e){
   try{
     update_20171015();
     if(!check_sheets()){
+      Logger.log("(" + arguments.callee.name + ") " +"Check sheets false");
       return;
     }
   Logger.log("(" + arguments.callee.name + ") " +"onEDIT");
@@ -482,6 +483,7 @@ function _onEdit(e){
 }
 
 function update(){
+  Logger.log("(" + arguments.callee.name + ") " +"update");
   update_20171015_main();
   check_sheets();
 }
@@ -709,6 +711,7 @@ function get_column_values(col, range_values){
 
 function check_sheets(){
   try {
+  Logger.log("(" + arguments.callee.name + ") " +"check_sheets");
   var sheet_names = ["Chapter", "Scoring",
                      "Membership", "Submissions", "Dashboard"];
   var chapter_info = get_chapter_info();
@@ -772,10 +775,10 @@ function check_sheets(){
                    "STEM?", "HOST", "MILES"];
     }
     if (!check_cols(sheet, col_names)){
-      set_refresh("check", true);
       return false;
     };
     }
+  return true;
   } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
                                          e.name||'', e.message||'', e.lineNumber||'', e.fileName||'',
@@ -786,6 +789,7 @@ function check_sheets(){
 }
 
 function check_cols(sheet, col_names){
+  Logger.log("(" + arguments.callee.name + ") " +"check_cols");
   var max_column = sheet.getLastColumn();
   var header_range = sheet.getRange(1, 1, 1, max_column);
   var header_values = header_range.getValues();
