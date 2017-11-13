@@ -239,6 +239,7 @@ function refresh_events() {
   // This function should adjust the black bg add to calendar
   try{
     progress_update("REFRESH EVENTS");
+    update();
     var ss = get_active_spreadsheet();
     var EventObject = main_range_object("Events", undefined, ss);
     var ScoringObject = main_range_object("Scoring");

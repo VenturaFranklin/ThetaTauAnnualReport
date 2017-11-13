@@ -812,6 +812,7 @@ function refresh_scores_silent() {
 function refresh_scores() {
   try{
     progress_update("REFRESH EVENTS");
+    update();
     var ss = get_active_spreadsheet();
 //    var attendance_object = main_range_object("Attendance", undefined, ss);
     var EventObject = main_range_object("Events", undefined, ss);

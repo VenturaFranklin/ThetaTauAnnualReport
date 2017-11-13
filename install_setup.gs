@@ -154,6 +154,7 @@ function chapter_name_process(form) {
   range.getValue();
   create_submit_folder(chapter_name, region);
   get_chapter_members();
+  update();
   setup_dataval();
   createTriggers();
   create_survey();
