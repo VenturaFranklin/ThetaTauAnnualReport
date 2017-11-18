@@ -143,7 +143,7 @@ function update_score_att(){
       var semester = get_semester(object_date);
       var year = object_date.getFullYear();
       var year_semester = year + " " + semester
-      var actives = total_members[year_semester]["Active Members"].value;
+      var actives = total_members[year_semester]["Active Members"].value[0];
       actives = typeof actives === 'string' ? 1000:actives;
       actives = actives==0 ? 1000:actives;
       meeting_att = parseFloat(meeting_att / actives);
@@ -160,7 +160,7 @@ function update_score_att(){
   var score_range_tot = sheet.getRange(score_row, total_col);
   var score_tot = 0;
   for (year_semester in date_types){
-    avg = date_types[year_semester]/counts[year_semester];
+    var avg = date_types[year_semester]/counts[year_semester];
     Logger.log("(" + arguments.callee.name + ") " + year_semester + ": " + avg);
     var score_method = score_method_raw.replace("MEETINGS", avg);
     var score_range = sheet.getRange(score_row, ScoringObject["Meetings"][year_semester][1]);
@@ -190,7 +190,7 @@ function update_score_member_pledge(){
     var score_method_pledge = score_method_pledge_raw;
     var score_method_member = score_method_raw;
     for (var member_range_type in member_ranges[member_range_year]){
-      value = member_ranges[member_range_year][member_range_type].value;
+      var value = member_ranges[member_range_year][member_range_type].value[0];
       value = typeof(value) == typeof(0) ? value:0;
       switch (member_range_type){
         case "Initiated Pledges":
@@ -372,7 +372,7 @@ function get_scores_org_gpa_serv(){
   for (var year_semester in year_semesters){
     var gpa_type = year_semester + " GPA";
     var service_type = year_semester + " Service";
-    var active_total = year_semesters[year_semester]["Active Members"].value;
+    var active_total = year_semesters[year_semester]["Active Members"].value[0];
     active_total = typeof active_total === 'string' ? 1000:active_total;
     active_total = active_total == 0 ? 1000:active_total;
     var service_count = service_counts[service_type];
@@ -659,7 +659,7 @@ function edit_score_method_event(myEvent, score_method, totals){
       var semester = get_semester(event_date);
       var year = event_date.getFullYear();
       var year_semester = year + " " + semester;
-      var actives = total_members[year_semester]["Active Members"].value;
+      var actives = total_members[year_semester]["Active Members"].value[0];
       actives = typeof actives === 'string' ? 1000:actives;
       actives = actives==0 ? 1000:actives;
       var percent_attend = attend / actives;
