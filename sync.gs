@@ -140,7 +140,7 @@ function sync_region() {
         update_cnt += 1;
         main_sheet.getRange(1, col).setValue(score_type);
       }
-      var val = member_ranges[member_range_year][member_range_type].value;
+      var val = member_ranges[member_range_year][member_range_type].value[0];
       main_sheet.getRange(chapter_row, col).setValue(val).setWrap(true);
     }
   }
