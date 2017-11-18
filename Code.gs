@@ -544,6 +544,14 @@ function update_20171015_main(){
   }
   var chapter_info = get_chapter_info();
   var chapter_sheet = chapter_info.sheet;
+  if ("Total Pledges" in chapter_info){
+    var row = chapter_info["Total Pledges"].row;
+    chapter_sheet.getRange(row + 1, 1).setNote("This includes depledged pledges; All pledges given and accepted bid.");
+  }
+  if ("Graduated Members" in chapter_info){
+    var row = chapter_info["Graduated Members"].row;
+    chapter_sheet.getRange(row + 1, 1).setNote("This includes pre alumn members.");
+  }
   if ("Time of Year" in chapter_info){
     chapter_sheet.deleteRow(4);
   }
