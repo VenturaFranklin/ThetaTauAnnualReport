@@ -768,7 +768,7 @@ function refresh_main_scores(type_semester, ss, ScoringObject){
   for (var year_semester in year_semesters){
     cols.push(ScoringObject.header_values.indexOf(year_semester));
     }
-  var start_col = Math.min.apply(null, cols) + 1;
+  var start_col = Math.min.apply(null, cols);
   var year_semester_cols = {};
   for (var year_semester in year_semesters){
     year_semester_cols[year_semester] = ScoringObject.header_values.indexOf(year_semester) - start_col;
@@ -799,7 +799,7 @@ function refresh_main_scores(type_semester, ss, ScoringObject){
     // This is the total score update
     all_scores[ind][cols.length-1] = all_scores[ind].reduce(function(pv, cv) { return pv + cv; }, 0);
   }
-  var semester_range = score_sheet.getRange(2, start_col, ScoringObject.object_count, 5);
+  var semester_range = score_sheet.getRange(2, start_col+1, ScoringObject.object_count, 5);
   semester_range.setValues(all_scores);
 }
 
