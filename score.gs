@@ -458,6 +458,7 @@ function update_score(row, sheetName, score_data, myObject){
   Logger.log("(" + arguments.callee.name + ") " +"FINAL SCORE: " + score);
   score_data.final_score = score;
   score_data.type_score = type_score;
+//  score_range.setValue(0); This does not work, is not fast enough
   update_main_score(score_data);
   score_range.setValue(score);
   return other_type_rows;
@@ -480,6 +481,7 @@ function update_main_score(score_data){
   var semester_years = get_year_semesters();
   var total_score = 0;
   for (var semester_year in semester_years){
+    if (semester_year == score_data.semester){continue;}; // This avoids adding new score until later
     var semester_val = sheet.getRange(score_row, score_data.score_ids[semester_year]).getValue();
     semester_val = typeof semester_val === 'string' ? 0:semester_val;
     total_score += parseInt(semester_val);
@@ -487,7 +489,7 @@ function update_main_score(score_data){
   var total_range = sheet.getRange(score_row, score_data.score_ids.chapter);
   var total_sem_score = parseFloat(score_data.final_score) + score_data.type_score;
   semester_range.setValue(total_sem_score);
-  total_score += total_sem_score;
+  total_score += total_sem_score; // This semester is added to total
   total_range.setValue(total_score);
   update_dash_score(score_data.score_type, score_data.score_ids.chapter);
 }
