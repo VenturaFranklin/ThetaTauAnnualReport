@@ -593,7 +593,7 @@ function update_20171015_main(){
   var sheet = ss.getSheetByName('Attendance');
   sheet.insertRows(2);
   sheet.getRange(2, 2, 1, 40).setDataValidation(null).merge().setBackground('red').setValue("This sheet is only for your chapter's use." + 
-    "The attendance will no longer be automatically sent to the events sheet.").setFontWeight("bold").setHorizontalAlignment('left');
+    "The attendance will no longer be automatically sent to the events sheet. You do not have to use it if you do not want to.").setFontWeight("bold").setHorizontalAlignment('left');
   
 }
 
