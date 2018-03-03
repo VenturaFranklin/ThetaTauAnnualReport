@@ -719,8 +719,10 @@ function create_csv(data){
       var csv = "";
       for (var row = 0; row < data.length; row++) {
         for (var col = 0; col < data[row].length; col++) {
-          if (data[row][col].toString().indexOf(",") != -1) {
-            data[row][col] = "\"" + data[row][col] + "\"";
+            if (data[row][col] != null){
+              if (data[row][col].toString().indexOf(",") != -1) {
+              data[row][col] = "\"" + data[row][col] + "\"";
+            }
           }
         }
 
