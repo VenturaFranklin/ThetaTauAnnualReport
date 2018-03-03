@@ -161,16 +161,16 @@ function sync_region() {
   var update_col = main_chapter.first_row.indexOf("Last Updated")+1;
   main_sheet.getRange(chapter_row, update_col).setValue(new Date());
   var address_col = main_chapter.first_row.indexOf("Address")+1;
-  var chapter_address_range = ss.getRangeByName("Address")
-  var chapter_address = chapter_address_range.getValue();
-  if (chapter_address != ""){
-    main_sheet.getRange(chapter_row, address_col).setValue(chapter_address);
-    chapter_address_range.clearNote()
-      .setBackground('white');
-  } else {
-    chapter_address_range.setNote("Scribe should set this value")
-      .setBackground('red');
-  }
+  // var chapter_address_range = ss.getRangeByName("Address")
+  //var chapter_address = chapter_address_range.getValue();
+  //if (chapter_address != ""){
+    //main_sheet.getRange(chapter_row, address_col).setValue(chapter_address);
+    //chapter_address_range.clearNote()
+    //  .setBackground('white');
+  //} else {
+    //chapter_address_range.setNote("Scribe should set this value")
+     // .setBackground('red');
+  //}
   var event_row_max = event_sheet.getLastRow();
   var event_col_max = event_sheet.getLastColumn();
   for (var row_ind in event_extend){
