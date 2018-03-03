@@ -64,6 +64,24 @@ function get_active_spreadsheet() {
   return doc
 }
 
+function update_property(key, val) {
+  var ui = SpreadsheetApp.getUi();
+  var keys = SCRIPT_PROP.getKeys();
+  keys = keys.map(function(x){ return x.replace('password',"") });
+  var result = ui.prompt('What key do you want to update?\nProperties are: ' + keys,
+    ui.ButtonSet.OK_CANCEL);
+  var key = result.getResponseText();
+  var old_val = SCRIPT_PROP.getProperty(key);
+  var result = ui.prompt('What value do you want to set key: ' + key + 
+                         '\nCurrent value is: ' + old_val,
+    ui.ButtonSet.OK_CANCEL);
+  var button = result.getSelectedButton();
+  var val = result.getResponseText();
+  if (button == ui.Button.OK) {
+    SCRIPT_PROP.setProperty(key, val);
+  }
+}
+
 function onOpen(e) {
   SCRIPT_PROP.setProperty("password", "FALSE");
   var menu = SpreadsheetApp.getUi().createAddonMenu();
@@ -96,6 +114,7 @@ function onOpen(e) {
                   .addItem('Start Logging', 'start_logging')
                   .addItem('SETUP', 'run_install')
                   .addItem('Unlock', 'unlock')
+                  .addItem('Update Property', 'update_property')
   );
   menu.addItem('Version', 'version');
   menu.addToUi();
