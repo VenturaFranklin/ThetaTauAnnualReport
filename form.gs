@@ -317,9 +317,13 @@ function process_oer(form) {
       end = TCS_end;
     }
     var member_object = find_member_shortname(MemberObject, form[key]);
+    var extra_email = '';
+    if (chapter_info[key]){
+      extra_email = chapter_info[key].email;
+    }
     var row = ["", formatted, chapterName, key, start, end, member_object["Badge Number"][0],
               member_object["First Name"][0], member_object["Last Name"][0],
-              member_object["Phone Number"][0], chapter_info[key].email, member_object["Email Address"][0]];
+              member_object["Phone Number"][0], extra_email, member_object["Email Address"][0]];
     Logger.log("(" + arguments.callee.name + ") " +row);
     data.push(row);
     dash[key] = [chapterName, key, member_object["Member Name"][0],
