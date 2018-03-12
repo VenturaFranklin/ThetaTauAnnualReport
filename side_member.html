@@ -16,7 +16,6 @@ HELP</a>
 <!-- <option value="PreAlumn">Request PreAlumn</option> -->
 <option value="Transfer">Transfer</option>
 <option value="Withdrawn">Withdrawn</option>
-<option value="Returning">Returning</option>
 </select>
 <br>
 <label for="memberlist">Select Members w/Status Change:</label>
@@ -98,15 +97,6 @@ Ctrl or shift to select multiple
   </select>
 </td>
 </tr>
-<tr>
-<td>
-<label for="Returning" title="Member is returning to school">Returning:</label>
-<br>
-  <select id="Returning" form="members" name="Returning"  size="1" multiple>
-  <option value="None">None Selected</option>
-  </select>
-</td>
-</tr>
 </table>
   <a href="http://thetatau.org/forms-manuals-resources" target="_blank">
     Other forms<br>(Pre alumn, advisor, etc.)</a>
@@ -122,5 +112,3 @@ Ctrl or shift to select multiple
 <?!= HtmlService.createHtmlOutputFromFile('side_member_javascript').getContent(); ?>
   </body>
 </html>
-
-
