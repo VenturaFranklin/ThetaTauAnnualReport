@@ -45,10 +45,10 @@ function RD_email() {
   var chapter_name = get_chapter_name();
   var subject = chapter_name + " Chapter Annual Report Submission";
   var email_chapter = SCRIPT_PROP.getProperty("email");
-  var emailBody = "You chapter has submitted their annual report. Please see the live report here:"+
+  var emailBody = "Your chapter has submitted their annual report. Please see the live report here:"+
     "\nSurvey("+url+")";
 
-  var htmlBody = "You chapter has submitted their annual report. Please see the live report here:"+
+  var htmlBody = "Your chapter has submitted their annual report. Please see the live report here:"+
     '<br/><a href="'+url+'"> Survey</a> ('+url+')';
   var optAdvancedArgs = {name: chapter_name +" Chapter Scribe", htmlBody: htmlBody,
                          replyTo: email_chapter};
