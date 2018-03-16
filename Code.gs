@@ -716,7 +716,7 @@ function get_membership_ranges(){
       membership_ranges[sm_yr][name_row].range = range;
       var val = chapter_info[name_row].values.slice(+i, +i+1);
       membership_ranges[sm_yr][name_row].value = val;
-      if (val < 1){
+      if (val < 1 && name_row != "Graduated Members"){
         range.setNote("Scribe should set this value")
         .setBackground('red');
       } else {
