@@ -6,6 +6,7 @@ function sync(local){
     progress_update("STARTING TO SYNC");
     sync_region();
     sync_main();
+    get_chapter_members();
     progress_update("FINISHED SYNC");
     } catch (e) {
     var message = Utilities.formatString('This error has automatically been sent to the developers. %s: %s (line %s, file "%s"). Stack: "%s" . While processing %s.',
