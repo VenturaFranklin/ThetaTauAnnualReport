@@ -149,9 +149,9 @@ function process_missing(form) {
     var email = form["email"];
     var max_rows = MemberObject.object_count + 1; // one for header
     sheet.insertRowAfter(max_rows);
-    var new_row = [first_name + " " + last_name, first_name, last_name, badge,
+    var new_row = [first_name + " " + last_name, '', first_name, last_name, badge,
                   status, '', '', '', '', '', '', email];
-    var new_range = sheet.getRange(max_rows+1, 1, 1, 12);
+    var new_range = sheet.getRange(max_rows+1, 1, 1, 13);
     new_range.setValues([new_row]);
 //    setup_attendance();
     return "Member added to membership sheet";

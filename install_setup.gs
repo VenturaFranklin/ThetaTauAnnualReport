@@ -625,9 +625,9 @@ function get_chapter_members(){
   for (var p in old_members){
     var badge = old_members[p];
     var this_row = ChapterMemberObject[badge]['object_row'];
-//    if (ChapterMemberObject[badge]['Chapter Status'][0] == "Alumn"){
+    if (ChapterMemberObject[badge]['Chapter Status'][0] == "Alumn"){
 //      alumn.push(ChapterMemberObject[badge]['Member Name']);
-//      continue;}
+      continue;}
     delete_att.push(ChapterMemberObject[badge]['Member Name']);
     var badge_ind = ChapterMemberObject["object_header"].indexOf(badge);
     ChapterMemberObject["object_header"].splice(badge_ind, 1);
