@@ -355,6 +355,9 @@ function get_scores_org_gpa_serv(){
       var gpa_raw = MemberObject[member_name][gpa_type][0];
       gpa_raw = gpa_raw == "" ? 0:gpa_raw;
       var gpa = parseFloat(gpa_raw);
+      if (isNaN(gpa)){
+        gpa = 0.0
+      }
 //       if (gpa_type.indexOf("FALL") > -1){
 //         if(!fall_mult){continue;
 //         }
