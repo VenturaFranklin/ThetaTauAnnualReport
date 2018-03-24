@@ -1035,7 +1035,7 @@ function main_range_object(sheetName, short_header, ss){
     myObject["original_names"].push(short_name);
     var range_values = full_data_values[short_name_ind]
     var temp = range_object_fromValues(header_values[0], range_values, short_name_ind + 2);
-    if (sheetName == "Events" || sheetName == "Attendance" || sheetName == "Submissions"){
+    if (sheetName.indexOf("Events") !== -1 || sheetName == "Submissions"){
       // This prevents event duplicates
       short_name = short_name+temp["Date"][0];
     }
