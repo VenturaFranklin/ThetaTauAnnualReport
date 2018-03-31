@@ -934,7 +934,7 @@ function refresh_scores() {
     var ScoringObject = main_range_object("Scoring", undefined, ss);
     refresh_main_scores(type_semester, ss, ScoringObject);
     update_score_att();
-//    update_service_hours();
+    update_scores_org_gpa_serv();
     update_score_member_pledge();
     var total_col = ScoringObject["Meetings"]["CHAPTER TOTAL"][1];
     update_dash_score("ProDev", total_col);
