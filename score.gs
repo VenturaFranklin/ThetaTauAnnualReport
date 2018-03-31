@@ -134,6 +134,7 @@ function update_score_att(){
   var total_members = get_membership_ranges();
   var date_types = [];
   var counts = [];
+  var year_semesters = get_year_semesters();
   for (var i = 0; i < EventObject.object_count; i++){
     var event_name = EventObject.object_header[i];
     var event_type = EventObject[event_name]["Type"][0];
@@ -143,6 +144,9 @@ function update_score_att(){
       var semester = get_semester(object_date);
       var year = object_date.getFullYear();
       var year_semester = year + " " + semester
+      if (!(year_semester in year_semesters)){
+        continue;
+      }
       var actives = total_members[year_semester]["Active Members"].value[0];
       actives = typeof actives === 'string' ? 1000:actives;
       actives = actives==0 ? 1000:actives;
