@@ -1,4 +1,16 @@
-# ThetaTauAnnualReport
+# END OF LIFE
+This application will no longer be used.
+
+Moving forward we will use the webapp [CMT.ThetaTau.org](https://cmt.thetatau.org/)
+
+If you would like to contribute to that effort, please see [Contributing](https://github.com/VenturaFranklin/thetatauCMT/blob/master/CONTRIBUTING.md)
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+# ThetaTauAnnualReport (Legacy Information)
 The annual report google scripts for Theta Tau, the professional engineering fraternity
 
 # Contributing
