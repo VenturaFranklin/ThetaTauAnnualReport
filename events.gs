@@ -236,6 +236,8 @@ function refresh_events_silent(){
 }
 
 function refresh_events() {
+    end_of_life();
+  return;
   // This function should adjust the black bg add to calendar
   try{
     progress_update("REFRESH EVENTS");

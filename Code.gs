@@ -101,10 +101,10 @@ function onOpen(e) {
                   .addItem('Submit Item', 'side_submit')
                   .addItem('Update Officers', 'side_officers')
   );
-  menu.addItem('Send Survey', 'side_survey');
-  menu.addItem('Add event sheet', 'add_event_sheet');
-  menu.addItem('SUBMIT ANNUAL REPORT', 'submit_report');
-  menu.addItem('Update', 'update');
+//  menu.addItem('Send Survey', 'side_survey');
+//  menu.addItem('Add event sheet', 'add_event_sheet');
+//  menu.addItem('SUBMIT ANNUAL REPORT', 'submit_report');
+//  menu.addItem('Update', 'update');
   menu.addSeparator();
   menu.addSubMenu(SpreadsheetApp.getUi().createMenu("Debugging")
                   .addItem('Create Triggers', 'run_createTriggers')
@@ -118,6 +118,15 @@ function onOpen(e) {
   );
   menu.addItem('Version', 'version');
   menu.addToUi();
+  end_of_life();
+}
+
+function end_of_life(){
+  var ui = SpreadsheetApp.getUi();
+  ui.alert(
+     'GOOGLE SHEETS END OF LIFE',
+      "Moving forward we will use CMT.thetatau.org",
+      ui.ButtonSet.OK);
 }
 
 function version(){
@@ -849,6 +858,8 @@ function refresh_members_silent(){
 }
 
 function refresh_members(){
+  end_of_life();
+  return;
   get_chapter_members();
 }
 

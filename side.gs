@@ -1,4 +1,6 @@
 function side_officers() {
+    end_of_life();
+  return;
   var template = HtmlService
       .createTemplateFromFile('side_officers');
   var htmlOutput = template.evaluate()
@@ -10,6 +12,8 @@ function side_officers() {
 }
 
 function side_pledge(){
+    end_of_life();
+  return;
   var template = HtmlService
       .createTemplateFromFile('side_pledge');
   template.pledge = get_member_list("Pledge");
@@ -21,6 +25,8 @@ function side_pledge(){
 }
 
 function side_member() {
+    end_of_life();
+  return;
   var template = HtmlService
       .createTemplateFromFile('side_member');
   var htmlOutput = template.evaluate()
@@ -66,6 +72,8 @@ function get_submit_folders(submit_types){
 }
 
 function side_submit() {
+    end_of_life();
+  return;
    var template = HtmlService
    .createTemplateFromFile('side_submit')
 //  .createHtmlOutputFromFile('SubmitForm');

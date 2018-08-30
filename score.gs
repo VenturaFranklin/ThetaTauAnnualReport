@@ -819,6 +819,8 @@ function refresh_scores_silent() {
 }
 
 function refresh_scores() {
+    end_of_life();
+  return;
   try{
     progress_update("REFRESH EVENTS");
     update();
